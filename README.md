@@ -1,8 +1,9 @@
 # gradle plugins
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.crnk/crnk-core.svg)](http://mvnrepository.com/artifact/io.crnk/crnk-core)
-[![Build Status](https://travis-ci.org/crnk-project/crnk-example.svg?branch=master)](https://travis-ci.org/crnk-project/crnk-example)
-[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://github.com/contraxia/contraxia-plugins/blob/master/LICENSE.txt)
+[![Build Status](https://travis-ci.org/rmee/gradle-plugins.svg?branch=master)](https://travis-ci.org/rmee/gradle-plugins)
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://github.com/rmee/gradle-plugins/blob/master/LICENSE)
+
+
 
 Hosts a collection of Gradle plugins:
 

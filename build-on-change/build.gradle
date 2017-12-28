@@ -11,9 +11,9 @@ dependencies {
 }
 
 pluginBundle {
-	website = 'https://github.com/rmee/gradle-plugins'
-	vcsUrl = 'https://github.com/rmee/gradle-plugins'
-	description = 'Incrementally build Pull Requests based on Git history'
+	website = 'https://github.com/rmee/gradle-plugins/tree/master/build-on-change'
+	vcsUrl = 'https://github.com/rmee/gradle-plugins/tree/master/build-on-change'
+	description = 'Incrementally build pull Requests based on changes from Git history'
 	tags = ['git', 'pull-request', 'PR', 'incremental']
 
 	plugins {

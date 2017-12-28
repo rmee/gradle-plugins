@@ -1,13 +1,13 @@
-# contraxia gradle plugins
+# gradle plugins
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.crnk/crnk-core.svg)](http://mvnrepository.com/artifact/io.crnk/crnk-core)
 [![Build Status](https://travis-ci.org/crnk-project/crnk-example.svg?branch=master)](https://travis-ci.org/crnk-project/crnk-example)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://github.com/contraxia/contraxia-plugins/blob/master/LICENSE.txt)
 
-Some small Gradle plugins:
+Hosts a collection of Gradle plugins:
 
-- build-on-changes: useful to perform incremental builds of PRs by only building what is changed compared to a 
-  reference branch (like master).
+- [build-on-changes](../blob/master/build-on-change): useful to perform incremental builds of PRs by only building what is 
+  changed compared to a  reference branch (like master).
 
 
 ## Licensing

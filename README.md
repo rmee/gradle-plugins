@@ -6,7 +6,7 @@
 
 Hosts a collection of Gradle plugins:
 
-- [build-on-changes](../../blob/master/build-on-change): useful to perform incremental builds of PRs by only building what is 
+- [build-on-change](../../blob/master/build-on-change): useful to perform incremental builds of PRs by only building what is 
   changed compared to a  reference branch (like master).
 
 

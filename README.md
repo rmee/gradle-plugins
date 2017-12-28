@@ -3,8 +3,6 @@
 [![Build Status](https://travis-ci.org/rmee/gradle-plugins.svg?branch=master)](https://travis-ci.org/rmee/gradle-plugins)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://github.com/rmee/gradle-plugins/blob/master/LICENSE)
 
-
-
 Hosts a collection of Gradle plugins:
 
 - [build-on-change](../../blob/master/build-on-change): useful to perform incremental builds of PRs by only building what is 

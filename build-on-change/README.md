@@ -15,6 +15,8 @@ from cache.
 
 ## Usage
 
+Get the current version from [com.github.rmee.build-on-change](https://plugins.gradle.org/plugin/com.github.rmee.build-on-change).
+
 The plugin can be applied with:
 
 ```

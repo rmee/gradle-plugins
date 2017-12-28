@@ -1,10 +1,11 @@
 # build-on-change
 
-Allows to incrementally build a project based on the Git history compared to a reference branch (like master).
-Only sub-project having changed and other sub-projects depending on them will be built.
+Allows to incrementally build an application based on the Git history by comparing the current
+branch to a reference branch (like master). Only projects having changed and projects depending 
+on them will be built, all other projects skipped.
  
-Recommended to quickly build *pull requests* in larger multi-project builds. The plugin will only build 
-what was changed and avoid unnecessary rebuilds of other parts of an application.
+Recommended to efficiently build *pull requests* in larger multi-project setups. The plugin will only build 
+what was changed or needs testing. It avoids unnecessary rebuilds of other parts.
  
 The plugin can complement a Gradle remote build cache. In contrast to the build cache, unchanged projects
 are not restored from cache, but skipped altogether. This gives better performance, in particular for 

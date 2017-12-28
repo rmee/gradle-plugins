@@ -58,3 +58,9 @@ buildOnChange {
 ```
 
 By default the master branch is chosen.
+
+
+# Git Implementation
+
+[org.ajoberstar.grgit](https://plugins.gradle.org/plugin/org.ajoberstar.grgit) is 
+used to access Git from Gradle. The plugin is automatically applied to the root project.

@@ -9,6 +9,7 @@ dist: trusty
 
 before_install:
  - chmod a+x gradlew
+ - chmod a+x publish.sh
 
 env:
   global:

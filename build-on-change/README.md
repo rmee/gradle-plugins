@@ -46,5 +46,14 @@ no change is available.
 gradlew buildDependentsOnChange
 ```
 
+## Configuration
 
+The reference branch can be set with the following configuration:
 
+```
+buildOnChange {
+	referenceBranch = 'master'
+}
+```
+
+By default the master branch is chosen.

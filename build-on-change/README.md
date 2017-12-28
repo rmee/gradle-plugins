@@ -51,18 +51,23 @@ gradlew buildDependentsOnChange
 
 ## Configuration
 
-The reference branch can be set with the following configuration:
-
 ```
 buildOnChange {
 	referenceBranch = 'master'
+	rebuildPaths += 'build.gradle'
 }
 ```
 
+The reference branch to compare against can be set with the `referenceBranch` property.
 By default the master branch is chosen.
 
+Changes to files like the root build.gradle can let the plugin trigger a full
+rebuild. Any such file can be added to the `rebuildPaths` list. By default
+all Gradle related files are set (`build.gradle`, `gradle.properties`, `settings.gradle`, 
+Gradle wrapper).
 
-# Git Implementation
+
+## Git Implementation
 
 [org.ajoberstar.grgit](https://plugins.gradle.org/plugin/org.ajoberstar.grgit) is 
 used to access Git from Gradle. The plugin is automatically applied to the root project.

@@ -5,8 +5,8 @@
 
 Hosts a collection of Gradle plugins:
 
-- [build-on-change](../../blob/master/build-on-change): useful to perform incremental builds of PRs by only building what is 
-  changed compared to a  reference branch (like master).
+- [build-on-change](../../blob/master/build-on-change): perform incremental builds of PRs by only building what has 
+  changed compared to a reference branch (like master).
 
 
 ## Licensing
@@ -26,4 +26,4 @@ Crnk make use of Gradle for its build. To build the complete project run
 
 * [Source code](https://github.com/contraxia/contraxia-plugins/)
 * [Issue tracker](https://github.com/contraxia/contraxia-plugins/issues)
-* [Build](https://travis-ci.org/crnk-project/crnk-framework/)
+* [Build](https://travis-ci.org/rmee/gradle-plugins/)

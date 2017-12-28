@@ -34,7 +34,7 @@ buildscript {
 ```
 
 ```
-apply plugin: 'build-on-changes'
+apply plugin: 'build-on-change'
 ```
 
 This will make a new task *buildDependentsOnChange* available

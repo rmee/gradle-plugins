@@ -1,0 +1,19 @@
+plugins {
+	id 'systemd-application'
+}
+
+repositories {
+	maven {
+		mavenCentral()
+	}
+}
+
+apply plugin: 'application'
+mainClassName = 'example.Main'
+
+apply plugin: 'systemd-application'
+systemd {
+	packageName = 'demo-app'
+	configFile file('src/main/rpm/application.properties')
+}
+tasks.buildRpm.dependsOn tasks.assemble

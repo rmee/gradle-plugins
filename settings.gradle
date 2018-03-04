@@ -1,4 +1,4 @@
-include ':build-on-change'
+include ':build-on-change', ':systemd-application'
 
 gradle.beforeProject { Project project ->
 	project.with {

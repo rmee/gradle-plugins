@@ -106,6 +106,9 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 				os = LINUX
 				type = BINARY
 				arch = NOARCH
+				if (release == null) {
+					release = '0'
+				}
 
 				def scriptsDir = systemdExtension.getScriptsDir()
 				preInstall file("${scriptsDir}/preInstall.sh")
@@ -142,6 +145,7 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 
 				for (def configFile : systemdExtension.configFiles) {
 					from(configFile) {
+						fileType CONFIG | NOREPLACE
 						into systemdExtension.configDir
 						user systemdExtension.user
 						permissionGroup systemdExtension.permissionGroup
@@ -150,19 +154,16 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 
 					// According to Spring Boot, the conf file needs to sit next to the jar, so we just create a symlink
 					link("${systemdExtension.packageBinDir}${configFile.getName()}",
-							"${systemdExtension.configDir}/${configFile.getName()}")
+							"${systemdExtension.configDir}${configFile.getName()}")
 
-					// Copy the config files
-					from(configFile) {
-						fileType CONFIG | NOREPLACE
-						fileMode 0754
-						into "conf"
-					}
 				}
 
-				// Adding a symlink from /usr/local/bin to the app
-				link("/usr/local/bin/${systemdExtension.startScripts.applicationName}",
-						"${systemdExtension.packageBinDir}${systemdExtension.startScripts.applicationName}")
+
+				if (systemdExtension.linkConfigToWorkingDir) {
+					// Adding a symlink from /usr/local/bin to the app
+					link("/usr/local/bin/${systemdExtension.startScripts.applicationName}",
+							"${systemdExtension.workingDir}${systemdExtension.startScripts.applicationName}")
+				}
 
 			}
 		}

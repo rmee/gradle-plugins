@@ -22,8 +22,27 @@ class SystemdApplicationExtension {
 
 	private SystemdServiceDescriptor descriptor = new SystemdServiceDescriptor()
 
+	private boolean linkBinaryToUserLocalBin = true
+
+	private boolean linkConfigToWorkingDir = true
+
 	protected SystemdApplicationPlugin plugin
 
+	boolean getLinkBinaryToUserLocalBin() {
+		return linkBinaryToUserLocalBin
+	}
+
+	void setLinkBinaryToUserLocalBin(boolean linkBinaryToUserLocalBin) {
+		this.linkBinaryToUserLocalBin = linkBinaryToUserLocalBin
+	}
+
+	boolean getLinkConfigToWorkingDir() {
+		return linkConfigToWorkingDir
+	}
+
+	void setLinkConfigToWorkingDir(boolean linkConfigToWorkingDir) {
+		this.linkConfigToWorkingDir = linkConfigToWorkingDir
+	}
 
 	SystemdServiceDescriptor getDescriptor() {
 		return descriptor

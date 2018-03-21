@@ -101,14 +101,22 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 			// https://github.com/gilday/how-to-microservice/blob/master/build.gradle#L82
 			// https://www.ccampo.me/java/spring/linux/2016/02/15/boot-service-package.html
 			ospackage {
-				packageName = systemdExtension.packageName
 				version = project.version
-				os = LINUX
-				type = BINARY
-				arch = NOARCH
 				if (release == null) {
 					release = '0'
 				}
+			}
+
+			buildRpm {
+				packageName = systemdExtension.packageName
+
+				os = LINUX
+				type = BINARY
+				arch = NOARCH
+
+				directory(systemdExtension.packageDir, 644, systemdExtension.user, systemdExtension.permissionGroup)
+				directory(systemdExtension.packageBinDir, 644, systemdExtension.user, systemdExtension.permissionGroup)
+				directory(systemdExtension.packageLibDir, 644, systemdExtension.user, systemdExtension.permissionGroup)
 
 				def scriptsDir = systemdExtension.getScriptsDir()
 				preInstall file("${scriptsDir}/preInstall.sh")
@@ -116,7 +124,7 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 				preUninstall file("${scriptsDir}/preUninstall.sh")
 				postUninstall file("${scriptsDir}/postUninstall.sh")
 
-				into "/var/${systemdExtension.packageName}"
+				into systemdExtension.packageDir
 				user systemdExtension.user
 				permissionGroup systemdExtension.permissionGroup
 
@@ -125,22 +133,28 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 					user systemdExtension.user
 					permissionGroup systemdExtension.permissionGroup
 					fileMode = 0644
+					addParentDirs false
 				}
 
-				from(systemdExtension.startScripts.outputs.files.singleFile) {
+				from(systemdExtension.startScripts.unixScript) {
 					into systemdExtension.packageBinDir
 					user systemdExtension.user
 					permissionGroup systemdExtension.permissionGroup
 					fileMode = 0755
+					addParentDirs false
 				}
 
 				from(systemdExtension.serviceFile) {
 					into '/etc/systemd/system'
-					addParentDirs false
 					expand project.properties
 					user 'root'
 					permissionGroup 'root'
 					fileMode = 0644
+					addParentDirs false
+				}
+
+				if (!systemdExtension.configFiles.isEmpty()) {
+					directory(systemdExtension.configDir, 644, systemdExtension.user, systemdExtension.permissionGroup)
 				}
 
 				for (def configFile : systemdExtension.configFiles) {
@@ -150,6 +164,7 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 						user systemdExtension.user
 						permissionGroup systemdExtension.permissionGroup
 						fileMode = 0644
+						addParentDirs false
 					}
 
 					// According to Spring Boot, the conf file needs to sit next to the jar, so we just create a symlink
@@ -158,13 +173,11 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 
 				}
 
-
-				if (systemdExtension.linkConfigToWorkingDir) {
+				if (systemdExtension.linkBinaryToUserLocalBin) {
 					// Adding a symlink from /usr/local/bin to the app
 					link("/usr/local/bin/${systemdExtension.startScripts.applicationName}",
 							"${systemdExtension.workingDir}${systemdExtension.startScripts.applicationName}")
 				}
-
 			}
 		}
 	}

@@ -56,7 +56,7 @@ public class SystemdApplicationTest {
 		runner = runner.withProjectDir(workingDir).withArguments("buildRpm", "--stacktrace").forwardOutput();
 		runner.build();
 
-		File rpmFile = new File(workingDir, "build/distributions/demo-app-unspecified.noarch.rpm");
+		File rpmFile = new File(workingDir, "build/distributions/demo-app-unspecified-0.noarch.rpm");
 		Assert.assertTrue(rpmFile.exists());
 
 		File serviceFile = new File(workingDir, "build/systemd/services/demo-app.service");

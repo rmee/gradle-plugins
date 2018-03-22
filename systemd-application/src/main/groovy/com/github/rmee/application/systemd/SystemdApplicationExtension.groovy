@@ -113,7 +113,7 @@ class SystemdApplicationExtension {
 	}
 
 	protected String getBinaryPath() {
-		return getPackageBinDir() + getStartScripts().applicationName
+		return getPackageBinDir() + "/" + getStartScripts().applicationName
 	}
 
 	void setPackageDir(String binaryDir) {

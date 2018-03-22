@@ -74,7 +74,7 @@ class SystemdApplicationExtension {
 
 	String getConfigDir() {
 		if (configDir == null) {
-			return "/etc/" + getPackageName() + "/"
+			return "/etc/" + getPackageName()
 		}
 		return configDir
 	}
@@ -99,17 +99,17 @@ class SystemdApplicationExtension {
 
 	String getPackageDir() {
 		if (packageDir == null) {
-			return "/var/" + getPackageName() + "/"
+			return "/var/" + getPackageName()
 		}
 		return packageDir
 	}
 
 	protected String getPackageBinDir() {
-		return getPackageDir() + "bin/"
+		return getPackageDir() + "/bin"
 	}
 
 	protected String getPackageLibDir() {
-		return getPackageDir() + "lib/"
+		return getPackageDir() + "/lib"
 	}
 
 	protected String getBinaryPath() {

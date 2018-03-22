@@ -169,14 +169,14 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 
 					// According to Spring Boot, the conf file needs to sit next to the jar, so we just create a symlink
 					link("${systemdExtension.packageBinDir}${configFile.getName()}",
-							"${systemdExtension.configDir}${configFile.getName()}")
+							"${systemdExtension.configDir}/${configFile.getName()}")
 
 				}
 
 				if (systemdExtension.linkBinaryToUserLocalBin) {
 					// Adding a symlink from /usr/local/bin to the app
 					link("/usr/local/bin/${systemdExtension.startScripts.applicationName}",
-							"${systemdExtension.workingDir}${systemdExtension.startScripts.applicationName}")
+							"${systemdExtension.workingDir}/${systemdExtension.startScripts.applicationName}")
 				}
 			}
 		}

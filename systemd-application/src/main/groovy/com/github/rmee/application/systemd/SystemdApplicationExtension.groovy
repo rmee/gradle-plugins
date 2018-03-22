@@ -22,8 +22,27 @@ class SystemdApplicationExtension {
 
 	private SystemdServiceDescriptor descriptor = new SystemdServiceDescriptor()
 
+	private boolean linkBinaryToUserLocalBin = true
+
+	private boolean linkConfigToWorkingDir = true
+
 	protected SystemdApplicationPlugin plugin
 
+	boolean getLinkBinaryToUserLocalBin() {
+		return linkBinaryToUserLocalBin
+	}
+
+	void setLinkBinaryToUserLocalBin(boolean linkBinaryToUserLocalBin) {
+		this.linkBinaryToUserLocalBin = linkBinaryToUserLocalBin
+	}
+
+	boolean getLinkConfigToWorkingDir() {
+		return linkConfigToWorkingDir
+	}
+
+	void setLinkConfigToWorkingDir(boolean linkConfigToWorkingDir) {
+		this.linkConfigToWorkingDir = linkConfigToWorkingDir
+	}
 
 	SystemdServiceDescriptor getDescriptor() {
 		return descriptor
@@ -55,7 +74,7 @@ class SystemdApplicationExtension {
 
 	String getConfigDir() {
 		if (configDir == null) {
-			return "/etc/" + getPackageName() + "/"
+			return "/etc/" + getPackageName()
 		}
 		return configDir
 	}
@@ -80,21 +99,21 @@ class SystemdApplicationExtension {
 
 	String getPackageDir() {
 		if (packageDir == null) {
-			return "/var/" + getPackageName() + "/"
+			return "/var/" + getPackageName()
 		}
 		return packageDir
 	}
 
 	protected String getPackageBinDir() {
-		return getPackageDir() + "bin/"
+		return getPackageDir() + "/bin"
 	}
 
 	protected String getPackageLibDir() {
-		return getPackageDir() + "lib/"
+		return getPackageDir() + "/lib"
 	}
 
 	protected String getBinaryPath() {
-		return getPackageBinDir() + getStartScripts().applicationName
+		return getPackageBinDir() + "/" + getStartScripts().applicationName
 	}
 
 	void setPackageDir(String binaryDir) {

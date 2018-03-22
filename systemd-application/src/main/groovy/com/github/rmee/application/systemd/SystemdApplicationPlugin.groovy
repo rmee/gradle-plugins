@@ -168,7 +168,7 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 					}
 
 					// According to Spring Boot, the conf file needs to sit next to the jar, so we just create a symlink
-					link("${systemdExtension.packageBinDir}${configFile.getName()}",
+					link("${systemdExtension.packageBinDir}/${configFile.getName()}",
 							"${systemdExtension.configDir}/${configFile.getName()}")
 
 				}

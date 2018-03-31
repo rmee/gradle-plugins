@@ -41,13 +41,13 @@ public class SystemdApplicationTest {
 
 		Assert.assertNotNull(getClass().getClassLoader().getResource("plugin-under-test-metadata.properties"));
 
-		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("basic-app/input.gradle"),
+		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("helm-app/input.gradle"),
 				new FileOutputStream(gradleFile));
-		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("basic-app/input_settings.gradle"),
+		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("helm-app/input_settings.gradle"),
 				new FileOutputStream(settingsFile));
-		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("basic-app/input_main.java"),
+		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("helm-app/input_main.java"),
 				new FileOutputStream(entityFile));
-		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("basic-app/input_application.properties"),
+		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("helm-app/input_application.properties"),
 				new FileOutputStream(propertiesFile));
 
 		GradleRunner runner = GradleRunner.create();

@@ -39,7 +39,7 @@ apply plugin: 'systemd-application'
 
 task startScripts(type: CreateStartScripts) {
 	outputDir = file('build/scripts')
-	mainClassName = 'ch.adnovum.fedicam.app.management.service.ManagementApplication'
+	mainClassName = 'com.github.rmee.ManagementApplication'
 	applicationName = 'demo-app'
 	classpath = files(configurations.runtime, tasks.jar.outputs.files.singleFile)
 }

@@ -1,7 +1,3 @@
-# EditorConfig helps us keep consistent coding styles between different editors and IDEs (http://editorconfig.org).
-# MOAP-specific rules are configured below.
-
-
 # Do not look for deeper placed ".editorconfig" files.
 root = true
 

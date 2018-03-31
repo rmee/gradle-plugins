@@ -1,5 +1,4 @@
-include  ':systemd-application' //':build-on-change',
-
+include ':systemd-application', ':build-on-change', 'kubernetes', 'helm'
 
 gradle.beforeProject { Project project ->
 	project.with {

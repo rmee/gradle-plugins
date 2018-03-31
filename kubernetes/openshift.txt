@@ -1,0 +1,6 @@
+./oc create sa travis
+
+./oc policy add-role-to-user admin system:serviceaccount:rmee-demo-app:travis
+
+./oc serviceaccounts get-token travis
+

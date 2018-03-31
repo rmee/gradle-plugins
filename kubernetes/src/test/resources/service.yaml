@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: "v1"
+metadata:
+  name: demo-management
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    description: "Exposes and load balances the application pods"
+spec:
+  ports:
+  - name: "web"
+    port: 8080
+    targetPort: 8080
+  selector:
+    deploymentconfig: demo-management

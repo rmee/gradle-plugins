@@ -1,0 +1,6 @@
+image:
+  pullPolicy: IfNotPresent
+
+management:
+  replicaCount: 1
+

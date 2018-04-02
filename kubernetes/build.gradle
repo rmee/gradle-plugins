@@ -22,10 +22,10 @@ dependencies {
 systemTest.outputs.upToDateWhen { false }
 
 pluginBundle {
-	website = 'https://github.com/rmee/gradle-plugins/tree/master/systemd-application'
-	vcsUrl = 'https://github.com/rmee/gradle-plugins/tree/master/systemd-application'
-	description = 'Build an rpm package integrating into systemd out of any java application'
-	tags = ['java', 'spring-boot', 'rpm', 'systemd', 'package']
+	website = 'https://github.com/rmee/gradle-plugins/tree/master/kubernetes'
+	vcsUrl = 'https://github.com/rmee/gradle-plugins/tree/master/kubernetes'
+	description = 'Integration of Kubernetes, OpenShift and Helm command line clients.'
+	tags = ['helm', 'kubernetes', 'openshift', 'kubectl', 'package']
 
 	plugins {
 		'kubectl' {

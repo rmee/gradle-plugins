@@ -114,9 +114,9 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 				type = BINARY
 				arch = NOARCH
 
-				directory(systemdExtension.packageDir, 0644, systemdExtension.user, systemdExtension.permissionGroup)
-				directory(systemdExtension.packageBinDir, 0644, systemdExtension.user, systemdExtension.permissionGroup)
-				directory(systemdExtension.packageLibDir, 0644, systemdExtension.user, systemdExtension.permissionGroup)
+				directory(systemdExtension.packageDir, 0744, systemdExtension.user, systemdExtension.permissionGroup)
+				directory(systemdExtension.packageBinDir, 0744, systemdExtension.user, systemdExtension.permissionGroup)
+				directory(systemdExtension.packageLibDir, 0744, systemdExtension.user, systemdExtension.permissionGroup)
 
 				def scriptsDir = systemdExtension.getScriptsDir()
 				preInstall file("${scriptsDir}/preInstall.sh")
@@ -154,7 +154,7 @@ class SystemdApplicationPlugin implements Plugin<Project> {
 				}
 
 				if (!systemdExtension.configFiles.isEmpty()) {
-					directory(systemdExtension.configDir, 0644, systemdExtension.user, systemdExtension.permissionGroup)
+					directory(systemdExtension.configDir, 0744, systemdExtension.user, systemdExtension.permissionGroup)
 				}
 
 				for (def configFile : systemdExtension.configFiles) {

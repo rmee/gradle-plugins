@@ -9,11 +9,13 @@ public class OcLogin extends OcExec {
 	protected void exec() {
 		OcExtension extension = getProject().getExtensions().getByType(OcExtension.class);
 		Credentials credentials = extension.getCredentials();
+
+		String verifyParam = extension.isInsecureSkipTlsVerify() ? " --insecure-skip-tls-verify=true" : "";
+
 		if (credentials.getToken() != null) {
-			setCommandLine("oc login --token=" + credentials.getToken() + " " + extension.getUrl());
-		}
-		else {
-			setCommandLine("oc login --username=" + extension.getCredentials().getUserName()
+			setCommandLine("oc login " + verifyParam + " --token=" + credentials.getToken() + " " + extension.getUrl());
+		} else {
+			setCommandLine("oc login " + verifyParam + " --username=" + extension.getCredentials().getUserName()
 					+ " --password=" + credentials.getPassword() + " " + extension.getUrl());
 		}
 		super.exec();

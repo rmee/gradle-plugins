@@ -20,12 +20,22 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
 	private String namespace;
 
+	private boolean insecureSkipTlsVerify = false;
+
 	public KubectlExtensionBase() {
 		credentials = new Credentials(this);
 		client = createClient();
 	}
 
 	protected abstract Client createClient();
+
+	public boolean isInsecureSkipTlsVerify() {
+		return insecureSkipTlsVerify;
+	}
+
+	public void setInsecureSkipTlsVerify(boolean insecureSkipTlsVerify) {
+		this.insecureSkipTlsVerify = insecureSkipTlsVerify;
+	}
 
 
 	public Credentials credentials(Closure closure) {

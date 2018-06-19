@@ -30,13 +30,13 @@ public class HelmExtension extends ClientExtensionBase {
 				OperatingSystem operatingSystem = getOperatingSystem();
 				String downloadFileName = "helm-v" + getVersion();
 				if (operatingSystem.isLinux()) {
-					return downloadFileName + "-linux-amd64.zip";
+					return downloadFileName + "-linux-amd64.tar.gz";
 				}
 				else if (operatingSystem.isWindows()) {
 					return downloadFileName + "-windows-amd64.zip";
 				}
 				else if (operatingSystem.isMacOsX()) {
-					return downloadFileName + "-darwin-amd64.zip";
+					return downloadFileName + "-darwin-amd64.tar.gz";
 				}
 				else {
 					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());

@@ -17,9 +17,9 @@ jobs:
   include:
    - stage: build
      script: ./gradlew build
-   # Stage only works on master
+   # Stage only works main repo
    - stage: system-test
-     if: head_branch = master
+     if: head_repo = rmee/gradle-plugins
      script: ./gradlew -i systemTest
 
 env:

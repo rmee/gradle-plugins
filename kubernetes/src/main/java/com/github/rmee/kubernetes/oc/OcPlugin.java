@@ -21,6 +21,7 @@ public class OcPlugin implements Plugin<Project> {
 		ocLogin.dependsOn(ocBootstrap);
 		ocNewProject.dependsOn(ocLogin);
 		ocSetProject.dependsOn(ocLogin);
+		ocSetProject.mustRunAfter(ocNewProject);
 
 		project.afterEvaluate(project1 -> {
 			ocBootstrap.dest(extension.getClient().getDownloadDir());

@@ -19,8 +19,8 @@ jobs:
      script: ./gradlew build
    # Stage only works on master
    - stage: system-test
+     if: head_branch = master
      script: ./gradlew -i systemTest
-     if: branch = master
 
 env:
   global:

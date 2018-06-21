@@ -5,10 +5,8 @@ buildscript {
 	dependencies {
 		apply from: "versions.gradle"
 
-		def depMgmtVersion = versions['dependency.management.plugin.version']
-
 		classpath "com.gradle.publish:plugin-publish-plugin:0.9.9"
-		classpath "io.spring.gradle:dependency-management-plugin:${depMgmtVersion}"
+		classpath "io.spring.gradle:dependency-management-plugin:${versions.'dependency.management.plugin.version'}"
 		classpath 'org.ajoberstar:gradle-git-publish:0.2.1'
 		classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5-rc1'
 		classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1"
@@ -16,13 +14,15 @@ buildscript {
 	}
 }
 
+apply(from: 'versions.gradle')
+
 wrapper {
-	gradleVersion = '4.3'
+	gradleVersion = versions.'gradle.version'
 }
 
 // note that a production build creates javadoc, sources jars and signatures undesired during development
 // for performance reasons
-def isProductionBuild = System.env.GRADLE_PUBLISH_KEY != null && System.env.GRADLE_PUBLISH_SECRET != null
+final boolean isProductionBuild = System.env.GRADLE_PUBLISH_KEY != null && System.env.GRADLE_PUBLISH_SECRET != null
 if (isProductionBuild) {
 	ext {
 		System.setProperty("gradle.publish.key", System.env.GRADLE_PUBLISH_KEY)
@@ -30,7 +30,7 @@ if (isProductionBuild) {
 	}
 }
 
-SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss")
+final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss")
 if (isProductionBuild) {
 	version = BUILD_VERSION_PREFIX + "." + format.format(new Date())
 }
@@ -189,5 +189,3 @@ tasks.coveralls {
 
 	dependsOn jacocoRootReport
 }
-
-

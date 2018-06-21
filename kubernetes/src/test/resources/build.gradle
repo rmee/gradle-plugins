@@ -84,6 +84,11 @@ task helmInstall(type: HelmExec) {
 	commandLine "helm upgrade --install demo ${helmPackage.outputs.files.singleFile}"
 }
 
+task helmClientVersion(type: HelmExec) {
+	dependsOn helmBootstrap
+	commandLine "helm version -c"
+}
+
 //////////////////////////////////////////////////////////////////
 // kubectl
 //////////////////////////////////////////////////////////////////

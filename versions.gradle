@@ -2,8 +2,8 @@
 // NOTE: needs to happen in buildscript section before setting up the gralde classpath
 
 // load global properties
-Properties versionsProperties = new Properties()
-def versionsFile = project.file("versions.properties")
+final Properties versionsProperties = new Properties()
+final File versionsFile = project.file("versions.properties")
 versionsFile.withInputStream { versionsProperties.load(it) }
 
 // load local overrides for development:
@@ -11,12 +11,12 @@ versionsFile.withInputStream { versionsProperties.load(it) }
 // ensure local artifact usage. Gives full control of those dependencies
 // and updates compared to artifacts built and fetched from remote build
 // servers/repositories.
-def localFile = project.file("local.properties")
+final File localFile = project.file("local.properties")
 if (localFile.exists()) {
 	localFile.withInputStream { versionsProperties.load(it) }
 }
 
-// make properties available in build.gradle
-allprojects {
-	project.ext.versions = versionsProperties
+// Visible to all projects if applied to root
+ext {
+	versions = versionsProperties
 }

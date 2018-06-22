@@ -2,6 +2,8 @@ package com.github.rmee.kubernetes.oc;
 
 import java.net.MalformedURLException;
 
+import com.github.rmee.kubernetes.common.Client;
+import com.github.rmee.kubernetes.common.internal.KubernetesUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -12,6 +14,7 @@ public class OcPlugin implements Plugin<Project> {
 
 		OcExtension extension = project.getExtensions().create("oc", OcExtension.class);
 		extension.setProject(project);
+		extension.setKubeConfig(KubernetesUtils.getDefaultKubeConfig(project));
 
 		OcBootstrap ocBootstrap = project.getTasks().create("ocBootstrap", OcBootstrap.class);
 		OcLogin ocLogin = project.getTasks().create("ocLogin", OcLogin.class);
@@ -24,11 +27,14 @@ public class OcPlugin implements Plugin<Project> {
 		ocSetProject.mustRunAfter(ocNewProject);
 
 		project.afterEvaluate(project1 -> {
-			ocBootstrap.dest(extension.getClient().getDownloadDir());
-			try {
-				ocBootstrap.src(extension.getClient().getDownloadUrl());
+			Client client = extension.getClient();
+			if (client.isDockerized()) {
+				ocBootstrap.setEnabled(false);
 			}
-			catch (MalformedURLException e) {
+			ocBootstrap.dest(client.getDownloadDir());
+			try {
+				ocBootstrap.src(client.getDownloadUrl());
+			} catch (MalformedURLException e) {
 				throw new IllegalStateException(e);
 			}
 		});

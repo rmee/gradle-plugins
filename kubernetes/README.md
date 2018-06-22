@@ -22,6 +22,7 @@ familiar with the Kubernetes tool; or the other way around, Kubernetes-related
 Gradle tasks can easily be executed from the command line by the developer. 
 For most to all applications the pattern should work very well.
 
+https://store.docker.com/community/images/dtzar/helm-kubectl
 
 # Setup
 

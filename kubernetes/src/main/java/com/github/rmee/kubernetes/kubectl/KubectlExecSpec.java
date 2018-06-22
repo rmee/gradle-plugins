@@ -1,32 +1,13 @@
 package com.github.rmee.kubernetes.kubectl;
 
+import com.github.rmee.kubernetes.common.ClientExecSpec;
 import com.github.rmee.kubernetes.common.OutputFormat;
 
-public class KubectlExecSpec {
-
-	protected String commandLine;
-
-	protected boolean ignoreExitValue = false;
+public class KubectlExecSpec extends ClientExecSpec {
 
 	protected OutputFormat outputFormat = OutputFormat.CONSOLE;
 
 	protected String input;
-
-	public boolean isIgnoreExitValue() {
-		return ignoreExitValue;
-	}
-
-	public void setIgnoreExitValue(boolean ignoreExitValue) {
-		this.ignoreExitValue = ignoreExitValue;
-	}
-
-	public String getCommandLine() {
-		return commandLine;
-	}
-
-	public void setCommandLine(String commandLine) {
-		this.commandLine = commandLine;
-	}
 
 	public OutputFormat getOutputFormat() {
 		return outputFormat;
@@ -38,8 +19,9 @@ public class KubectlExecSpec {
 
 	public KubectlExecSpec duplicate() {
 		KubectlExecSpec duplicate = new KubectlExecSpec();
-		duplicate.commandLine = commandLine;
-		duplicate.ignoreExitValue = ignoreExitValue;
+		duplicate.setCommandLine(getCommandLine());
+		duplicate.setIgnoreExitValue(isIgnoreExitValue());
+		duplicate.setStdoutFile(getStdoutFile());
 		duplicate.outputFormat = outputFormat;
 		return duplicate;
 	}

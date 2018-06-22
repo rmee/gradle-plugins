@@ -7,8 +7,9 @@ public class OcExecSpec extends KubectlExecSpec {
 	@Override
 	public OcExecSpec duplicate() {
 		OcExecSpec duplicate = new OcExecSpec();
-		duplicate.commandLine = commandLine;
-		duplicate.ignoreExitValue = ignoreExitValue;
+		duplicate.setCommandLine(getCommandLine());
+		duplicate.setIgnoreExitValue(isIgnoreExitValue());
+		duplicate.setStdoutFile(getStdoutFile());
 		duplicate.outputFormat = outputFormat;
 		return duplicate;
 	}

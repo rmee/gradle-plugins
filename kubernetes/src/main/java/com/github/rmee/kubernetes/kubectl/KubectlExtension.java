@@ -1,7 +1,6 @@
 package com.github.rmee.kubernetes.kubectl;
 
 import com.github.rmee.kubernetes.common.Client;
-import org.gradle.api.internal.tasks.options.OptionValues;
 import org.gradle.internal.os.OperatingSystem;
 
 public class KubectlExtension extends KubectlExtensionBase {
@@ -40,8 +39,10 @@ public class KubectlExtension extends KubectlExtensionBase {
 			}
 
 		};
-		client.setVersion("1.9.0");
+		client.setVersion("2.8.2");
+		client.setImageName("dtzar/helm-kubectl");
 		client.setRepository("https://storage.googleapis.com/kubernetes-release/release/");
+		client.setDockerized(true);
 		return client;
 	}
 

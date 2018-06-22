@@ -46,6 +46,7 @@ public class OcExtension extends KubectlExtensionBase {
 				return downloadUrl;
 			}
 		};
+		client.setDockerized(false);
 		client.setVersion("3.7.2-282e43f");
 		client.setRepository("https://github.com/openshift/origin/releases/download/");
 		return client;

@@ -28,7 +28,8 @@ public class ClientBootstrapBase extends Download {
 			Project project = getProject();
 			ClientExtensionBase extension = project.getExtensions().getByType(extensionClass);
 			Client client = extension.getClient();
-			return !client.getDownload() || getDownloadedFile().exists() && new File(client.getBinPath()).exists();
+			return !client.getDownload()
+					|| getDownloadedFile().exists() && new File(client.getBinPath()).exists();
 		});
 
 		doFirst(task -> {

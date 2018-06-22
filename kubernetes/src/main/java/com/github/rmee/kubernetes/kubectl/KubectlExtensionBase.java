@@ -4,13 +4,15 @@ import com.github.rmee.kubernetes.common.Client;
 import com.github.rmee.kubernetes.common.ClientExtensionBase;
 import com.github.rmee.kubernetes.common.Credentials;
 import com.github.rmee.kubernetes.common.OutputFormat;
+import com.github.rmee.kubernetes.common.internal.KubernetesUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
-import org.gradle.internal.os.OperatingSystem;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
@@ -22,12 +24,23 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
 	private boolean insecureSkipTlsVerify = false;
 
+	private File kubeConfig;
+
 	public KubectlExtensionBase() {
 		credentials = new Credentials(this);
 		client = createClient();
 	}
 
 	protected abstract Client createClient();
+
+	public File getKubeConfig() {
+		return kubeConfig;
+	}
+
+	public void setKubeConfig(File kubeConfig) {
+		this.kubeConfig = kubeConfig;
+		KubernetesUtils.setKubeConfig(client, kubeConfig);
+	}
 
 	public boolean isInsecureSkipTlsVerify() {
 		return insecureSkipTlsVerify;
@@ -101,8 +114,19 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 				String finalCommand = commandLine;
 				project.exec(execSpec -> {
-					execSpec.setIgnoreExitValue(spec.isIgnoreExitValue());
-					execSpec.setCommandLine(parseCommand(finalCommand));
+
+					KubectlExecSpec stepSpec = spec.duplicate();
+					stepSpec.setCommandLine(finalCommand);
+
+					HashMap<String, String> additonalEnv = new HashMap<>();
+					if (kubeConfig != null) {
+						if (!kubeConfig.exists()) {
+							throw new IllegalStateException("kubeConfig not found: " + kubeConfig.getAbsolutePath());
+						}
+						additonalEnv.put("KUBECONFIG", kubeConfig.getAbsolutePath());
+					}
+					client.configureExec(execSpec, stepSpec, additonalEnv);
+
 					if (spec.getInput() != null) {
 						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
 					}

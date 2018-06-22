@@ -1,5 +1,11 @@
 package com.github.rmee.kubernetes.helm;
 
+import com.github.rmee.kubernetes.common.Client;
+import com.github.rmee.kubernetes.common.ClientExtensionBase;
+import com.github.rmee.kubernetes.common.internal.KubernetesUtils;
+import org.gradle.api.Project;
+import org.gradle.internal.os.OperatingSystem;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,11 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.github.rmee.kubernetes.common.Client;
-import com.github.rmee.kubernetes.common.ClientExtensionBase;
-import org.gradle.api.Project;
-import org.gradle.internal.os.OperatingSystem;
 
 
 public class HelmExtension extends ClientExtensionBase {
@@ -22,6 +23,8 @@ public class HelmExtension extends ClientExtensionBase {
 
 	private File outputDir;
 
+	private File kubeConfig;
+
 	public HelmExtension() {
 		client = new Client(this, "helm") {
 
@@ -31,14 +34,11 @@ public class HelmExtension extends ClientExtensionBase {
 				String downloadFileName = "helm-v" + getVersion();
 				if (operatingSystem.isLinux()) {
 					return downloadFileName + "-linux-amd64.tar.gz";
-				}
-				else if (operatingSystem.isWindows()) {
+				} else if (operatingSystem.isWindows()) {
 					return downloadFileName + "-windows-amd64.zip";
-				}
-				else if (operatingSystem.isMacOsX()) {
+				} else if (operatingSystem.isMacOsX()) {
 					return downloadFileName + "-darwin-amd64.tar.gz";
-				}
-				else {
+				} else {
 					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
 				}
 			}
@@ -52,8 +52,10 @@ public class HelmExtension extends ClientExtensionBase {
 				return downloadUrl + downloadFileName;
 			}
 		};
+		client.setImageName("dtzar/helm-kubectl");
 		client.setVersion("2.8.2");
 		client.setRepository("https://storage.googleapis.com/kubernetes-helm");
+		client.setDockerized(true);
 	}
 
 	public Set<String> getPackageNames() {
@@ -116,7 +118,7 @@ public class HelmExtension extends ClientExtensionBase {
 			sourceDir = new File(project.getProjectDir(), "src/main/helm/");
 		}
 
-		if (outputDir == null) {
+		if (outputDir == null && !client.isDockerized()) {
 			outputDir = new File(project.getBuildDir(), "distributions");
 		}
 
@@ -126,22 +128,33 @@ public class HelmExtension extends ClientExtensionBase {
 	public void exec(HelmExecSpec spec) {
 		project.getLogger().warn("Executing: " + spec.getCommandLine());
 
-		String[] args = spec.getCommandLine().split("\\s+");
-		args[0] = getClient().getBinPath();
 		project.exec(execSpec -> {
 			String tillerNamespace = getTillerNamespace();
-			Map<String, String> env = new HashMap();
-			env.putAll(System.getenv());
+			Map<String, String> execEnv = new HashMap();
 			if (tillerNamespace != null) {
-				env.put("TILLER_NAMESPACE", tillerNamespace);
+				execEnv.put("TILLER_NAMESPACE", tillerNamespace);
 			}
-			execSpec.setEnvironment(env);
-			execSpec.setIgnoreExitValue(spec.isIgnoreExitValue());
-			execSpec.setCommandLine(Arrays.asList(args));
+			if (kubeConfig != null) {
+				if (!kubeConfig.exists()) {
+					throw new IllegalStateException("kubeConfig not found: " + kubeConfig.getAbsolutePath());
+				}
+				execEnv.put("KUBECONFIG", kubeConfig.getAbsolutePath());
+			}
+			client.configureExec(execSpec, spec, execEnv);
 		});
 	}
 
 	protected void setProject(Project project) {
 		this.project = project;
+	}
+
+
+	public File getKubeConfig() {
+		return kubeConfig;
+	}
+
+	public void setKubeConfig(File kubeConfig) {
+		this.kubeConfig = kubeConfig;
+		KubernetesUtils.setKubeConfig(client, kubeConfig);
 	}
 }

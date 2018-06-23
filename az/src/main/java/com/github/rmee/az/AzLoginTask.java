@@ -1,13 +1,17 @@
 package com.github.rmee.az;
 
 import groovy.json.JsonSlurper;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class AzLoginTask extends AzExec {
+public class AzLoginTask extends DefaultTask {
 
 	@TaskAction
 	public void run() {
@@ -32,17 +36,22 @@ public class AzLoginTask extends AzExec {
 			command.append(" --tenant " + tenantId);
 		}
 
-		captureOutput = true;
+		File tempFile;
+		try {
+			tempFile = File.createTempFile("login", "json");
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 
-		System.out.println(command);
-		setCommand(command.toString());
-
-		super.run();
+		AzExecSpec execSpec = new AzExecSpec();
+		execSpec.setCommandLine(command.toString());
+		execSpec.setStdoutFile(tempFile);
+		azExtension.exec(execSpec);
 
 		if (azExtension.getSubscriptionId() == null || azExtension.getTenantId() == null) {
-			List logins = (List) new JsonSlurper().parseText(output);
+			List logins = (List) new JsonSlurper().parse(tempFile, "utf8");
 			if (logins.size() != 1) {
-				throw new IllegalStateException("only single subscription implemented, got " + output);
+				throw new IllegalStateException("only single subscription implemented, got " + logins);
 			}
 			Map subscription = (Map) logins.get(0);
 			String subscriptionId = Objects.requireNonNull((String) subscription.get("id"));
@@ -55,6 +64,5 @@ public class AzLoginTask extends AzExec {
 				azExtension.setSubscriptionId(subscriptionId);
 			}
 		}
-		System.out.println(output);
 	}
 }

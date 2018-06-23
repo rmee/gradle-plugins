@@ -49,12 +49,7 @@ public class AzExtension extends ClientExtensionBase {
 	}
 
 	public void exec(AzExecSpec spec) {
-		project.getLogger().warn("Executing: " + spec.getCommandLine());
-
 		project.exec(execSpec -> {
-			if (aks.getKubeDir() != null) {
-				aks.getKubeDir().mkdirs();
-			}
 			client.configureExec(execSpec, spec);
 		});
 	}

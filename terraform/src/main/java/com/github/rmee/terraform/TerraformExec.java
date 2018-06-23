@@ -23,7 +23,7 @@ public class TerraformExec extends ClientExecBase {
 
 	@Override
 	@Input
-	protected TerraformExecSpec getSpec() {
+	protected TerraformExecSpec retrieveSpec() {
 		return spec;
 	}
 }

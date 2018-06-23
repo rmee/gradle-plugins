@@ -11,7 +11,11 @@ import java.io.File;
 public class AzPlugin implements Plugin<Project> {
 
 	public void apply(Project project) {
+		File azureConfigDir = new File(project.getBuildDir(), ".azure");
+
 		AzExtension extension = project.getExtensions().create("az", AzExtension.class);
+		extension.getClient().setImageName("microsoft/azure-cli");
+
 		AzLoginTask login = project.getTasks().create("azLogin", AzLoginTask.class);
 		AzKubernetesDashboardTask dashboard = project.getTasks().create("azKubernetesDashboard", AzKubernetesDashboardTask.class);
 		AzGetKubernetesCredentialsTask getCredentials = project.getTasks().create("azGetKubernetesCredentials", AzGetKubernetesCredentialsTask.class);
@@ -27,9 +31,9 @@ public class AzPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
-			if (client.isDockerized()) {
-				client.setupWrapper(project);
-			}
+			client.getVolumeMappings().put(azureConfigDir.getAbsolutePath(), "/root/.azure/");
+			client.getVolumeMappings().put(extension.getAks().getKubeDir().getAbsolutePath(), "/root/.kube/");
+			client.setupWrapper(project);
 		});
 	}
 }

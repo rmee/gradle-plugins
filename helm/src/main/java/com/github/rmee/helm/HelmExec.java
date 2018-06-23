@@ -23,7 +23,7 @@ public class HelmExec extends ClientExecBase {
 
 	@Input
 	@Override
-	protected ClientExecSpec getSpec() {
+	protected ClientExecSpec retrieveSpec() {
 		return spec;
 	}
 }

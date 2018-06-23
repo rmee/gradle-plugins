@@ -12,35 +12,35 @@ public abstract class ClientExecBase extends DefaultTask {
 
 	@Input
 	public boolean isIgnoreExitValue() {
-		return getSpec().isIgnoreExitValue();
+		return retrieveSpec().isIgnoreExitValue();
 	}
 
-	protected abstract ClientExecSpec getSpec();
+	protected abstract ClientExecSpec retrieveSpec();
 
 
 	public void setIgnoreExitValue(boolean ignoreExitValue) {
-		getSpec().setIgnoreExitValue(ignoreExitValue);
+		retrieveSpec().setIgnoreExitValue(ignoreExitValue);
 	}
 
 	@Input
 	public List<String> getCommandLine() {
-		return getSpec().getCommandLine();
+		return retrieveSpec().getCommandLine();
 	}
 
 	public void setCommandLine(String commandLine) {
-		getSpec().setCommandLine(commandLine);
+		retrieveSpec().setCommandLine(commandLine);
 	}
 
 	public void setCommandLine(List<String> commandLine) {
-		getSpec().setCommandLine(commandLine);
+		retrieveSpec().setCommandLine(commandLine);
 	}
 
 	@InputFile
 	public File getStdoutFile() {
-		return getSpec().getStdoutFile();
+		return retrieveSpec().getStdoutFile();
 	}
 
 	public void setStdoutFile(File stdoutFile) {
-		getSpec().setStdoutFile(stdoutFile);
+		retrieveSpec().setStdoutFile(stdoutFile);
 	}
 }

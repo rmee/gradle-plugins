@@ -16,13 +16,10 @@ public class AzGetKubernetesCredentialsTask extends AzExec {
 		String resourceGroup = azExtension.getResourceGroup();
 		Object clusterName = resourceGroup;
 
-		setCommand(
+		setCommandLine(
 				String.format("az aks get-credentials --resource-group %s --name %s --file /root/.kube/config",
 						resourceGroup, clusterName)
 		);
-
-		captureOutput = true;
-
 		super.run();
 	}
 }

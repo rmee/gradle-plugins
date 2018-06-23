@@ -3,13 +3,19 @@ package com.github.rmee.kubernetes.common;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.groovy.util.StringUtil;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.ExecSpec;
 
@@ -44,6 +50,8 @@ public abstract class Client {
 	private OperatingSystem operatingSystem;
 
 	private Map<String, String> volumeMappings = new HashMap<>();
+
+	private boolean useWrapper = true;
 
 	public Client(ClientExtensionBase extension, String binName) {
 		this.binName = binName;
@@ -246,10 +254,6 @@ public abstract class Client {
 		return binPath;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public void setBinPath(String binPath) {
 		checkNotDockerized();
 		this.binPath = binPath;
@@ -264,10 +268,6 @@ public abstract class Client {
 		return new File(downloadDir, getDownloadFileName());
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public String getBinName() {
 		return binName;
 	}
@@ -279,33 +279,17 @@ public abstract class Client {
 		}
 	}
 
-	public void configureExec(ExecSpec execSpec, ClientExecSpec clientExecSpec, Map<String, String> additionalEnv) {
+	public void configureExec(ExecSpec execSpec, ClientExecSpec clientExecSpec) {
 		Map<String, String> execEnv = new HashMap<>();
 		execEnv.putAll(environment);
-		execEnv.putAll(additionalEnv);
 
 		execSpec.setEnvironment(execEnv);
 		execSpec.setIgnoreExitValue(clientExecSpec.isIgnoreExitValue());
 
 		String[] args = clientExecSpec.getCommandLine().split("\\s+");
 		if (dockerized) {
-
 			List<String> commandLine = new ArrayList<>();
-			commandLine.add("docker");
-			commandLine.add("run");
-
-			for (Map.Entry<String, String> entry : environment.entrySet()) {
-				commandLine.add("-e");
-				commandLine.add(entry.getKey() + "=" + entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry : volumeMappings.entrySet()) {
-				commandLine.add("-v");
-				commandLine.add(entry.getValue() + ":" + entry.getKey());
-			}
-
-			commandLine.add(imageName + ":" + version);
-
+			commandLine.addAll(buildBaseCommandLine());
 			commandLine.addAll(Arrays.asList(args));
 			System.out.println("Executing: " + commandLine);
 			execSpec.setCommandLine(commandLine);
@@ -326,5 +310,69 @@ public abstract class Client {
 			}
 		}
 
+	}
+
+	private Collection<String> buildBaseCommandLine() {
+		List<String> commandLine = new ArrayList<>();
+		commandLine.add("docker");
+		commandLine.add("run");
+
+		for (Map.Entry<String, String> entry : environment.entrySet()) {
+			commandLine.add("-e");
+			commandLine.add(entry.getKey() + "=" + entry.getValue());
+		}
+
+		for (Map.Entry<String, String> entry : volumeMappings.entrySet()) {
+			commandLine.add("-v");
+			commandLine.add(entry.getValue() + ":" + entry.getKey());
+		}
+
+		commandLine.add(imageName + ":" + version);
+		return commandLine;
+	}
+
+	public boolean useWrapper() {
+		return useWrapper;
+	}
+
+	public void setWrapper(boolean useWrapper) {
+		this.useWrapper = useWrapper;
+	}
+
+	public void setupWrapper(Project project) {
+		if (useWrapper()) {
+			Project rootProject = project.getRootProject();
+			Task wrapper = rootProject.getTasks().getByName("wrapper");
+			wrapper.doLast(task -> {
+				StringBuilder builder = new StringBuilder();
+
+				builder.append("#!/usr/bin/env sh\n");
+				builder.append("exec");
+				Collection<String> commandLine = buildBaseCommandLine();
+				for (String element : commandLine) {
+					builder.append(' ');
+
+					String rootPath = rootProject.getProjectDir().getAbsolutePath();
+					if (element.startsWith(rootPath)) {
+						element = element.substring(rootPath.length());
+						if (element.startsWith(File.separator)) {
+							element = element.substring(1);
+						}
+					}
+
+					builder.append(element);
+				}
+				builder.append(' ');
+				builder.append(binName);
+				builder.append(" \"$@\"\n");
+
+				File file = new File(rootProject.getProjectDir(), binName);
+				try (FileWriter writer = new FileWriter(file)) {
+					writer.write(builder.toString());
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
+				}
+			});
+		}
 	}
 }

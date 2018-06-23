@@ -5,8 +5,10 @@ import java.net.MalformedURLException;
 
 import com.github.rmee.kubernetes.common.Client;
 import com.github.rmee.kubernetes.common.internal.KubernetesUtils;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 
 public class KubectlPlugin implements Plugin<Project> {
 
@@ -26,6 +28,7 @@ public class KubectlPlugin implements Plugin<Project> {
 			Client client = extension.getClient();
 			if (client.isDockerized()) {
 				bootstrap.setEnabled(false);
+				client.setupWrapper(project);
 			} else {
 				File downloadDir = client.getDownloadDir();
 				downloadDir.mkdirs();

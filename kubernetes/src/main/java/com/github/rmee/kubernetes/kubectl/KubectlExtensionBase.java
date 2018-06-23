@@ -118,14 +118,7 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 					KubectlExecSpec stepSpec = spec.duplicate();
 					stepSpec.setCommandLine(finalCommand);
 
-					HashMap<String, String> additonalEnv = new HashMap<>();
-					if (kubeConfig != null) {
-						if (!kubeConfig.exists()) {
-							throw new IllegalStateException("kubeConfig not found: " + kubeConfig.getAbsolutePath());
-						}
-						additonalEnv.put("KUBECONFIG", kubeConfig.getAbsolutePath());
-					}
-					client.configureExec(execSpec, stepSpec, additonalEnv);
+					client.configureExec(execSpec, stepSpec);
 
 					if (spec.getInput() != null) {
 						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));

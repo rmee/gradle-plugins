@@ -12,7 +12,10 @@ public class KubernetesUtils {
 
 	public static void setKubeConfig(Client client, File kubeConfig) {
 		if (client.isDockerized()) {
-			client.getVolumeMappings().put("/root/.kube/", kubeConfig.getAbsolutePath());
+			if (!kubeConfig.getName().equals("config")) {
+				throw new IllegalStateException("kubeConfig must be named 'config', got " + kubeConfig.getAbsolutePath());
+			}
+			client.getVolumeMappings().put("/root/.kube/", kubeConfig.getParentFile().getAbsolutePath());
 
 		} else {
 			client.getEnvironment().put("KUBECONFIG", kubeConfig.getAbsolutePath());

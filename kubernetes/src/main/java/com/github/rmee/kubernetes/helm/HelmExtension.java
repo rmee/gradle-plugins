@@ -106,6 +106,8 @@ public class HelmExtension extends ClientExtensionBase {
 	public void setTillerNamespace(String tillerNamespace) {
 		checkNotInitialized();
 		this.tillerNamespace = tillerNamespace;
+
+		client.getEnvironment().put("TILLER_NAMESPACE", tillerNamespace);
 	}
 
 	public void init() {
@@ -129,18 +131,7 @@ public class HelmExtension extends ClientExtensionBase {
 		project.getLogger().warn("Executing: " + spec.getCommandLine());
 
 		project.exec(execSpec -> {
-			String tillerNamespace = getTillerNamespace();
-			Map<String, String> execEnv = new HashMap();
-			if (tillerNamespace != null) {
-				execEnv.put("TILLER_NAMESPACE", tillerNamespace);
-			}
-			if (kubeConfig != null) {
-				if (!kubeConfig.exists()) {
-					throw new IllegalStateException("kubeConfig not found: " + kubeConfig.getAbsolutePath());
-				}
-				execEnv.put("KUBECONFIG", kubeConfig.getAbsolutePath());
-			}
-			client.configureExec(execSpec, spec, execEnv);
+			client.configureExec(execSpec, spec);
 		});
 	}
 

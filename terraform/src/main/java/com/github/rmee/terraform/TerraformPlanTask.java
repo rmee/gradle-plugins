@@ -14,7 +14,7 @@ public class TerraformPlanTask extends TerraformExec {
 		Project project = getProject();
 		File planDir = project.file("build/terraform/plan");
 		planDir.getParentFile().mkdirs();
-		setCommandLine("plan -out=" + CONTAINER_PLAN_FILE);
+		commandLine("plan -out=" + CONTAINER_PLAN_FILE);
 		super.exec();
 	}
 }

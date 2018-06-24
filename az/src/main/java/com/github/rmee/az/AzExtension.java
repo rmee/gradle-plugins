@@ -10,8 +10,6 @@ public class AzExtension extends ClientExtensionBase {
 
 	private AksConfiguration aks = new AksConfiguration();
 
-	private Client client;
-
 	private String subscriptionId;
 
 	private String userName;
@@ -23,8 +21,6 @@ public class AzExtension extends ClientExtensionBase {
 	private String resourceGroup;
 
 	private boolean servicePrincipal;
-
-	protected Project project;
 
 	public AzExtension() {
 		client = new Client(this, "aks") {
@@ -112,5 +108,9 @@ public class AzExtension extends ClientExtensionBase {
 
 	public void setServicePrincipal(boolean servicePrincipal) {
 		this.servicePrincipal = servicePrincipal;
+	}
+
+	protected void setProject(Project project) {
+		super.project = project;
 	}
 }

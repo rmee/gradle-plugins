@@ -14,7 +14,9 @@ public class AzPlugin implements Plugin<Project> {
 		File azureConfigDir = new File(project.getBuildDir(), ".azure");
 
 		AzExtension extension = project.getExtensions().create("az", AzExtension.class);
+		extension.setProject(project);
 		extension.getClient().setImageName("microsoft/azure-cli");
+		extension.getClient().setVersion("2.0.38");
 
 		AzLoginTask login = project.getTasks().create("azLogin", AzLoginTask.class);
 		AzKubernetesDashboardTask dashboard = project.getTasks().create("azKubernetesDashboard", AzKubernetesDashboardTask.class);
@@ -31,8 +33,8 @@ public class AzPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
-			client.getVolumeMappings().put(azureConfigDir.getAbsolutePath(), "/root/.azure/");
-			client.getVolumeMappings().put(extension.getAks().getKubeDir().getAbsolutePath(), "/root/.kube/");
+			client.getVolumeMappings().put("/root/.azure/", azureConfigDir);
+			client.getVolumeMappings().put("/root/.kube/", extension.getAks().getKubeDir());
 			client.setupWrapper(project);
 		});
 	}

@@ -13,9 +13,9 @@ public class OcLogin extends OcExec {
 		String verifyParam = extension.isInsecureSkipTlsVerify() ? " --insecure-skip-tls-verify=true" : "";
 
 		if (credentials.getToken() != null) {
-			setCommandLine("oc login " + verifyParam + " --token=" + credentials.getToken() + " " + extension.getUrl());
+			commandLine("oc login " + verifyParam + " --token=" + credentials.getToken() + " " + extension.getUrl());
 		} else {
-			setCommandLine("oc login " + verifyParam + " --username=" + extension.getCredentials().getUserName()
+			commandLine("oc login " + verifyParam + " --username=" + extension.getCredentials().getUserName()
 					+ " --password=" + credentials.getPassword() + " " + extension.getUrl());
 		}
 		super.exec();

@@ -12,7 +12,8 @@ public class TerraformPlugin implements Plugin<Project> {
 		File configDir = new File(project.getProjectDir(), "src/main/terraform");
 		TerraformExtension extension = project.getExtensions().create("terraform", TerraformExtension.class);
 		extension.setConfigDirectory(configDir);
-
+		extension.getClient().setImageName("hashicorp/terraform:light");
+		extension.getClient().setVersion("0.11.7");
 
 		TerraformInitTask initTask = project.getTasks().create("terraformInit", TerraformInitTask.class);
 		TerraformValidateTask validateTask = project.getTasks().create("terraformValidate", TerraformValidateTask.class);
@@ -29,9 +30,14 @@ public class TerraformPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
-			if (client.isDockerized()) {
-				client.setupWrapper(project);
-			}
+			client.setupWrapper(project);
+
+
+			File terraformTempDir = new File(project.getBuildDir(), ".terraform");
+			extension.getClient().getVolumeMappings().put("/etc/project/conf", extension.getConfigDirectory());
+			extension.getClient().getVolumeMappings().put("/.terraform", terraformTempDir);
+			//commandLine.add("-e");
+			//commandLine.add("TF_LOG=DEBUG");
 		});
 	}
 }

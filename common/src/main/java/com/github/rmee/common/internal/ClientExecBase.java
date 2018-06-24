@@ -1,9 +1,9 @@
 package com.github.rmee.common.internal;
 
 import com.github.rmee.common.ClientExecSpec;
+import groovy.lang.Closure;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
 
 import java.io.File;
 import java.util.List;
@@ -22,20 +22,21 @@ public abstract class ClientExecBase extends DefaultTask {
 		retrieveSpec().setIgnoreExitValue(ignoreExitValue);
 	}
 
-	@Input
 	public List<String> getCommandLine() {
 		return retrieveSpec().getCommandLine();
 	}
 
-	public void setCommandLine(String commandLine) {
+	public void commandLine(String commandLine) {
 		retrieveSpec().setCommandLine(commandLine);
 	}
 
-	public void setCommandLine(List<String> commandLine) {
+	public void commandLine(Closure closure) {
+	}
+
+	public void commandLine(List<String> commandLine) {
 		retrieveSpec().setCommandLine(commandLine);
 	}
 
-	@InputFile
 	public File getStdoutFile() {
 		return retrieveSpec().getStdoutFile();
 	}

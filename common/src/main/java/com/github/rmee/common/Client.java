@@ -49,7 +49,7 @@ public abstract class Client {
 
 	private OperatingSystem operatingSystem;
 
-	private Map<String, String> volumeMappings = new HashMap<>();
+	private Map<String, File> volumeMappings = new HashMap<>();
 
 	private boolean useWrapper = true;
 
@@ -70,11 +70,14 @@ public abstract class Client {
 		}
 	}
 
-	public Map<String, String> getVolumeMappings() {
+	/**
+	 * Mapping from docker path to host path (the other way around compared to docker to ease configuration)
+	 */
+	public Map<String, File> getVolumeMappings() {
 		return volumeMappings;
 	}
 
-	public void setVolumeMappings(Map<String, String> volumeMappings) {
+	public void setVolumeMappings(Map<String, File> volumeMappings) {
 		this.volumeMappings = volumeMappings;
 	}
 
@@ -322,12 +325,16 @@ public abstract class Client {
 			commandLine.add(entry.getKey() + "=" + entry.getValue());
 		}
 
-		for (Map.Entry<String, String> entry : volumeMappings.entrySet()) {
+		for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
 			commandLine.add("-v");
-			commandLine.add(entry.getValue() + ":" + entry.getKey());
+			commandLine.add(entry.getValue().getAbsolutePath() + ":" + entry.getKey());
 
-			File file = new File(entry.getValue());
+			File file = entry.getValue();
 			file.mkdirs();
+		}
+
+		if (version == null) {
+			throw new IllegalStateException("no version specified");
 		}
 
 		commandLine.add(imageName + ":" + version);

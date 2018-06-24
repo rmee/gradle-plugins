@@ -120,7 +120,7 @@ public class HelmExtension extends ClientExtensionBase {
 			sourceDir = new File(project.getProjectDir(), "src/main/helm/");
 		}
 
-		if (outputDir == null && !client.isDockerized()) {
+		if (outputDir == null) {
 			outputDir = new File(project.getBuildDir(), "distributions");
 		}
 

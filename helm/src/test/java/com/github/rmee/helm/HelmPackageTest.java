@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-@Ignore // FIXME
 public class HelmPackageTest {
 
 	private File workingDir;

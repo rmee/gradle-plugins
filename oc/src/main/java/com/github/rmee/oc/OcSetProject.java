@@ -11,7 +11,7 @@ public class OcSetProject extends OcExec {
 	@TaskAction
 	protected void exec() {
 		OcExtension extension = getProject().getExtensions().getByType(OcExtension.class);
-		setCommandLine("oc project " + extension.getProjectName());
+		commandLine("oc project " + extension.getProjectName());
 		super.exec();
 	}
 

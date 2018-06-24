@@ -14,7 +14,7 @@ public class AzKubernetesDashboardTask extends AzExec {
 		AzExtension azExtension = getProject().getExtensions().getByType(AzExtension.class);
 		String resourceGroup = azExtension.getResourceGroup();
 		Object clusterName = resourceGroup;
-		setCommandLine(
+		commandLine(
 				String.format("az aks browse --resource-group %s --name %s",
 						resourceGroup, clusterName)
 		);

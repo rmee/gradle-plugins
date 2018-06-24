@@ -4,15 +4,21 @@ apply plugin: 'java-gradle-plugin'
 apply plugin: "com.gradle.plugin-publish"
 
 apply plugin: 'org.unbroken-dome.test-sets'
-apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
 	compile gradleApi()
 	compile localGroovy()
 
-	compile project(':common')
+	testCompile project(':common')
+	compileOnly project(':common')
+
 	compile 'org.apache.httpcomponents:httpclient:4.5.2'
 	compile 'de.undercouch:gradle-download-task:3.3.0'
+}
+
+jar {
+	// bundle common project with plugin
+	from { project(':common').file('build/classes/java/main') }
 }
 
 pluginBundle {

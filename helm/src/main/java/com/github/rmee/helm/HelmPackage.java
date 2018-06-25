@@ -1,48 +1,74 @@
 package com.github.rmee.helm;
 
 import java.io.File;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.OutputFiles;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class HelmPackage extends DefaultTask {
 
+	private String packageName;
+
+	public HelmPackage() {
+		setGroup("kubernetes");
+	}
+
 	@TaskAction
 	public void exec() {
 		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-		File outputDir = extension.getOutputDir();
-		outputDir.mkdirs();
+
+		String outputDir;
+		if (extension.getClient().isDockerized()) {
+			outputDir = HelmPlugin.CONTAINER_DISTRIBUTIONS_DIR;
+		}
+		else {
+			File fileOutputDir = extension.getOutputDir();
+			fileOutputDir.mkdirs();
+			outputDir = fileOutputDir.getAbsolutePath();
+		}
 
 		Project project = getProject();
 
-		Set<String> packageNames = extension.getPackageNames();
-		for (String packageName : packageNames) {
-			HelmExecSpec spec = new HelmExecSpec();
-			File sourceDir = extension.getPackageSourceDir(packageName);
-			spec.setCommandLine("helm package " + sourceDir.getAbsolutePath() + " --destination " + outputDir.getAbsolutePath()
-					+ " --version " + project.getVersion());
+		HelmExecSpec spec = new HelmExecSpec();
+		String sourceDir = getPackageSourceDir(packageName);
+		spec.setCommandLine("helm package " + sourceDir + " --destination " + outputDir
+				+ " --version " + project.getVersion());
 
-			extension.exec(spec);
-		}
+		extension.exec(spec);
 	}
+
+
+	private String getPackageSourceDir(String packageName) {
+		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
+		if (extension.getClient().isDockerized()) {
+			return HelmPlugin.CONTAINER_SOURCES_DIR + "/" + packageName;
+		}
+		return new File(getSourceDir(), packageName).getAbsolutePath();
+	}
+
 
 	@InputDirectory
 	public File getSourceDir() {
 		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-		return extension.getSourceDir();
+		return new File(extension.getSourceDir(), packageName);
 	}
 
-	@OutputFiles
-	public Set<File> getOutputFiles() {
+	@OutputFile
+	public File getOutputFile() {
 		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-		Set<String> packageNames = extension.getPackageNames();
-		return packageNames.stream()
-				.map(name -> extension.getOutputFile(name))
-				.collect(Collectors.toSet());
+		return extension.getOutputFile(packageName);
+	}
+
+	@Input
+	public String getPackageName() {
+		return packageName;
+	}
+
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
 	}
 }

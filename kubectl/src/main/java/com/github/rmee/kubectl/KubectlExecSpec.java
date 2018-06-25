@@ -2,6 +2,7 @@ package com.github.rmee.kubectl;
 
 import com.github.rmee.common.ClientExecSpec;
 import com.github.rmee.common.OutputFormat;
+import org.gradle.api.tasks.Input;
 
 public class KubectlExecSpec extends ClientExecSpec<KubectlExecSpec> {
 
@@ -9,6 +10,7 @@ public class KubectlExecSpec extends ClientExecSpec<KubectlExecSpec> {
 
 	protected String input;
 
+	@Input
 	public OutputFormat getOutputFormat() {
 		return outputFormat;
 	}
@@ -25,6 +27,7 @@ public class KubectlExecSpec extends ClientExecSpec<KubectlExecSpec> {
 	@Override
 	protected void duplicate(KubectlExecSpec duplicate) {
 		duplicate.outputFormat = outputFormat;
+		duplicate.input = input;
 	}
 
 	public String getInput() {

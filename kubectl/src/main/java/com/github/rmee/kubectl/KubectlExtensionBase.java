@@ -1,5 +1,11 @@
 package com.github.rmee.kubectl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import com.github.rmee.common.Client;
 import com.github.rmee.common.ClientExtensionBase;
 import com.github.rmee.common.Credentials;
@@ -7,12 +13,6 @@ import com.github.rmee.common.OutputFormat;
 import com.github.rmee.common.internal.KubernetesUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
@@ -95,9 +95,9 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 		return exec(spec);
 	}
 
-	protected KubectlExecResult exec(KubectlExecSpec spec1) {
+	protected KubectlExecResult exec(KubectlExecSpec execSpec1) {
 		// prevent from giving changes back to caller
-		final KubectlExecSpec spec = spec1.duplicate();
+		final KubectlExecSpec spec = execSpec1.duplicate();
 
 		List<String> commandLine = spec.getCommandLine();
 		int pipeIndex = commandLine.indexOf("|");
@@ -114,21 +114,20 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 				project.exec(execSpec -> {
-					if (kubeConfig != null) {
-						kubeConfig.getParentFile().mkdirs();
-					}
-
 					client.configureExec(execSpec, spec);
 
+					System.out.println("pass input: " + spec.getInput());
 					if (spec.getInput() != null) {
 						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
 					}
+					System.out.println("output: " + spec.getOutputFormat());
 					if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
 						execSpec.setStandardOutput(outputStream);
 					}
 				});
 
 				String output = outputStream.toString();
+				System.out.println("got output: " + output);
 				return createResult(output);
 			} catch (IOException e) {
 				throw new IllegalStateException(e);

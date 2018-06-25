@@ -47,7 +47,7 @@ public class KubectlExtension extends KubectlExtensionBase {
 	}
 
 	@Override
-	public KubectlExecResult exec(KubectlExecSpec spec) {
-		return super.exec(spec);
+	public KubectlExecResult exec(KubectlExecSpec execSpec) {
+		return super.exec(execSpec);
 	}
 }

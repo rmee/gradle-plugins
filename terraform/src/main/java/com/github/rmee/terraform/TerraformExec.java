@@ -10,7 +10,6 @@ public class TerraformExec extends ClientExecBase {
 
 	private TerraformExecSpec spec = new TerraformExecSpec();
 
-
 	public TerraformExec() {
 		setGroup("provision");
 	}

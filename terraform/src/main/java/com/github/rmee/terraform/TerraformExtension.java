@@ -1,18 +1,21 @@
 package com.github.rmee.terraform;
 
-import com.github.rmee.common.Client;
-import com.github.rmee.common.ClientExecSpec;
-import com.github.rmee.common.ClientExtensionBase;
-import groovy.lang.Closure;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.rmee.common.Client;
+import com.github.rmee.common.ClientExecSpec;
+import com.github.rmee.common.ClientExtensionBase;
+import groovy.lang.Closure;
+import org.gradle.api.Project;
+
 public class TerraformExtension extends ClientExtensionBase {
 
-	private File configDirectory;
+	private File sourceDir;
+
+	private boolean debug = false;
 
 	private Map<String, Object> variables = new HashMap<>();
 
@@ -83,11 +86,23 @@ public class TerraformExtension extends ClientExtensionBase {
 		this.variables = variables;
 	}
 
-	public File getConfigDirectory() {
-		return configDirectory;
+	public File getSourceDir() {
+		return sourceDir;
 	}
 
-	public void setConfigDirectory(File configDirectory) {
-		this.configDirectory = configDirectory;
+	public void setSourceDir(File sourceDir) {
+		this.sourceDir = sourceDir;
+	}
+
+	public boolean getDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	protected void setProject(Project project) {
+		this.project = project;
 	}
 }

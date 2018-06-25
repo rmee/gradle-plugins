@@ -2,7 +2,7 @@ package com.github.rmee.kubectl;
 
 import com.github.rmee.common.OutputFormat;
 import com.github.rmee.common.internal.ClientExecBase;
-import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Input;
 
 public class KubectlExecBase extends ClientExecBase {
 
@@ -24,7 +24,7 @@ public class KubectlExecBase extends ClientExecBase {
 		return result;
 	}
 
-	@InputFile
+	@Input
 	public OutputFormat getOutputFormat() {
 		return spec.getOutputFormat();
 	}

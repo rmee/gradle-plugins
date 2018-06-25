@@ -1,18 +1,16 @@
 package com.github.rmee.helm;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.github.rmee.common.Client;
 import com.github.rmee.common.ClientExtensionBase;
 import com.github.rmee.common.internal.KubernetesUtils;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class HelmExtension extends ClientExtensionBase {
@@ -67,10 +65,6 @@ public class HelmExtension extends ClientExtensionBase {
 				.map(file -> file.getName())
 				.collect(Collectors.toSet());
 
-	}
-
-	public File getPackageSourceDir(String packageName) {
-		return new File(getSourceDir(), packageName);
 	}
 
 	public File getSourceDir() {

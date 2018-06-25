@@ -1,11 +1,12 @@
 package com.github.rmee.common.internal;
 
+import java.io.File;
+
 import com.github.rmee.common.Client;
 import org.gradle.api.Project;
 
-import java.io.File;
-
 public class KubernetesUtils {
+
 	public static File getDefaultKubeConfig(Project project) {
 		return new File(project.getRootProject().getProjectDir(), "build/.kube/config");
 	}
@@ -17,8 +18,14 @@ public class KubernetesUtils {
 			}
 			client.getVolumeMappings().put("/root/.kube/", kubeConfig.getParentFile());
 
-		} else {
+		}
+		else {
 			client.getEnvironment().put("KUBECONFIG", kubeConfig.getAbsolutePath());
 		}
+	}
+
+	public static void addDefaultMappings(Client client, Project project) {
+		client.getVolumeMappings().put("/src", project.file("src"));
+		client.getVolumeMappings().put("/build", project.file("build"));
 	}
 }

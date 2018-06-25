@@ -6,14 +6,11 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.groovy.util.StringUtil;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
@@ -62,7 +59,8 @@ public abstract class Client {
 		String proxyUrl;
 		if (proxyHostName == null) {
 			proxyUrl = System.getenv("HTTP_PROXY");
-		} else {
+		}
+		else {
 			proxyUrl = "http://" + proxyHostName + ":" + proxyPort;
 		}
 		if (proxyUrl != null) {
@@ -296,7 +294,8 @@ public abstract class Client {
 			commandLine.addAll(args);
 			System.out.println("Executing: " + commandLine);
 			execSpec.setCommandLine(commandLine);
-		} else {
+		}
+		else {
 			args.set(0, getBinPath());
 			execSpec.setCommandLine(args);
 		}
@@ -308,7 +307,8 @@ public abstract class Client {
 					throw new IllegalStateException("failed to delete " + stdoutFile);
 				}
 				execSpec.setStandardOutput(new FileOutputStream(stdoutFile));
-			} catch (FileNotFoundException e) {
+			}
+			catch (FileNotFoundException e) {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
@@ -319,6 +319,7 @@ public abstract class Client {
 		List<String> commandLine = new ArrayList<>();
 		commandLine.add("docker");
 		commandLine.add("run");
+		commandLine.add("-i");
 
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");
@@ -362,11 +363,18 @@ public abstract class Client {
 				for (String element : commandLine) {
 					builder.append(' ');
 
+
 					String rootPath = rootProject.getProjectDir().getAbsolutePath();
-					if (element.startsWith(rootPath)) {
-						element = element.substring(rootPath.length());
-						if (element.startsWith(File.separator)) {
-							element = element.substring(1);
+					String projectPath = project.getProjectDir().getAbsolutePath();
+					if (element.startsWith(projectPath)) {
+						element = element.substring(projectPath.length() + 1);
+					}
+					else if (element.startsWith(projectPath)) {
+						element = element.substring(rootPath.length() + 1);
+						Project p = project;
+						while (p != rootProject) {
+							element = "../" + element;
+							p = p.getParent();
 						}
 					}
 
@@ -376,10 +384,11 @@ public abstract class Client {
 				builder.append(binName);
 				builder.append(" \"$@\"\n");
 
-				File file = new File(rootProject.getProjectDir(), binName);
+				File file = new File(project.getProjectDir(), binName);
 				try (FileWriter writer = new FileWriter(file)) {
 					writer.write(builder.toString());
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 					throw new IllegalStateException(e);
 				}
 			});

@@ -1,14 +1,13 @@
 package com.github.rmee.helm;
 
-import org.gradle.internal.impldep.com.amazonaws.util.IOUtils;
-import org.gradle.internal.impldep.org.testng.Assert;
-import org.gradle.testkit.runner.GradleRunner;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import org.gradle.internal.impldep.com.amazonaws.util.IOUtils;
+import org.gradle.internal.impldep.org.testng.Assert;
+import org.gradle.testkit.runner.GradleRunner;
+import org.junit.Test;
 
 public class HelmPackageTest {
 

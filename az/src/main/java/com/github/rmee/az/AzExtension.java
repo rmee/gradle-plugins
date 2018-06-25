@@ -23,7 +23,7 @@ public class AzExtension extends ClientExtensionBase {
 	private boolean servicePrincipal;
 
 	public AzExtension() {
-		client = new Client(this, "aks") {
+		client = new Client(this, "az") {
 			@Override
 			protected String computeDownloadFileName() {
 				throw new UnsupportedOperationException("download not supported, make use of docker");

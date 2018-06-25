@@ -29,6 +29,7 @@ terraform {
 			tenant_id      : { az.tenantId },
 			ssh_key_pub    : { publicKeyFile.text }
 	]
+	debug = false
 }
 terraformInit.dependsOn azLogin
 ```

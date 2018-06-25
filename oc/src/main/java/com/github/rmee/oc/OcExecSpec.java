@@ -11,7 +11,8 @@ public class OcExecSpec extends KubectlExecSpec {
 
 	@Override
 	public void duplicate(KubectlExecSpec duplicate) {
-		// nothing to do
+		// nothing more to do
+		super.duplicate(duplicate);
 	}
 
 }

@@ -10,6 +10,7 @@ import org.gradle.api.Project;
 
 public class KubectlPlugin implements Plugin<Project> {
 
+
 	public void apply(Project project) {
 		project.getPlugins().apply("de.undercouch.download");
 
@@ -27,13 +28,16 @@ public class KubectlPlugin implements Plugin<Project> {
 			if (client.isDockerized()) {
 				bootstrap.setEnabled(false);
 				client.setupWrapper(project);
-			} else {
+				KubernetesUtils.addDefaultMappings(client, project);
+			}
+			else {
 				File downloadDir = client.getDownloadDir();
 				downloadDir.mkdirs();
 				bootstrap.dest(downloadDir);
 				try {
 					bootstrap.src(client.getDownloadUrl());
-				} catch (MalformedURLException e) {
+				}
+				catch (MalformedURLException e) {
 					throw new IllegalStateException(e);
 				}
 			}

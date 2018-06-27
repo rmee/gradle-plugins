@@ -28,7 +28,8 @@ public class HelmSysTest {
 		System.setProperty("org.gradle.daemon", "false");
 
 		File gradleFile = new File(workingDir, "build.gradle");
-		File tillerFile = new File(workingDir, "tiller-template.yaml");
+		File tillerFile = new File(workingDir, "src/main/kubectl/tiller-template.yaml");
+		tillerFile.getParentFile().mkdirs();
 		File chartFile = new File(chartFolder, "Chart.yaml");
 		File valuesFile = new File(chartFolder, "values.yaml");
 		File serviceFile = new File(remplateFolder, "service.yaml");

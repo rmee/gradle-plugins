@@ -61,8 +61,7 @@ public abstract class Client {
 		String proxyUrl;
 		if (proxyHostName == null) {
 			proxyUrl = System.getenv("HTTP_PROXY");
-		}
-		else {
+		} else {
 			proxyUrl = "http://" + proxyHostName + ":" + proxyPort;
 		}
 		if (proxyUrl != null) {
@@ -301,11 +300,13 @@ public abstract class Client {
 		if (dockerized) {
 			List<String> commandLine = new ArrayList<>();
 			commandLine.addAll(buildBaseCommandLine());
-			commandLine.addAll(args);
+
+			for (String arg : args) {
+				commandLine.add(mapArg(arg));
+			}
 			System.out.println("Executing: " + commandLine);
 			execSpec.setCommandLine(commandLine);
-		}
-		else {
+		} else {
 			args.set(0, getBinPath());
 			execSpec.setCommandLine(args);
 		}
@@ -317,12 +318,26 @@ public abstract class Client {
 					throw new IllegalStateException("failed to delete " + stdoutFile);
 				}
 				execSpec.setStandardOutput(new FileOutputStream(stdoutFile));
-			}
-			catch (FileNotFoundException e) {
+			} catch (FileNotFoundException e) {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
 
+	}
+
+	/**
+	 * Apply volume mappings to arguments
+	 */
+	private String mapArg(String arg) {
+		for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
+			String path = entry.getValue().getAbsolutePath();
+			if (arg.startsWith(path)) {
+				arg = entry.getKey() + arg.substring(path.length());
+				break;
+			}
+		}
+		arg = arg.replace('\\', '/');
+		return arg;
 	}
 
 	private Collection<String> buildBaseCommandLine() {
@@ -415,8 +430,7 @@ public abstract class Client {
 				File file = new File(project.getProjectDir(), binName);
 				try (FileWriter writer = new FileWriter(file)) {
 					writer.write(builder.toString());
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					throw new IllegalStateException(e);
 				}
 			});

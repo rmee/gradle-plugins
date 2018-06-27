@@ -24,6 +24,7 @@ dependencies {
 	compile 'de.undercouch:gradle-download-task:3.3.0'
 
 	testCompile project(':oc')
+	systemTestCompile project(':oc')
 }
 
 systemTest.outputs.upToDateWhen { false }
@@ -48,5 +49,6 @@ systemTest {
 
 pluginUnderTestMetadata {
 	pluginClasspath = files(pluginClasspath, project(':common').file('build/classes/java/main'),
-			project(':kubectl').file('build/classes/java/main'), project(':kubectl').file('build/resources/java/main'))
+			project(':kubectl').file('build/classes/java/main'), project(':kubectl').file('build/resources/java/main'),
+			project(':oc').file('build/classes/java/main'), project(':oc').file('build/resources/java/main'))
 }

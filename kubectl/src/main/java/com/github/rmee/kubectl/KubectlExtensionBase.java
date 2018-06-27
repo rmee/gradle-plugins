@@ -18,7 +18,7 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
 	private String url;
 
-	private Credentials credentials;
+	protected Credentials credentials;
 
 	private String namespace;
 

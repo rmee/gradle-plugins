@@ -19,7 +19,7 @@ public class OcPlugin implements Plugin<Project> {
 		extension.setProject(project);
 		extension.setKubeConfig(KubernetesUtils.getDefaultKubeConfig(project));
 		extension.setUrl(getVariable(project, "OPENSHIFT_URL"));
-		Credentials credentials = extension.getCredentials();
+		Credentials credentials = extension.getCredentialsWithoutInit();
 		credentials.setUserName(getVariable(project, "OPENSHIFT_USER"));
 		credentials.setPassword(getVariable(project, "OPENSHIFT_PASS"));
 		credentials.setToken(getVariable(project, "OPENSHIFT_TOKEN"));

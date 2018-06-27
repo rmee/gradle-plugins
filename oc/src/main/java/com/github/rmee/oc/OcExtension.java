@@ -1,6 +1,7 @@
 package com.github.rmee.oc;
 
 import com.github.rmee.common.Client;
+import com.github.rmee.common.Credentials;
 import com.github.rmee.kubectl.KubectlExecResult;
 import com.github.rmee.kubectl.KubectlExtensionBase;
 import org.gradle.api.Project;
@@ -58,6 +59,9 @@ public class OcExtension extends KubectlExtensionBase {
 		return new OcExecResult(output);
 	}
 
+	protected Credentials getCredentialsWithoutInit() {
+		return credentials;
+	}
 
 	public String getProjectName() {
 		init();

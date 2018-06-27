@@ -27,12 +27,13 @@ public class HelmPlugin implements Plugin<Project> {
 		DefaultTask helmPackages = project.getTasks().create("helmPackage", DefaultTask.class);
 		helmPackages.setGroup("kubernetes");
 		HelmInit helmInit = project.getTasks().create("helmInit", HelmInit.class);
+		helmInit.dependsOn(helmBootstrap);
 
 		Set<String> packageNames = extension.getPackageNames();
 		for (String packageName : packageNames) {
 			HelmPackage helmPackage = project.getTasks().create("helmPackage" + toCamelCase(packageName), HelmPackage.class);
 			helmPackage.setPackageName(packageName);
-			helmPackage.dependsOn(helmBootstrap);
+			helmPackage.dependsOn(helmInit);
 			helmPackages.dependsOn(helmPackage);
 		}
 

@@ -9,7 +9,9 @@ repositories {
 }
 
 import com.github.rmee.oc.OcExec
+import com.github.rmee.oc.OcPlugin
 import com.github.rmee.kubectl.KubectlExec
+import com.github.rmee.kubectl.KubectlPlugin
 import com.github.rmee.helm.HelmExec
 
 //////////////////////////////////////////////////////////////////
@@ -40,7 +42,7 @@ task ocSetupTiller(type: OcExec) {
 	dependsOn ocLogin
 	group = 'provision'
 	mustRunAfter ocNewProject
-	commandLine "oc process -f ${file('tiller-template.yaml')} -p TILLER_NAMESPACE=${oc.projectName} | oc apply -f -"
+	commandLine "oc process -f ${file('src/main/kubectl/tiller-template.yaml')} -p TILLER_NAMESPACE=${oc.projectName} | oc apply -f -"
 }
 
 task ocAuthorizeTiller(type: OcExec) {
@@ -79,7 +81,7 @@ task helmStatus(type: HelmExec) {
 
 task helmInstall(type: HelmExec) {
 	dependsOn ocLogin, helmPackage
-	commandLine "helm upgrade --install demo ${helmPackage.outputs.files.singleFile}"
+	commandLine "helm upgrade --install demo ${helmPackageHelmapp.outputs.files.singleFile}"
 }
 
 task helmClientVersion(type: HelmExec) {

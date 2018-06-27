@@ -68,13 +68,11 @@ public class HelmExtension extends ClientExtensionBase {
 	}
 
 	public File getSourceDir() {
-		init();
-		return sourceDir;
-	}
+		if (sourceDir == null) {
+			sourceDir = new File(project.getProjectDir(), "src/main/helm/");
+		}
 
-	public void setSourceDir(File sourceDir) {
-		checkNotInitialized();
-		this.sourceDir = sourceDir;
+		return sourceDir;
 	}
 
 	public File getOutputFile(String packageName) {
@@ -109,10 +107,6 @@ public class HelmExtension extends ClientExtensionBase {
 			return;
 		}
 		initialized = true;
-
-		if (sourceDir == null) {
-			sourceDir = new File(project.getProjectDir(), "src/main/helm/");
-		}
 
 		if (outputDir == null) {
 			outputDir = new File(project.getBuildDir(), "distributions");

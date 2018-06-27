@@ -3,6 +3,9 @@ package com.github.rmee.kubectl;
 public class KubectlStartProxyTask extends KubectlExec {
 
 	public KubectlStartProxyTask() {
+		// TODO
+		// retrieveSpec().getPortMappings().put(8001, 8001);
+
 		// by default the proxy binds to loopback which cannot be exposed with docker
 		commandLine("kubectl proxy --address=\"0.0.0.0\"");
 

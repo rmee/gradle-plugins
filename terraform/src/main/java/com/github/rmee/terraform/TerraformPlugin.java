@@ -31,11 +31,13 @@ public class TerraformPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
-			client.setupWrapper(project);
+			client.setupWrapper(project, false);
 
-			File terraformTempDir = new File(project.getBuildDir(), ".terraform");
+			File terraformTempDir = new File(project.getBuildDir(), ".terraform.d");
+			File terraformTempDir2 = new File(project.getBuildDir(), ".terraform");
 			extension.getClient().getVolumeMappings().put("/etc/project/conf", extension.getSourceDir());
-			extension.getClient().getVolumeMappings().put("/.terraform", terraformTempDir);
+			extension.getClient().getVolumeMappings().put("/root/.terraform.d", terraformTempDir);
+			extension.getClient().getVolumeMappings().put("/.terraform", terraformTempDir2);
 			if (extension.getDebug()) {
 				extension.getClient().getEnvironment().put("TF_LOG", "DEBUG");
 			}

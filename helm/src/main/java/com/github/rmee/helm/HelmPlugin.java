@@ -39,10 +39,11 @@ public class HelmPlugin implements Plugin<Project> {
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
 
-
 			if (client.isDockerized()) {
 				helmBootstrap.setEnabled(false);
 				client.setupWrapper(project);
+
+				KubernetesUtils.addDefaultMappings(client, project);
 
 				File helmTempDir = new File(project.getBuildDir(), ".helm");
 				File helmDistDir = new File(project.getBuildDir(), "distributions");

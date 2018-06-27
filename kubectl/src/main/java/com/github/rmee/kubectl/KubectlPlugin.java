@@ -21,6 +21,7 @@ public class KubectlPlugin implements Plugin<Project> {
 
 		KubectlBootstrap bootstrap = project.getTasks().create("kubectlBootstrap", KubectlBootstrap.class);
 		KubectlUseContext login = project.getTasks().create("kubectlUseContext", KubectlUseContext.class);
+		project.getTasks().create("kubectlStartProxy", KubectlStartProxyTask.class);
 		login.dependsOn(bootstrap);
 
 		project.afterEvaluate(project1 -> {

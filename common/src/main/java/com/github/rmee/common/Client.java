@@ -48,6 +48,8 @@ public abstract class Client {
 
 	private Map<String, File> volumeMappings = new HashMap<>();
 
+	private Map<Integer, Integer> portMappings = new HashMap<>();
+
 	private boolean useWrapper = true;
 
 	public Client(ClientExtensionBase extension, String binName) {
@@ -77,6 +79,14 @@ public abstract class Client {
 
 	public void setVolumeMappings(Map<String, File> volumeMappings) {
 		this.volumeMappings = volumeMappings;
+	}
+
+	public Map<Integer, Integer> getPortMappings() {
+		return portMappings;
+	}
+
+	public void setPortMappings(Map<Integer, Integer> portMappings) {
+		this.portMappings = portMappings;
 	}
 
 	public Map<String, String> getEnvironment() {
@@ -327,11 +337,21 @@ public abstract class Client {
 		}
 
 		for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
+			String path = entry.getValue().getAbsolutePath();
+
+			// fix path issues with windows
+			path = path.replace('\\', '/');
+
 			commandLine.add("-v");
-			commandLine.add(entry.getValue().getAbsolutePath() + ":" + entry.getKey());
+			commandLine.add(path + ":" + entry.getKey());
 
 			File file = entry.getValue();
 			file.mkdirs();
+		}
+
+		for (Map.Entry<Integer, Integer> entry : portMappings.entrySet()) {
+			commandLine.add("-p");
+			commandLine.add(entry.getValue() + ":" + entry.getKey());
 		}
 
 		if (version == null) {
@@ -351,6 +371,10 @@ public abstract class Client {
 	}
 
 	public void setupWrapper(Project project) {
+		setupWrapper(project, true);
+	}
+
+	public void setupWrapper(Project project, boolean mustIncludeBinary) {
 		if (useWrapper()) {
 			Project rootProject = project.getRootProject();
 			Task wrapper = rootProject.getTasks().getByName("wrapper");
@@ -360,16 +384,18 @@ public abstract class Client {
 				builder.append("#!/usr/bin/env sh\n");
 				builder.append("exec");
 				Collection<String> commandLine = buildBaseCommandLine();
+
 				for (String element : commandLine) {
 					builder.append(' ');
 
-
+					// no relative paths support on windows yet
+					/*
 					String rootPath = rootProject.getProjectDir().getAbsolutePath();
 					String projectPath = project.getProjectDir().getAbsolutePath();
 					if (element.startsWith(projectPath)) {
 						element = element.substring(projectPath.length() + 1);
 					}
-					else if (element.startsWith(projectPath)) {
+					else if (element.startsWith(rootPath)) {
 						element = element.substring(rootPath.length() + 1);
 						Project p = project;
 						while (p != rootProject) {
@@ -377,11 +403,13 @@ public abstract class Client {
 							p = p.getParent();
 						}
 					}
-
+					*/
 					builder.append(element);
 				}
-				builder.append(' ');
-				builder.append(binName);
+				if (mustIncludeBinary) {
+					builder.append(' ');
+					builder.append(binName);
+				}
 				builder.append(" \"$@\"\n");
 
 				File file = new File(project.getProjectDir(), binName);

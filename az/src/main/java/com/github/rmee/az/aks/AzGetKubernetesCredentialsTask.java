@@ -1,5 +1,7 @@
 package com.github.rmee.az.aks;
 
+import java.io.File;
+
 import com.github.rmee.az.AzExec;
 import com.github.rmee.az.AzExtension;
 import org.gradle.api.tasks.TaskAction;
@@ -15,6 +17,10 @@ public class AzGetKubernetesCredentialsTask extends AzExec {
 		AzExtension azExtension = getProject().getExtensions().getByType(AzExtension.class);
 		String resourceGroup = azExtension.getResourceGroup();
 		Object clusterName = azExtension.getAks().getClusterName();
+
+		// replace contents
+		File file = new File("/root/.kube/config");
+		file.delete();
 
 		commandLine(
 				String.format("az aks get-credentials --resource-group %s --name %s --file /root/.kube/config",

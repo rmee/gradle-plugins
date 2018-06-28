@@ -7,7 +7,32 @@ Hosts a collection of Gradle plugins:
 
 - [build-on-change](../../blob/master/build-on-change): perform incremental builds of PRs by only building what has 
   changed compared to a reference branch (like master).
+- [systemd-application](../../blob/master/systemd-application): builds a RPM/systemd package out of any Java main 
+  application, such as Spring Boot or Dropwizard.
+- [oc](../../blob/master/oc): gives access to the OpenShift command line tool &quot;oc&quot; to interface
+  with an OpenShift cluster. 
+- [kubectl](../../blob/master/kubectl): gives access to the Kubernetes command line tool &quot;kubectl&quot; to interface
+  with an OpenShift cluster. 
+- [terraform](../../blob/master/terraform): gives access to the Terraform command line tool &quot;terraform&quot;.
+- [helm](../../blob/master/helm): gives access to the Helm command line tool &quot;helm&quot; to perform packaging
+  and deployment of Kubernetes applications.
+- [az](../../blob/master/az): gives access to the Azure command line tool &quot;az&quot; to interface
+  with Azure.
+  
+The `oc`, `kubernetes`, `helm`, `az` and `terraform` plugins make use of:
 
+- the native command line tools of the various technology stacks. They deliberately do not want to establish 
+  a new Java-based API and instead focuses on what developer already know and bring it to Gradle. It further helps
+  to stay up-to-date with those technologies and keep the plugins simple.  
+- dockerizization of the command line tools to gain isolation of their configuration to the scope of the
+   applied Gradle project and have platform independence and caching of the tools.
+- Volume-mappings into the project to let different plugins work together, such as sharing the Kubernetes configuration.
+- generated wrapper scripts in the project root to give access to the tools from the command line 
+  just like if they were locally installed while hiding volume-mapping and environment logic.
+       
+Note that early versions of plugins did not yet make use of dockerization. The extensions can still be configured to fallback
+to that behavior. This functionality may or may not be removed in the future depending on the need.
+   
 
 ## Licensing
 

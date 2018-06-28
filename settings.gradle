@@ -1,4 +1,11 @@
-include ':systemd-application', ':build-on-change', 'kubernetes', 'helm'
+include ':systemd-application',
+		':build-on-change',
+		'common',
+		'kubectl',
+		'terraform',
+		'az',
+		'oc',
+		'helm'
 
 gradle.beforeProject { Project project ->
 	project.with {

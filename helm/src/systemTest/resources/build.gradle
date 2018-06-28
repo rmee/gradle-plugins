@@ -1,0 +1,108 @@
+plugins {
+	id 'helm'
+}
+version = '0.1.0'
+repositories {
+	maven {
+		mavenCentral()
+	}
+}
+
+import com.github.rmee.oc.OcExec
+import com.github.rmee.oc.OcPlugin
+import com.github.rmee.kubectl.KubectlExec
+import com.github.rmee.kubectl.KubectlPlugin
+import com.github.rmee.helm.HelmExec
+
+//////////////////////////////////////////////////////////////////
+// oc
+//////////////////////////////////////////////////////////////////
+
+
+apply plugin: OcPlugin
+oc {
+	projectName = 'rmee-demo-app'
+	url = 'https://api.starter-us-west-2.openshift.com'
+	credentials {
+		token = System.env['OPENSHIFT_TOKEN']
+
+		if (!token) {
+			logger.error("add OPENSHIFT_TOKEN to env variables")
+		}
+	}
+}
+
+task ocDeleteProject(type: OcExec) {
+	dependsOn ocLogin
+	group = 'provision'
+	commandLine "oc delete project ${oc.projectName}"
+}
+
+task ocSetupTiller(type: OcExec) {
+	dependsOn ocLogin
+	group = 'provision'
+	mustRunAfter ocNewProject
+	commandLine "oc process -f ${file('src/main/kubectl/tiller-template.yaml')} -p TILLER_NAMESPACE=${oc.projectName} | oc apply -f -"
+}
+
+task ocAuthorizeTiller(type: OcExec) {
+	dependsOn ocLogin
+	ignoreExitValue = true // FIXME for whatever reason it is not working between oc and travis, works locally
+	group = 'provision'
+	mustRunAfter ocSetupTiller
+	commandLine "oc policy add-role-to-user edit \"system:serviceaccount:${oc.projectName}:tiller\""
+}
+
+task ocSetup {
+	dependsOn ocSetupTiller, ocAuthorizeTiller
+}
+
+task ocWaitForTiller(type: OcExec) {
+	dependsOn ocLogin
+	group = 'provision'
+	commandLine "oc rollout status deployment tiller"
+}
+
+//////////////////////////////////////////////////////////////////
+// helm
+//////////////////////////////////////////////////////////////////
+
+
+apply plugin: 'helm'
+
+helm {
+	tillerNamespace = oc.projectName
+}
+
+task helmStatus(type: HelmExec) {
+	dependsOn ocLogin, helmPackage
+	commandLine "helm status demo"
+}
+
+task helmInstall(type: HelmExec) {
+	dependsOn ocLogin, helmPackage
+	commandLine "helm upgrade --install demo ${helmPackageHelmapp.outputs.files.singleFile}"
+}
+
+task helmClientVersion(type: HelmExec) {
+	dependsOn helmBootstrap
+	commandLine "helm version -c"
+}
+
+//////////////////////////////////////////////////////////////////
+// kubectl
+//////////////////////////////////////////////////////////////////
+
+apply plugin: KubectlPlugin
+kubectl {
+	namespace = oc.projectName
+	url = oc.url
+	credentials {
+		token = oc.credentials.token
+	}
+}
+
+task kubectlWaitForTiller(type: KubectlExec) {
+	group = 'provision'
+	commandLine "kubectl rollout status deployment tiller"
+}

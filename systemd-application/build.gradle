@@ -17,7 +17,7 @@ pluginBundle {
 	tags = ['java', 'spring-boot', 'rpm', 'systemd', 'package']
 
 	plugins {
-		'build-on-change' {
+		'systemd' {
 			id = 'com.github.rmee.systemd-application'
 			displayName = 'systemd-application'
 		}

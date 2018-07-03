@@ -1,6 +1,7 @@
 package com.github.rmee.kubectl;
 
 import com.github.rmee.common.Client;
+import groovy.lang.Closure;
 import org.gradle.internal.os.OperatingSystem;
 
 public class KubectlExtension extends KubectlExtensionBase {
@@ -29,11 +30,14 @@ public class KubectlExtension extends KubectlExtensionBase {
 				OperatingSystem operatingSystem = getOperatingSystem();
 				if (operatingSystem.isLinux()) {
 					return downloadUrl + "linux/amd64/" + downloadFileName;
-				} else if (operatingSystem.isWindows()) {
+				}
+				else if (operatingSystem.isWindows()) {
 					return downloadUrl + "windows/amd64/" + downloadFileName;
-				} else if (operatingSystem.isMacOsX()) {
+				}
+				else if (operatingSystem.isMacOsX()) {
 					return downloadUrl + "darwin/amd64/" + downloadFileName;
-				} else {
+				}
+				else {
 					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
 				}
 			}
@@ -49,5 +53,11 @@ public class KubectlExtension extends KubectlExtensionBase {
 	@Override
 	public KubectlExecResult exec(KubectlExecSpec execSpec) {
 		return super.exec(execSpec);
+	}
+
+	public KubectlExecResult exec(Closure<KubectlExecSpec> closure) {
+		KubectlExecSpec spec = new KubectlExecSpec();
+		project.configure(spec, closure);
+		return exec(spec);
 	}
 }

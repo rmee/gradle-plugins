@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import com.github.rmee.common.Client;
 import com.github.rmee.common.ClientExtensionBase;
 import com.github.rmee.common.internal.KubernetesUtils;
+import groovy.lang.Closure;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 
@@ -32,11 +33,14 @@ public class HelmExtension extends ClientExtensionBase {
 				String downloadFileName = "helm-v" + getVersion();
 				if (operatingSystem.isLinux()) {
 					return downloadFileName + "-linux-amd64.tar.gz";
-				} else if (operatingSystem.isWindows()) {
+				}
+				else if (operatingSystem.isWindows()) {
 					return downloadFileName + "-windows-amd64.zip";
-				} else if (operatingSystem.isMacOsX()) {
+				}
+				else if (operatingSystem.isMacOsX()) {
 					return downloadFileName + "-darwin-amd64.tar.gz";
-				} else {
+				}
+				else {
 					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
 				}
 			}
@@ -113,6 +117,12 @@ public class HelmExtension extends ClientExtensionBase {
 		}
 
 		this.client.init(project);
+	}
+
+	public void exec(Closure<HelmExecSpec> closure) {
+		HelmExecSpec spec = new HelmExecSpec();
+		project.configure(spec, closure);
+		exec(spec);
 	}
 
 	public void exec(HelmExecSpec spec) {

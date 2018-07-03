@@ -50,6 +50,12 @@ public class AzExtension extends ClientExtensionBase {
 		});
 	}
 
+	public void exec(Closure<AzExecSpec> closure) {
+		AzExecSpec spec = new AzExecSpec();
+		project.configure(spec, closure);
+		exec(spec);
+	}
+
 	public void aks(Closure<AksConfiguration> closure) {
 		project.configure(aks, closure);
 	}

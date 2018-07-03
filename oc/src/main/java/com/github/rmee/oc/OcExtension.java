@@ -4,6 +4,7 @@ import com.github.rmee.common.Client;
 import com.github.rmee.common.Credentials;
 import com.github.rmee.kubectl.KubectlExecResult;
 import com.github.rmee.kubectl.KubectlExtensionBase;
+import groovy.lang.Closure;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 
@@ -20,11 +21,14 @@ public class OcExtension extends KubectlExtensionBase {
 				String downloadFileName = "openshift-origin-client-tools-v" + getVersion();
 				if (operatingSystem.isLinux()) {
 					return downloadFileName + "-linux-64bit.tar.gz";
-				} else if (operatingSystem.isWindows()) {
+				}
+				else if (operatingSystem.isWindows()) {
 					return downloadFileName + "-windows.zip";
-				} else if (operatingSystem.isMacOsX()) {
+				}
+				else if (operatingSystem.isMacOsX()) {
 					return downloadFileName + "-mac.zip";
-				} else {
+				}
+				else {
 					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
 				}
 			}
@@ -86,5 +90,11 @@ public class OcExtension extends KubectlExtensionBase {
 	@Override
 	protected void setProject(Project project) {
 		super.setProject(project);
+	}
+
+	public OcExecResult exec(Closure<OcExecSpec> closure) {
+		OcExecSpec spec = new OcExecSpec();
+		project.configure(spec, closure);
+		return exec(spec);
 	}
 }

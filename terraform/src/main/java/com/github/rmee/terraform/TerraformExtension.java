@@ -105,4 +105,10 @@ public class TerraformExtension extends ClientExtensionBase {
 	protected void setProject(Project project) {
 		this.project = project;
 	}
+
+	public void exec(Closure<TerraformExecSpec> closure) {
+		TerraformExecSpec spec = new TerraformExecSpec();
+		project.configure(spec, closure);
+		exec(spec);
+	}
 }

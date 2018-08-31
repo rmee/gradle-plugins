@@ -61,7 +61,8 @@ public abstract class Client {
 		String proxyUrl;
 		if (proxyHostName == null) {
 			proxyUrl = System.getenv("HTTP_PROXY");
-		} else {
+		}
+		else {
 			proxyUrl = "http://" + proxyHostName + ":" + proxyPort;
 		}
 		if (proxyUrl != null) {
@@ -301,12 +302,28 @@ public abstract class Client {
 			List<String> commandLine = new ArrayList<>();
 			commandLine.addAll(buildBaseCommandLine());
 
+			String containerName = clientExecSpec.getContainerName();
+			if (containerName != null) {
+				commandLine.add("--name");
+				commandLine.add(containerName);
+			}
+
+			String volumesFrom = clientExecSpec.getVolumesFrom();
+			if (volumesFrom != null) {
+				commandLine.add("--volumes-from");
+				commandLine.add(volumesFrom);
+			}
+
+			commandLine.add(imageName + ":" + version);
+
 			for (String arg : args) {
 				commandLine.add(mapArg(arg));
 			}
 			System.out.println("Executing: " + commandLine);
 			execSpec.setCommandLine(commandLine);
-		} else {
+
+		}
+		else {
 			args.set(0, getBinPath());
 			execSpec.setCommandLine(args);
 		}
@@ -318,7 +335,8 @@ public abstract class Client {
 					throw new IllegalStateException("failed to delete " + stdoutFile);
 				}
 				execSpec.setStandardOutput(new FileOutputStream(stdoutFile));
-			} catch (FileNotFoundException e) {
+			}
+			catch (FileNotFoundException e) {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
@@ -373,7 +391,6 @@ public abstract class Client {
 			throw new IllegalStateException("no version specified");
 		}
 
-		commandLine.add(imageName + ":" + version);
 		return commandLine;
 	}
 
@@ -399,6 +416,8 @@ public abstract class Client {
 				builder.append("#!/usr/bin/env sh\n");
 				builder.append("exec");
 				Collection<String> commandLine = buildBaseCommandLine();
+
+				commandLine.add(imageName + ":" + version);
 
 				for (String element : commandLine) {
 					builder.append(' ');
@@ -430,7 +449,8 @@ public abstract class Client {
 				File file = new File(project.getProjectDir(), binName);
 				try (FileWriter writer = new FileWriter(file)) {
 					writer.write(builder.toString());
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 					throw new IllegalStateException(e);
 				}
 			});

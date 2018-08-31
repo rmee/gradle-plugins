@@ -13,6 +13,26 @@ public abstract class ClientExecSpec<T extends ClientExecSpec> {
 
 	private File stdoutFile;
 
+	private String volumesFrom;
+
+	private String containerName;
+
+	public String getVolumesFrom() {
+		return volumesFrom;
+	}
+
+	public void setVolumesFrom(String volumesFrom) {
+		this.volumesFrom = volumesFrom;
+	}
+
+	public String getContainerName() {
+		return containerName;
+	}
+
+	public void setContainerName(String containerName) {
+		this.containerName = containerName;
+	}
+
 	public boolean isIgnoreExitValue() {
 		return ignoreExitValue;
 	}
@@ -37,6 +57,8 @@ public abstract class ClientExecSpec<T extends ClientExecSpec> {
 		ClientExecSpec duplicate = newSpec();
 		duplicate.commandLine = new ArrayList(commandLine);
 		duplicate.ignoreExitValue = ignoreExitValue;
+		duplicate.volumesFrom = volumesFrom;
+		duplicate.containerName = containerName;
 		duplicate((T) duplicate);
 		return (T) duplicate;
 	}

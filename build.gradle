@@ -183,11 +183,11 @@ gradle.beforeProject { Project project ->
 				userOrg = 'rmee'
 				licenses = ['Apache-2.0']
 				vcsUrl = 'https://github.com/rmee/gradle.git'
-				websiteUrl = 'http://www.github.com/rmee/gradle/'
+				websiteUrl = 'http://www.github.com/rmee/gradle-plugins/'
 				desc = 'Gradle plugins'
 				labels = ['Gradle']
 
-				githubRepo = 'rmee/gradle'
+				githubRepo = 'rmee/gradle-plugins'
 				githubReleaseNotesFile = 'README.md'
 
 				publish = !releaseBuild

@@ -50,11 +50,13 @@ public class TerraformExtension extends ClientExtensionBase {
 			File terraformTempDir = new File(project.getBuildDir(), "terraform");
 			terraformTempDir.mkdirs();
 
-			//commandLine.add("-e");
-			//commandLine.add("TF_LOG=DEBUG");
-
 			final ClientExecSpec duplicate = spec.duplicate();
 			List<String> commandLine = duplicate.getCommandLine();
+
+			if (debug) {
+				commandLine.add("-e");
+				commandLine.add("TF_LOG=DEBUG");
+			}
 
 			TerraformExtension extension = project.getExtensions().getByType(TerraformExtension.class);
 			if (spec.getAddVariables()) {

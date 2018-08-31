@@ -21,6 +21,7 @@ public class KubectlUseContext extends DefaultTask {
 			boolean skipTls = true;
 			String userName = credentials.getUserName();
 			String password = credentials.getPassword();
+			String token = credentials.getToken();
 			URL url;
 			try {
 				url = new URL(extension.getUrl());
@@ -34,7 +35,19 @@ public class KubectlUseContext extends DefaultTask {
 
 			contextId = namespace + "/" + clusterId + "/" + userName;
 
-			exec("kubectl config set-credentials " + credId + " --username=" + userName + " --password=" + password);
+			if (userName == null) {
+				throw new IllegalStateException("kubectl.userName not specified");
+			}
+
+			if (password != null) {
+				exec("kubectl config set-credentials " + credId + " --username=" + userName + " --password=" + password);
+			}
+			else if (token != null) {
+				exec("kubectl config set-credentials " + credId + " --token=" + token);
+			}
+			else {
+				throw new IllegalStateException("neither kubectl.password nor kubectl.token specified");
+			}
 			exec("kubectl config set-cluster " + clusterId + " --insecure-skip-tls-verify=" + skipTls + " --server=" + url);
 			exec("kubectl config set-context " + contextId + " --user=" + credId + " "
 					+ "--namespace=" + namespace + " "

@@ -363,6 +363,7 @@ public abstract class Client {
 		commandLine.add("docker");
 		commandLine.add("run");
 		commandLine.add("-i");
+		commandLine.add("--rm");
 
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");

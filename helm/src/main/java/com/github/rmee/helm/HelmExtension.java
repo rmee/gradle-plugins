@@ -55,7 +55,7 @@ public class HelmExtension extends ClientExtensionBase {
 			}
 		};
 		client.setImageName("dtzar/helm-kubectl");
-		client.setVersion("2.8.2");
+		client.setVersion("2.9.1");
 		client.setRepository("https://storage.googleapis.com/kubernetes-helm");
 		client.setDockerized(true);
 	}

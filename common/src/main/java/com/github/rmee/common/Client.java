@@ -52,6 +52,8 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
+	private String user;
+
 	public Client(ClientExtensionBase extension, String binName) {
 		this.binName = binName;
 		this.extension = extension;
@@ -68,6 +70,25 @@ public abstract class Client {
 		if (proxyUrl != null) {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
+
+		if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+			user = System.getenv("USER");
+			if (user == null) {
+				user = System.getenv("USERHOME");
+			}
+		}
+	}
+
+	/**
+	 * @return user name to use when running with Docker. Important to have proper file ownership
+	 * in the volume mappings. By default takes the current USER or USERNAME from the environment.
+	 */
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
 	}
 
 	/**
@@ -364,6 +385,12 @@ public abstract class Client {
 		commandLine.add("run");
 		commandLine.add("-i");
 		commandLine.add("--rm");
+
+		String user = extension.getClient().getUser();
+		if (user != null) {
+			commandLine.add("--user");
+			commandLine.add(user);
+		}
 
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");

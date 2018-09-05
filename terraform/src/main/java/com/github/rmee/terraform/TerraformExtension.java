@@ -44,40 +44,44 @@ public class TerraformExtension extends ClientExtensionBase {
 	public void exec(TerraformExecSpec spec) {
 		project.getLogger().warn("Executing: " + spec.getCommandLine());
 
-		project.exec(execSpec -> {
+		try {
+			project.exec(execSpec -> {
 
-			// we mount the project into the docker container
-			File terraformTempDir = new File(project.getBuildDir(), "terraform");
-			terraformTempDir.mkdirs();
+				// we mount the project into the docker container
+				File terraformTempDir = new File(project.getBuildDir(), "terraform");
+				terraformTempDir.mkdirs();
 
-			final ClientExecSpec duplicate = spec.duplicate();
-			List<String> commandLine = duplicate.getCommandLine();
+				final ClientExecSpec duplicate = spec.duplicate();
+				List<String> commandLine = duplicate.getCommandLine();
 
-			if (debug) {
-				commandLine.add("-e");
-				commandLine.add("TF_LOG=DEBUG");
-			}
+				if (debug) {
+					commandLine.add("-e");
+					commandLine.add("TF_LOG=DEBUG");
+				}
 
-			TerraformExtension extension = project.getExtensions().getByType(TerraformExtension.class);
-			if (spec.getAddVariables()) {
-				for (Map.Entry<String, Object> entry : extension.getVariables().entrySet()) {
-					Object value = entry.getValue();
-					if (value instanceof Closure) {
-						value = ((Closure) value).call();
-					}
-					if (value != null) {
-						commandLine.add("-var");
-						commandLine.add(entry.getKey() + "=" + value);
+				TerraformExtension extension = project.getExtensions().getByType(TerraformExtension.class);
+				if (spec.getAddVariables()) {
+					for (Map.Entry<String, Object> entry : extension.getVariables().entrySet()) {
+						Object value = entry.getValue();
+						if (value instanceof Closure) {
+							value = ((Closure) value).call();
+						}
+						if (value != null) {
+							commandLine.add("-var");
+							commandLine.add(entry.getKey() + "=" + value);
+						}
 					}
 				}
-			}
 
-			if (spec.getAddConfigDirectory()) {
-				commandLine.add("/etc/project/conf");
-			}
+				if (spec.getAddConfigDirectory()) {
+					commandLine.add("/etc/project/conf");
+				}
 
-			client.configureExec(execSpec, duplicate);
-		});
+				client.configureExec(execSpec, duplicate);
+			});
+		}finally {
+			client.setFileOwnership();
+		}
 	}
 
 	public Map<String, Object> getVariables() {

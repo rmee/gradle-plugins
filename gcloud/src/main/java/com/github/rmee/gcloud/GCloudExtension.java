@@ -52,10 +52,7 @@ public class GCloudExtension extends ClientExtensionBase {
 	}
 
 	public void exec(GCloudExecSpec spec) {
-
-		project.exec(execSpec -> {
-			client.configureExec(execSpec, spec);
-		});
+		client.exec(spec);
 	}
 
 	public void gke(Closure<GkeConfiguration> closure) {

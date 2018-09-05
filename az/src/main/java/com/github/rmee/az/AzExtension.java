@@ -45,9 +45,7 @@ public class AzExtension extends ClientExtensionBase {
 	}
 
 	public void exec(AzExecSpec spec) {
-		project.exec(execSpec -> {
-			client.configureExec(execSpec, spec);
-		});
+		client.exec(spec);
 	}
 
 	public void exec(Closure<AzExecSpec> closure) {

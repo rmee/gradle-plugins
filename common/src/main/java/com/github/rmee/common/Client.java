@@ -386,28 +386,13 @@ public abstract class Client {
 		commandLine.add("-i");
 		commandLine.add("--rm");
 
-		String user = extension.getClient().getUser();
-		if (user != null) {
-			commandLine.add("--user");
-			commandLine.add(user);
-		}
-
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");
 			commandLine.add(entry.getKey() + "=" + entry.getValue());
 		}
 
 		for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
-			String path = entry.getValue().getAbsolutePath();
-
-			// fix path issues with windows
-			path = path.replace('\\', '/');
-
-			commandLine.add("-v");
-			commandLine.add(path + ":" + entry.getKey());
-
-			File file = entry.getValue();
-			file.mkdirs();
+			addVolumeMapping(commandLine, entry);
 		}
 
 		for (Map.Entry<Integer, Integer> entry : portMappings.entrySet()) {
@@ -420,6 +405,19 @@ public abstract class Client {
 		}
 
 		return commandLine;
+	}
+
+	private void addVolumeMapping(List<String> commandLine, Map.Entry<String, File> entry) {
+		String path = entry.getValue().getAbsolutePath();
+
+		// fix path issues with windows
+		path = path.replace('\\', '/');
+
+		commandLine.add("-v");
+		commandLine.add(path + ":" + entry.getKey());
+
+		File file = entry.getValue();
+		file.mkdirs();
 	}
 
 	public boolean useWrapper() {
@@ -482,6 +480,41 @@ public abstract class Client {
 					throw new IllegalStateException(e);
 				}
 			});
+		}
+	}
+
+	public void exec(ClientExecSpec spec) {
+		try {
+			Project project = extension.project;
+			project.exec(execSpec -> {
+				configureExec(execSpec, spec);
+			});
+		}
+		finally {
+			setFileOwnership();
+		}
+	}
+
+	public void setFileOwnership() {
+		if (user != null) {
+			Map<String, File> volumeMappings = this.getVolumeMappings();
+			for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
+				Project project = extension.project;
+				project.exec(execSpec -> {
+					List<String> commandLine = new ArrayList<>();
+					commandLine.add("docker");
+					commandLine.add("run");
+
+					addVolumeMapping(commandLine, entry);
+
+					commandLine.add("bash");
+					commandLine.add("chown");
+					commandLine.add("-R");
+					commandLine.add(user + ":" + user);
+					commandLine.add(entry.getKey());
+					execSpec.commandLine(commandLine);
+				});
+			}
 		}
 	}
 }

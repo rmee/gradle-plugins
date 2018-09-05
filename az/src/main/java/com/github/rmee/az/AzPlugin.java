@@ -24,6 +24,8 @@ public class AzPlugin implements Plugin<Project> {
 				project.getTasks().create("azGetKubernetesCredentials", AzGetKubernetesCredentialsTask.class);
 		getCredentials.dependsOn(login);
 
+		project.getTasks().create("azClean", AzCleanTask.class);
+
 		extension.setSubscriptionId(System.getenv("AZ_SUBSCRIPTION_ID"));
 		extension.setServicePrincipal(Boolean.parseBoolean(System.getenv("AZ_SERVICE_PRINCIPLE")));
 		extension.setUserName(System.getenv("AZ_USER"));
@@ -33,8 +35,10 @@ public class AzPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
-			client.getVolumeMappings().put("/root/.azure/", azureConfigDir);
-			client.getVolumeMappings().put("/root/.kube/", extension.getAks().getKubeDir());
+			client.getVolumeMappings().put("/root/.azure", azureConfigDir);
+			client.getVolumeMappings().put("/root/.kube", extension.getAks().getKubeDir());
+			client.getOutputPaths().add("/root/.azure");
+			client.getOutputPaths().add("/root/.kube");
 			client.setupWrapper(project);
 		});
 	}

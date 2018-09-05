@@ -22,6 +22,7 @@ public class TerraformPlugin implements Plugin<Project> {
 		TerraformPlanTask planTask = project.getTasks().create("terraformPlan", TerraformPlanTask.class);
 		TerraformApplyTask applyTask = project.getTasks().create("terraformApply", TerraformApplyTask.class);
 		TerraformDestroyTask destroyTask = project.getTasks().create("terraformDestroy", TerraformDestroyTask.class);
+		project.getTasks().create("terraformClean", TerraformCleanTask.class);
 
 		refreshTask.dependsOn(initTask);
 		validateTask.dependsOn(initTask);
@@ -35,11 +36,15 @@ public class TerraformPlugin implements Plugin<Project> {
 
 			File terraformTempDir = new File(project.getBuildDir(), ".terraform.d");
 			File terraformTempDir2 = new File(project.getBuildDir(), ".terraform");
-			extension.getClient().getVolumeMappings().put("/etc/project/conf", extension.getSourceDir());
-			extension.getClient().getVolumeMappings().put("/root/.terraform.d", terraformTempDir);
-			extension.getClient().getVolumeMappings().put("/.terraform", terraformTempDir2);
+			client.getVolumeMappings().put("/etc/project/conf", extension.getSourceDir());
+			client.getVolumeMappings().put("/root/.terraform.d", terraformTempDir);
+			client.getVolumeMappings().put("/.terraform", terraformTempDir2);
+
+			client.getOutputPaths().add("/root/.terraform.d");
+			client.getOutputPaths().add("/.terraform");
+
 			if (extension.getDebug()) {
-				extension.getClient().getEnvironment().put("TF_LOG", "DEBUG");
+				client.getEnvironment().put("TF_LOG", "DEBUG");
 			}
 		});
 	}

@@ -128,12 +128,10 @@ public class HelmExtension extends ClientExtensionBase {
 	public void exec(HelmExecSpec spec) {
 		project.getLogger().warn("Executing: " + spec.getCommandLine());
 
-		project.exec(execSpec -> {
-			if (kubeConfig != null) {
-				kubeConfig.getParentFile().mkdirs();
-			}
-			client.configureExec(execSpec, spec);
-		});
+		if (kubeConfig != null) {
+			kubeConfig.getParentFile().mkdirs();
+		}
+		client.exec(spec);
 	}
 
 	protected void setProject(Project project) {

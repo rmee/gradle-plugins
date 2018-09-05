@@ -52,6 +52,11 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
+	private String user;
+
+	private List<String> outputPaths = new ArrayList<>();
+
+
 	public Client(ClientExtensionBase extension, String binName) {
 		this.binName = binName;
 		this.extension = extension;
@@ -68,6 +73,28 @@ public abstract class Client {
 		if (proxyUrl != null) {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
+
+
+		/*
+		TODO check whether to enable by default
+		if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+			user = System.getenv("USER");
+			if (user == null) {
+				user = System.getenv("USERHOME");
+			}
+		}*/
+	}
+
+	/**
+	 * @return user name to use when running with Docker. Important to have proper file ownership
+	 * in the volume mappings. By default takes the current USER or USERNAME from the environment.
+	 */
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
 	}
 
 	/**
@@ -103,6 +130,14 @@ public abstract class Client {
 
 	public void setImageName(String imageName) {
 		this.imageName = imageName;
+	}
+
+	public List<String> getOutputPaths() {
+		return outputPaths;
+	}
+
+	public void setOutputPaths(List<String> outputPaths) {
+		this.outputPaths = outputPaths;
 	}
 
 	public String getVersion() {
@@ -371,16 +406,7 @@ public abstract class Client {
 		}
 
 		for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
-			String path = entry.getValue().getAbsolutePath();
-
-			// fix path issues with windows
-			path = path.replace('\\', '/');
-
-			commandLine.add("-v");
-			commandLine.add(path + ":" + entry.getKey());
-
-			File file = entry.getValue();
-			file.mkdirs();
+			addVolumeMapping(commandLine, entry);
 		}
 
 		for (Map.Entry<Integer, Integer> entry : portMappings.entrySet()) {
@@ -393,6 +419,22 @@ public abstract class Client {
 		}
 
 		return commandLine;
+	}
+
+	private void addVolumeMapping(List<String> commandLine, Map.Entry<String, File> entry) {
+		addVolumeMapping(commandLine, entry.getKey(), entry.getValue());
+	}
+
+	private void addVolumeMapping(List<String> commandLine, String guestPath, File hostDir) {
+		String hostPath = hostDir.getAbsolutePath();
+
+		// fix hostPath issues with windows
+		hostPath = hostPath.replace('\\', '/');
+
+		commandLine.add("-v");
+		commandLine.add(hostPath + ":" + guestPath);
+
+		hostDir.mkdirs();
 	}
 
 	public boolean useWrapper() {
@@ -456,5 +498,80 @@ public abstract class Client {
 				}
 			});
 		}
+	}
+
+	public void exec(ClientExecSpec spec) {
+		try {
+			Project project = extension.project;
+			project.exec(execSpec -> {
+				configureExec(execSpec, spec);
+			});
+		}
+		finally {
+			modifyOutputFiles();
+		}
+	}
+
+	public void modifyOutputFiles() {
+		if (user != null) {
+			for (String path : outputPaths) {
+				modifyOutputFile(path);
+			}
+		}
+	}
+
+	public void deleteOutputFiles() {
+		for (String path : outputPaths) {
+			deleteOutputFile(path);
+		}
+	}
+
+	private void deleteOutputFile(String path) {
+		File hostDir = volumeMappings.get(path);
+		if (hostDir == null) {
+			throw new IllegalStateException("volume mapping not found for " + path);
+		}
+
+		if (hostDir.exists()) {
+			for (File file : hostDir.listFiles()) {
+				if (!file.delete()) {
+					// permission issue => delete with docker as ROOT
+					List<String> commandLine = new ArrayList<>();
+					commandLine.add("docker");
+					commandLine.add("run");
+					commandLine.add("-i");
+					addVolumeMapping(commandLine, path, hostDir);
+					commandLine.add("bash");
+					commandLine.add("rm");
+					commandLine.add("-rf");
+					commandLine.add(path + "/" + file.getName());
+
+					Project project = extension.project;
+					project.exec(execSpec -> execSpec.commandLine(commandLine));
+				}
+			}
+		}
+	}
+
+	private void modifyOutputFile(String path) {
+		Project project = extension.project;
+		project.exec(execSpec -> {
+			List<String> commandLine = new ArrayList<>();
+			commandLine.add("docker");
+			commandLine.add("run");
+			commandLine.add("-i");
+
+			for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
+				addVolumeMapping(commandLine, entry);
+			}
+
+			commandLine.add("bash");
+			commandLine.add("chown");
+			commandLine.add("-R");
+			commandLine.add(user + ":" + user);
+			commandLine.add(path);
+
+			execSpec.commandLine(commandLine);
+		});
 	}
 }

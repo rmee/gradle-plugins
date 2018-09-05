@@ -12,7 +12,9 @@ import org.gradle.api.Project;
 
 public class HelmPlugin implements Plugin<Project> {
 
-	protected static final String CONTAINER_SOURCES_DIR = "/etc/project/sources";
+	protected static final String CONTAINER_SOURCES_DIR = "/root/.helm";
+
+	protected static final String CONTAINER_HELM_DIR = "/etc/project/sources";
 
 	protected static final String CONTAINER_DISTRIBUTIONS_DIR = "/etc/project/distributions";
 
@@ -26,6 +28,7 @@ public class HelmPlugin implements Plugin<Project> {
 		HelmBootstrap helmBootstrap = project.getTasks().create("helmBootstrap", HelmBootstrap.class);
 		DefaultTask helmPackages = project.getTasks().create("helmPackage", DefaultTask.class);
 		helmPackages.setGroup("kubernetes");
+		project.getTasks().create("helmClean", HelmClean.class);
 		HelmInit helmInit = project.getTasks().create("helmInit", HelmInit.class);
 		helmInit.dependsOn(helmBootstrap);
 
@@ -50,7 +53,11 @@ public class HelmPlugin implements Plugin<Project> {
 				File helmDistDir = new File(project.getBuildDir(), "distributions");
 				extension.getClient().getVolumeMappings().put(CONTAINER_SOURCES_DIR, extension.getSourceDir());
 				extension.getClient().getVolumeMappings().put(CONTAINER_DISTRIBUTIONS_DIR, helmDistDir);
-				extension.getClient().getVolumeMappings().put("/root/.helm/", helmTempDir);
+				extension.getClient().getVolumeMappings().put(CONTAINER_HELM_DIR, helmTempDir);
+
+				client.getOutputPaths().add(CONTAINER_HELM_DIR);
+				client.getOutputPaths().add(CONTAINER_DISTRIBUTIONS_DIR);
+
 			}
 			else if (client.getDownload()) {
 				try {

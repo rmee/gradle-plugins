@@ -28,6 +28,7 @@ public class OcPlugin implements Plugin<Project> {
 		OcLogin ocLogin = project.getTasks().create("ocLogin", OcLogin.class);
 		OcSetProject ocSetProject = project.getTasks().create("ocSetProject", OcSetProject.class);
 		OcNewProject ocNewProject = project.getTasks().create("ocNewProject", OcNewProject.class);
+		project.getTasks().create("ocClean", OcCleanTask.class);
 
 		ocLogin.dependsOn(ocBootstrap);
 		ocNewProject.dependsOn(ocLogin);

@@ -26,6 +26,7 @@ public class GCloudPlugin implements Plugin<Project> {
 				project.getTasks().create("gcloudGetKubernetesCredentials", GCloudGetKubernetesCredentialsTask.class);
 		GCloudSetProjectTask setProject = project.getTasks().create("gcloudSetProjectTask",
 				GCloudSetProjectTask.class);
+		project.getTasks().create("gcloudClean", GCloudCleanTask.class);
 
 		getCredentials.dependsOn(setProject);
 
@@ -36,9 +37,11 @@ public class GCloudPlugin implements Plugin<Project> {
 			Client client = extension.getClient();
 			KubernetesUtils.addDefaultMappings(client, project);
 			client.getVolumeMappings().put("/root/.config/gcloud", configDir);
-			client.getVolumeMappings().put("/root/.kube/", extension.getGke().getKubeDir());
+			client.getVolumeMappings().put("/root/.kube", extension.getGke().getKubeDir());
 			client.setupWrapper(project);
 
+			client.getOutputPaths().add("/root/.kube");
+			client.getOutputPaths().add("/root/.config/gcloud");
 
 			// integrate with Kubernetes if available
 			try {

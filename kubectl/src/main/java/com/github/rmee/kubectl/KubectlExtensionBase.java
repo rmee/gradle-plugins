@@ -113,22 +113,21 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 			}
 
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				project.exec(execSpec -> {
-					client.configureExec(execSpec, spec);
-
-					System.out.println("pass input: " + spec.getInput());
-					if (spec.getInput() != null) {
-						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
-					}
-					System.out.println("output: " + spec.getOutputFormat());
-					if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
-						execSpec.setStandardOutput(outputStream);
-					}
-				});
-
-				String output = outputStream.toString();
-				System.out.println("got output: " + output);
-				return createResult(output);
+				try {
+					project.exec(execSpec -> {
+						client.configureExec(execSpec, spec);
+						if (spec.getInput() != null) {
+							execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
+						}
+						if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
+							execSpec.setStandardOutput(outputStream);
+						}
+					});
+					String output = outputStream.toString();
+					return createResult(output);
+				}finally {
+					client.modifyOutputFiles();
+				}
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			}

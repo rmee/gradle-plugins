@@ -22,6 +22,7 @@ public class KubectlPlugin implements Plugin<Project> {
 		KubectlBootstrap bootstrap = project.getTasks().create("kubectlBootstrap", KubectlBootstrap.class);
 		KubectlUseContext login = project.getTasks().create("kubectlUseContext", KubectlUseContext.class);
 		project.getTasks().create("kubectlStartProxy", KubectlStartProxyTask.class);
+		project.getTasks().create("kubectlClean", KubectlCleanTask.class);
 		login.dependsOn(bootstrap);
 
 		project.afterEvaluate(project1 -> {
@@ -30,6 +31,8 @@ public class KubectlPlugin implements Plugin<Project> {
 				bootstrap.setEnabled(false);
 				client.setupWrapper(project);
 				KubernetesUtils.addDefaultMappings(client, project);
+
+				client.getOutputPaths().add(KubernetesUtils.KUBE_DIR);
 			}
 			else {
 				File downloadDir = client.getDownloadDir();

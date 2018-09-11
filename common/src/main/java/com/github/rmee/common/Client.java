@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.rmee.common.internal.UnixUtils;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
@@ -52,7 +53,7 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
-	private String user;
+	private FilePermission filePermission;
 
 	private List<String> outputPaths = new ArrayList<>();
 
@@ -66,35 +67,30 @@ public abstract class Client {
 		String proxyUrl;
 		if (proxyHostName == null) {
 			proxyUrl = System.getenv("HTTP_PROXY");
-		}
-		else {
+		} else {
 			proxyUrl = "http://" + proxyHostName + ":" + proxyPort;
 		}
 		if (proxyUrl != null) {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
 
-
-		/*
-		TODO check whether to enable by default
-		if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
-			user = System.getenv("USER");
-			if (user == null) {
-				user = System.getenv("USERHOME");
-			}
-		}*/
+		if (getOperatingSystem() != OperatingSystem.WINDOWS) {
+			filePermission = new FilePermission();
+			filePermission.setUser(UnixUtils.getUid());
+			filePermission.setGroup(UnixUtils.getGid());
+		}
 	}
 
 	/**
 	 * @return user name to use when running with Docker. Important to have proper file ownership
 	 * in the volume mappings. By default takes the current USER or USERNAME from the environment.
 	 */
-	public String getUser() {
-		return user;
+	public FilePermission getFilePermission() {
+		return filePermission;
 	}
 
-	public void setUser(String user) {
-		this.user = user;
+	public void setFilePermission(FilePermission filePermission) {
+		this.filePermission = filePermission;
 	}
 
 	/**
@@ -158,12 +154,13 @@ public abstract class Client {
 	}
 
 	public OperatingSystem getOperatingSystem() {
-		checkNotDockerized();
+		if (operatingSystem == null) {
+			operatingSystem = org.gradle.internal.os.OperatingSystem.current();
+		}
 		return operatingSystem;
 	}
 
 	public void setOperationSystem(OperatingSystem operatingSystem) {
-		checkNotDockerized();
 		this.operatingSystem = operatingSystem;
 	}
 
@@ -357,8 +354,7 @@ public abstract class Client {
 			System.out.println("Executing: " + commandLine);
 			execSpec.setCommandLine(commandLine);
 
-		}
-		else {
+		} else {
 			args.set(0, getBinPath());
 			execSpec.setCommandLine(args);
 		}
@@ -370,8 +366,7 @@ public abstract class Client {
 					throw new IllegalStateException("failed to delete " + stdoutFile);
 				}
 				execSpec.setStandardOutput(new FileOutputStream(stdoutFile));
-			}
-			catch (FileNotFoundException e) {
+			} catch (FileNotFoundException e) {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
@@ -492,8 +487,7 @@ public abstract class Client {
 				File file = new File(project.getProjectDir(), binName);
 				try (FileWriter writer = new FileWriter(file)) {
 					writer.write(builder.toString());
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					throw new IllegalStateException(e);
 				}
 			});
@@ -506,16 +500,15 @@ public abstract class Client {
 			project.exec(execSpec -> {
 				configureExec(execSpec, spec);
 			});
-		}
-		finally {
+		} finally {
 			modifyOutputFiles();
 		}
 	}
 
 	public void modifyOutputFiles() {
-		if (user != null) {
+		if (filePermission != null) {
 			for (String path : outputPaths) {
-				modifyOutputFile(path);
+				fixFilePermissions(path);
 			}
 		}
 	}
@@ -553,7 +546,7 @@ public abstract class Client {
 		}
 	}
 
-	private void modifyOutputFile(String path) {
+	private void fixFilePermissions(String path) {
 		Project project = extension.project;
 		project.exec(execSpec -> {
 			List<String> commandLine = new ArrayList<>();
@@ -565,11 +558,14 @@ public abstract class Client {
 				addVolumeMapping(commandLine, entry);
 			}
 
+			FilePermission filePermission = extension.getClient().getFilePermission();
 			commandLine.add("bash");
 			commandLine.add("chown");
 			commandLine.add("-R");
-			commandLine.add(user + ":" + user);
+			commandLine.add(filePermission.getUser() + ":" + filePermission.getGroup());
 			commandLine.add(path);
+
+			System.out.println("executing " + commandLine);
 
 			execSpec.commandLine(commandLine);
 		});

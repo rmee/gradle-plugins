@@ -395,6 +395,11 @@ public abstract class Client {
 		commandLine.add("-i");
 		commandLine.add("--rm");
 
+		if(filePermission != null){
+			commandLine.add("-u");
+			commandLine.add(filePermission.getUser());
+		}
+
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");
 			commandLine.add(entry.getKey() + "=" + entry.getValue());
@@ -508,7 +513,7 @@ public abstract class Client {
 	public void modifyOutputFiles() {
 		if (filePermission != null) {
 			for (String path : outputPaths) {
-				fixFilePermissions(path);
+				//fixFilePermissions(path);
 			}
 		}
 	}
@@ -536,7 +541,7 @@ public abstract class Client {
 					addVolumeMapping(commandLine, path, hostDir);
 					commandLine.add("bash");
 					commandLine.add("rm");
-					commandLine.add("-rf");
+					commandLine.add("-f");
 					commandLine.add(path + "/" + file.getName());
 
 					Project project = extension.project;
@@ -561,8 +566,8 @@ public abstract class Client {
 			FilePermission filePermission = extension.getClient().getFilePermission();
 			commandLine.add("bash");
 			commandLine.add("chown");
-			commandLine.add("-R");
 			commandLine.add(filePermission.getUser() + ":" + filePermission.getGroup());
+			commandLine.add("-R");
 			commandLine.add(path);
 
 			System.out.println("executing " + commandLine);

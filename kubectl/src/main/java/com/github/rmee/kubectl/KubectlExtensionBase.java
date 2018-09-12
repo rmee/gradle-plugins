@@ -126,7 +126,7 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 					String output = outputStream.toString();
 					return createResult(output);
 				}finally {
-					client.modifyOutputFiles();
+					client.fixFilePermissions();
 				}
 			} catch (IOException e) {
 				throw new IllegalStateException(e);

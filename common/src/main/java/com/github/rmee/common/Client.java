@@ -523,12 +523,14 @@ public abstract class Client {
 			});
 		}
 		finally {
-			modifyOutputFiles();
+			if(fixFileParmissions) {
+				fixFilePermissions();
+			}
 		}
 	}
 
-	public void modifyOutputFiles() {
-		if (filePermission != null) {
+	public void fixFilePermissions() {
+		if (filePermission != null && fixFileParmissions) {
 			for (String path : outputPaths) {
 				fixFilePermissions(path);
 			}

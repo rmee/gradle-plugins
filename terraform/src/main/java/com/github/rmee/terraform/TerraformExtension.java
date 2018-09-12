@@ -80,7 +80,7 @@ public class TerraformExtension extends ClientExtensionBase {
 				client.configureExec(execSpec, duplicate);
 			});
 		}finally {
-			client.modifyOutputFiles();
+			client.fixFilePermissions();
 		}
 	}
 

@@ -12,8 +12,8 @@ CLI clients of https://github.com/rmee/boot.
 
 Warning: Some frameworks like Spring Boot allow the setup of JPA without a `META-INF/persistence.xml`.
 This comes at the cost of not working outside Spring and, as a result, is so far also not supported by
-thie plugin. This should only be a minor inconvenience compared to the benefits in the development
-lifecycle.
+this plugin either. PRs welcomed. For now it should be minor inconvenience with the 
+prospect of a many benefits to the development lifecycle.
 
 
 ## Setup
@@ -30,7 +30,12 @@ buildscript {
 ```
  
 
-## Example
+## Tasks
+
+- `generateSchema` to generate the schema files. The output is written to `build/generated/source/schema/`.
+
+
+## Flyway Example
 
 ```
 apply plugin: 'jpa-schema-gen'
@@ -38,20 +43,33 @@ jpaSchemaGen {
 	packageName = 'com.example.demo'
 	persistenceUnitName = 'DEMO-UNIT'
 	configuration = 'runtime'
-	target = 'LIQUIBASE' // or 'FLYWAY'
-	
+	target = 'FLYWAY'
+	version = project.version
+}
+```
+
+The output folder will host three different files following the Flyway naming conventions to setup tables,
+constraints and indices. 
+
+
+## Liquibase Example
+
+```
+apply plugin: 'jpa-schema-gen'
+jpaSchemaGen {
+	packageName = 'com.example.demo'
+	persistenceUnitName = 'DEMO-UNIT'
+	configuration = 'runtime'
+	target = 'LIQUIBASE'
+	version = project.version
 	liquibase{
 		user = 'john' // USER and USERNAME from environment used as default
-	 	fileName = 'liquibase-changeLog.xml' // default
+	 	fileName = 'liquibase-changelog.xml' 
 	}
 }
 ```
 
 
-
-## Tasks
-
-- `generateSchema` to generate the schema files. The output is written to `build/generated/source/schema/`.
 
 
 

@@ -18,8 +18,8 @@ public class FlywaySchemaTarget implements SchemaTarget {
 
 		String version = config.getVersion();
 
-		File outputPackageDirectory = new File(outputDirectory, config.getPackageName().replace(".", File.separator));
-		outputDirectory.mkdirs();
+		File outputPackageDirectory = new File(outputDirectory, config.getPackageName().replace(".", File.separator) + "/current");
+		outputPackageDirectory.mkdirs();
 		File tableFile = new File(outputPackageDirectory, "v" + version + ".200__create_tables.sql");
 		File constraintFile = new File(outputPackageDirectory, "v" + version + ".300__create_constraints.sql");
 		File indexFile = new File(outputPackageDirectory, "v" + version + ".400__create_indices.sql");

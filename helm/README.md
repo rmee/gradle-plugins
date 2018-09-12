@@ -29,7 +29,7 @@ helm {
 	tillerNamespace = oc.projectName
 
 	client {
-		version = '2.8.2` // version to use
+		version = '2.9.1` // version to use
 		imageName = 'dtzar/helm-kubectl'
 	}
 }

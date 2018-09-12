@@ -27,7 +27,10 @@ public class SchemaGenExtension {
 
 	public String getVersion() {
 		if (version == null) {
-			return (String) project.getVersion();
+			version = (String) project.getVersion();
+		}
+		if (version == null || version.equals("unspecified")) {
+			version = "0.0.1";
 		}
 		return version;
 	}

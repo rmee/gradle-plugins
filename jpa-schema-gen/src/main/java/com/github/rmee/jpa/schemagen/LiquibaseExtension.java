@@ -2,7 +2,7 @@ package com.github.rmee.jpa.schemagen;
 
 public class LiquibaseExtension {
 
-	private String fileName = "liquibase-changeLog.xml";
+	private String fileName = "liquibase-changelog.xml";
 
 	private String user;
 

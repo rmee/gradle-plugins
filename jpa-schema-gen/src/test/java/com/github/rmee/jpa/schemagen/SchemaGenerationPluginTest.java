@@ -8,19 +8,26 @@ import org.gradle.internal.impldep.com.amazonaws.util.IOUtils;
 import org.gradle.internal.impldep.org.apache.commons.io.FileUtils;
 import org.gradle.internal.impldep.org.testng.Assert;
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class SchemaGenerationPluginTest {
 
-	public TemporaryFolder testFolder = new TemporaryFolder(new File("build/tmp"));
+	public TemporaryFolder testFolder;
 
 	private File workingDir;
+
+	@Before
+	public void setup() {
+		File tmpDir = new File("build/tmp");
+		tmpDir.mkdirs();
+		testFolder = new TemporaryFolder(tmpDir);
+	}
 
 	@Test
 	public void checkFlyway() throws IOException {
 		check(false);
-
 
 		File expectedSql = new File(workingDir, "expected_create.sql");
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("basic-creation/expected_create.sql"),
@@ -38,6 +45,9 @@ public class SchemaGenerationPluginTest {
 	@Test
 	public void checkLiquibase() throws IOException {
 		check(true);
+
+		File expectedFile = new File(workingDir, "build/generated/source/schema/main/example/liquibase-changelog.xml");
+		Assert.assertTrue(expectedFile.exists());
 	}
 
 	private void check(boolean liquibase) throws IOException {
@@ -55,6 +65,7 @@ public class SchemaGenerationPluginTest {
 		File persistenceFile = new File(metaInfFolder, "persistence.xml");
 		File exampleResource = new File(resourceFolder, "example_config.properties");
 
+		// make sure to run gradle first
 		Assert.assertNotNull(getClass().getClassLoader().getResource("plugin-under-test-metadata.properties"));
 
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream(

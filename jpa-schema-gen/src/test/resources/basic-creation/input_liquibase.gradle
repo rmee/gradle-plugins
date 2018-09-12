@@ -10,6 +10,7 @@ repositories {
 dependencies {
 	compile 'javax:javaee-api:7.0'
 	compile 'org.hibernate:hibernate-core:5.2.1.Final'
+	compile 'org.liquibase:liquibase-core:3.6.2'
 }
 
 sourceSets.all {

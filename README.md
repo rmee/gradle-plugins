@@ -18,8 +18,10 @@ Hosts a collection of Gradle plugins:
   and deployment of Kubernetes applications.
 - [az](../../blob/master/az): gives access to the Azure command line tool &quot;az&quot; to interface
   with Azure.
+- [gcloud](../../blob/master/gcloud): gives access to the Google Cloud command line tool &quot;gcloud&quot;.
+- [jpa-schema-gen](../../blob/master/jpa-schema-gen): to generate Flyway and Liquibase-compatible schema setup and migration scripts.
   
-The `oc`, `kubernetes`, `helm`, `az` and `terraform` plugins make use of:
+The `oc`, `kubernetes`, `helm`, `az`, 'gcloud' and `terraform` plugins make use of:
 
 - the native command line tools of the various technology stacks. They deliberately do not want to establish 
   a new Java-based API and instead focuses on what developer already know and bring it to Gradle. It further helps
@@ -36,7 +38,7 @@ to that behavior. This functionality may or may not be removed in the future dep
 
 ## Licensing
 
-Crnk is licensed under the Apache License, Version 2.0.
+All plugins are licensed under the Apache License, Version 2.0.
 You can grab a copy of the license at http://www.apache.org/licenses/LICENSE-2.0.
 
 

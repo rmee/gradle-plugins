@@ -1,0 +1,38 @@
+apply plugin: 'groovy'
+apply plugin: 'java-gradle-plugin'
+
+apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'org.unbroken-dome.test-sets'
+
+def hibernateVersion = versions["hibernate.version"]
+def junitVersion = versions["junit.version"]
+def liquibaseVersion = versions["liquibase.version"]
+
+dependencies {
+	compile gradleApi()
+	compile localGroovy()
+
+	compile "com.h2database:h2:${versions['h2.version']}"
+	compile "org.liquibase:liquibase-core:${liquibaseVersion}"
+
+	compileOnly "org.liquibase:liquibase-core:${liquibaseVersion}"
+
+	testCompile "junit:junit:${junitVersion}"
+}
+
+
+pluginBundle {
+	website = 'https://github.com/rmee/gradle-plugins/tree/master/jpa-schema-gen'
+	vcsUrl = 'https://github.com/rmee/gradle-plugins/tree/master/jpa-schema-gen'
+	description = 'Genernate schema creation and migration scripts from JPA entities for Flyway and Liquibase.'
+	tags = ['jpa', 'flyway', 'liquibase']
+
+	plugins {
+		'helm' {
+			id = 'com.github.rmee.jpa-schema-gen'
+			displayName = 'jpa-schema-gen'
+		}
+	}
+}
+
+

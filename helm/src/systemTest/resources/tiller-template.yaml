@@ -78,7 +78,7 @@ objects:
 
 parameters:
 - name: HELM_VERSION
-  value: v2.8.2
+  value: v2.9.1
   required: true
 - name: TILLER_NAMESPACE
   required: true

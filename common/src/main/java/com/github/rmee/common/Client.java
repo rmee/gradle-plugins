@@ -53,6 +53,8 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
+	private boolean fixFileParmissions = false;
+
 	private FilePermission filePermission;
 
 	private List<String> outputPaths = new ArrayList<>();
@@ -82,9 +84,17 @@ public abstract class Client {
 		}
 	}
 
+	public boolean isFixFileParmissions() {
+		return fixFileParmissions;
+	}
+
+	public void setFixFileParmissions(boolean fixFileParmissions) {
+		this.fixFileParmissions = fixFileParmissions;
+	}
+
 	/**
-	 * @return user name to use when running with Docker. Important to have proper file ownership
-	 * in the volume mappings. By default takes the current USER or USERNAME from the environment.
+	 * @return User name to use when setting file permissions of output files.
+	 * By default takes the current USER or USERNAME from the environment.
 	 */
 	public FilePermission getFilePermission() {
 		return filePermission;

@@ -53,11 +53,11 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
-	private boolean fixFilePermissions = false;
-
-	private FilePermission filePermission;
-
 	private List<String> outputPaths = new ArrayList<>();
+
+	private String runAs;
+
+	private boolean runAsEnabled;
 
 
 	public Client(ClientExtensionBase extension, String binName) {
@@ -77,32 +77,25 @@ public abstract class Client {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
 		environment.put("HOME", "/home");
+	}
 
-		if (getOperatingSystem() != OperatingSystem.WINDOWS) {
-			filePermission = new FilePermission();
-			filePermission.setUser(UnixUtils.getUid());
-			filePermission.setGroup(UnixUtils.getGid());
+	public String getRunAs() {
+		if (runAs == null && runAsEnabled && getOperatingSystem() != OperatingSystem.WINDOWS) {
+			runAs = UnixUtils.getUid();
 		}
+		return runAs;
 	}
 
-	public boolean getFixFilePermissions() {
-		return fixFilePermissions;
+	public void setRunAs(String runAs) {
+		this.runAs = runAs;
 	}
 
-	public void setFixFilePermissions(boolean fixFilePermissions) {
-		this.fixFilePermissions = fixFilePermissions;
+	public boolean isRunAsEnabled() {
+		return runAsEnabled;
 	}
 
-	/**
-	 * @return User name to use when setting file permissions of output files.
-	 * By default takes the current USER or USERNAME from the environment.
-	 */
-	public FilePermission getFilePermission() {
-		return filePermission;
-	}
-
-	public void setFilePermission(FilePermission filePermission) {
-		this.filePermission = filePermission;
+	public void setRunAsEnabled(boolean runAsEnabled) {
+		this.runAsEnabled = runAsEnabled;
 	}
 
 	/**
@@ -411,9 +404,10 @@ public abstract class Client {
 
 		// directly running docker images as non-root is causing permission issues with many images
 		// we fix the permissions of the output files instead
-		if (filePermission != null && fixFilePermissions) {
+		String runAs = getRunAs();
+		if (runAs != null) {
 			commandLine.add("-u");
-			commandLine.add(filePermission.getUser());
+			commandLine.add(runAs);
 		}
 
 		for (Map.Entry<String, String> entry : environment.entrySet()) {

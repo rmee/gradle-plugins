@@ -36,8 +36,6 @@ public class GCloudPlugin implements Plugin<Project> {
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
 			KubernetesUtils.addDefaultMappings(client, project);
-			client.getVolumeMappings().put("/home/.config/gcloud", configDir);
-			client.getVolumeMappings().put("/home/.kube", extension.getGke().getKubeDir());
 			client.setupWrapper(project);
 
 			client.getOutputPaths().add("/home/.kube");
@@ -47,7 +45,6 @@ public class GCloudPlugin implements Plugin<Project> {
 			try {
 				ClientExtensionBase kubectl = (ClientExtensionBase) project.getExtensions().getByName("kubectl");
 				Client kubectlClient = kubectl.getClient();
-				kubectlClient.getVolumeMappings().put("/home/.config/gcloud", configDir);
 				kubectlClient.setImageName(client.getImageName());
 				kubectlClient.setVersion(client.getVersion());
 			}catch(UnknownDomainObjectException e){

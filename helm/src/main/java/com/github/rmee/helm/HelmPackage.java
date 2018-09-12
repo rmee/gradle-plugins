@@ -23,7 +23,7 @@ public class HelmPackage extends DefaultTask {
 
 		String outputDir;
 		if (extension.getClient().isDockerized()) {
-			outputDir = HelmPlugin.CONTAINER_DISTRIBUTIONS_DIR;
+			outputDir = HelmPlugin.HELM_OUTPUT_DIR;
 		}
 		else {
 			File fileOutputDir = extension.getOutputDir();
@@ -34,21 +34,13 @@ public class HelmPackage extends DefaultTask {
 		Project project = getProject();
 
 		HelmExecSpec spec = new HelmExecSpec();
-		String sourceDir = getPackageSourceDir(packageName);
+		String sourceDir = getSourceDir().getAbsolutePath();
 		spec.setCommandLine("helm package " + sourceDir + " --destination " + outputDir
 				+ " --version " + project.getVersion());
 
 		extension.exec(spec);
 	}
 
-
-	private String getPackageSourceDir(String packageName) {
-		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-		if (extension.getClient().isDockerized()) {
-			return HelmPlugin.CONTAINER_SOURCES_DIR + "/" + packageName;
-		}
-		return new File(getSourceDir(), packageName).getAbsolutePath();
-	}
 
 
 	@InputDirectory

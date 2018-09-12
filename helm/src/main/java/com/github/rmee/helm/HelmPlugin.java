@@ -12,11 +12,9 @@ import org.gradle.api.Project;
 
 public class HelmPlugin implements Plugin<Project> {
 
-	protected static final String CONTAINER_SOURCES_DIR = "/home/.helm";
+	protected static final String HELM_SOURCES_DIR = "/src/helm";
 
-	protected static final String CONTAINER_HELM_DIR = "/etc/project/sources";
-
-	protected static final String CONTAINER_DISTRIBUTIONS_DIR = "/etc/project/distributions";
+	protected static final String HELM_OUTPUT_DIR = "/build/helm";
 
 	public void apply(Project project) {
 		project.getPlugins().apply("de.undercouch.download");
@@ -48,16 +46,7 @@ public class HelmPlugin implements Plugin<Project> {
 				client.setupWrapper(project);
 
 				KubernetesUtils.addDefaultMappings(client, project);
-
-				File helmTempDir = new File(project.getBuildDir(), ".helm");
-				File helmDistDir = new File(project.getBuildDir(), "distributions");
-				extension.getClient().getVolumeMappings().put(CONTAINER_SOURCES_DIR, extension.getSourceDir());
-				extension.getClient().getVolumeMappings().put(CONTAINER_DISTRIBUTIONS_DIR, helmDistDir);
-				extension.getClient().getVolumeMappings().put(CONTAINER_HELM_DIR, helmTempDir);
-
-				client.getOutputPaths().add(CONTAINER_HELM_DIR);
-				client.getOutputPaths().add(CONTAINER_DISTRIBUTIONS_DIR);
-
+				client.getOutputPaths().add(HELM_OUTPUT_DIR);
 			}
 			else if (client.getDownload()) {
 				try {

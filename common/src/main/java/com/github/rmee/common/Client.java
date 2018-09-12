@@ -53,7 +53,7 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
-	private boolean fixFileParmissions = false;
+	private boolean fixFilePermissions = false;
 
 	private FilePermission filePermission;
 
@@ -85,12 +85,12 @@ public abstract class Client {
 		}
 	}
 
-	public boolean isFixFileParmissions() {
-		return fixFileParmissions;
+	public boolean getFixFilePermissions() {
+		return fixFilePermissions;
 	}
 
-	public void setFixFileParmissions(boolean fixFileParmissions) {
-		this.fixFileParmissions = fixFileParmissions;
+	public void setFixFilePermissions(boolean fixFilePermissions) {
+		this.fixFilePermissions = fixFilePermissions;
 	}
 
 	/**
@@ -411,7 +411,7 @@ public abstract class Client {
 
 		// directly running docker images as non-root is causing permission issues with many images
 		// we fix the permissions of the output files instead
-		if (filePermission != null) {
+		if (filePermission != null && fixFilePermissions) {
 			commandLine.add("-u");
 			commandLine.add(filePermission.getUser());
 		}
@@ -517,25 +517,10 @@ public abstract class Client {
 	}
 
 	public void exec(ClientExecSpec spec) {
-		try {
-			Project project = extension.project;
-			project.exec(execSpec -> {
-				configureExec(execSpec, spec);
-			});
-		}
-		finally {
-			if (fixFileParmissions) {
-				fixFilePermissions();
-			}
-		}
-	}
-
-	public void fixFilePermissions() {
-		if (filePermission != null && fixFileParmissions) {
-			for (String path : outputPaths) {
-				fixFilePermissions(path);
-			}
-		}
+		Project project = extension.project;
+		project.exec(execSpec -> {
+			configureExec(execSpec, spec);
+		});
 	}
 
 	public void deleteOutputFiles() {
@@ -569,30 +554,5 @@ public abstract class Client {
 				}
 			}
 		}
-	}
-
-	private void fixFilePermissions(String path) {
-		Project project = extension.project;
-		project.exec(execSpec -> {
-			List<String> commandLine = new ArrayList<>();
-			commandLine.add("docker");
-			commandLine.add("run");
-			commandLine.add("-i");
-
-			for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
-				addVolumeMapping(commandLine, entry);
-			}
-
-			FilePermission filePermission = extension.getClient().getFilePermission();
-			commandLine.add("bash");
-			commandLine.add("chown");
-			commandLine.add(filePermission.getUser() + ":" + filePermission.getGroup());
-			commandLine.add("-R");
-			commandLine.add(path);
-
-			System.out.println("executing " + commandLine);
-
-			execSpec.commandLine(commandLine);
-		});
 	}
 }

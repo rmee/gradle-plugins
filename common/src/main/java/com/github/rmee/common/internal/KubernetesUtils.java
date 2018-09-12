@@ -7,7 +7,7 @@ import org.gradle.api.Project;
 
 public class KubernetesUtils {
 
-	public final static String KUBE_DIR = "/root/.kube/";
+	public final static String KUBE_DIR = "/home/.kube/";
 
 	public static File getDefaultKubeConfig(Project project) {
 		return new File(project.getRootProject().getProjectDir(), "build/.kube/config");

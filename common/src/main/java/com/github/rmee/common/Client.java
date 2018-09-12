@@ -76,6 +76,7 @@ public abstract class Client {
 		if (proxyUrl != null) {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
+		environment.put("HOME", "/home");
 
 		if (getOperatingSystem() != OperatingSystem.WINDOWS) {
 			filePermission = new FilePermission();
@@ -410,10 +411,10 @@ public abstract class Client {
 
 		// directly running docker images as non-root is causing permission issues with many images
 		// we fix the permissions of the output files instead
-		// if(filePermission != null){
-		//	commandLine.add("-u");
-		//	commandLine.add(filePermission.getUser());
-		//	}
+		if (filePermission != null) {
+			commandLine.add("-u");
+			commandLine.add(filePermission.getUser());
+		}
 
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");
@@ -523,7 +524,7 @@ public abstract class Client {
 			});
 		}
 		finally {
-			if(fixFileParmissions) {
+			if (fixFileParmissions) {
 				fixFilePermissions();
 			}
 		}

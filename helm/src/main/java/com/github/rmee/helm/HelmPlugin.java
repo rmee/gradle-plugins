@@ -12,7 +12,7 @@ import org.gradle.api.Project;
 
 public class HelmPlugin implements Plugin<Project> {
 
-	protected static final String CONTAINER_SOURCES_DIR = "/root/.helm";
+	protected static final String CONTAINER_SOURCES_DIR = "/home/.helm";
 
 	protected static final String CONTAINER_HELM_DIR = "/etc/project/sources";
 

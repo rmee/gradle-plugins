@@ -67,7 +67,8 @@ public abstract class Client {
 		String proxyUrl;
 		if (proxyHostName == null) {
 			proxyUrl = System.getenv("HTTP_PROXY");
-		} else {
+		}
+		else {
 			proxyUrl = "http://" + proxyHostName + ":" + proxyPort;
 		}
 		if (proxyUrl != null) {
@@ -354,7 +355,8 @@ public abstract class Client {
 			System.out.println("Executing: " + commandLine);
 			execSpec.setCommandLine(commandLine);
 
-		} else {
+		}
+		else {
 			args.set(0, getBinPath());
 			execSpec.setCommandLine(args);
 		}
@@ -366,7 +368,8 @@ public abstract class Client {
 					throw new IllegalStateException("failed to delete " + stdoutFile);
 				}
 				execSpec.setStandardOutput(new FileOutputStream(stdoutFile));
-			} catch (FileNotFoundException e) {
+			}
+			catch (FileNotFoundException e) {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
@@ -395,10 +398,12 @@ public abstract class Client {
 		commandLine.add("-i");
 		commandLine.add("--rm");
 
-		if(filePermission != null){
-			commandLine.add("-u");
-			commandLine.add(filePermission.getUser());
-		}
+		// directly running docker images as non-root is causing permission issues with many images
+		// we fix the permissions of the output files instead
+		// if(filePermission != null){
+		//	commandLine.add("-u");
+		//	commandLine.add(filePermission.getUser());
+		//	}
 
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");
@@ -492,7 +497,8 @@ public abstract class Client {
 				File file = new File(project.getProjectDir(), binName);
 				try (FileWriter writer = new FileWriter(file)) {
 					writer.write(builder.toString());
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 					throw new IllegalStateException(e);
 				}
 			});
@@ -505,7 +511,8 @@ public abstract class Client {
 			project.exec(execSpec -> {
 				configureExec(execSpec, spec);
 			});
-		} finally {
+		}
+		finally {
 			modifyOutputFiles();
 		}
 	}
@@ -513,7 +520,7 @@ public abstract class Client {
 	public void modifyOutputFiles() {
 		if (filePermission != null) {
 			for (String path : outputPaths) {
-				//fixFilePermissions(path);
+				fixFilePermissions(path);
 			}
 		}
 	}

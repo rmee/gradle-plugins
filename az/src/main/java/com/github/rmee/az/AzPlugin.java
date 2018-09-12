@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.github.rmee.az.aks.AzGetKubernetesCredentialsTask;
 import com.github.rmee.common.Client;
+import com.github.rmee.common.internal.KubernetesUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -35,10 +36,10 @@ public class AzPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Client client = extension.getClient();
-			client.getVolumeMappings().put("/root/.azure", azureConfigDir);
-			client.getVolumeMappings().put("/root/.kube", extension.getAks().getKubeDir());
-			client.getOutputPaths().add("/root/.azure");
-			client.getOutputPaths().add("/root/.kube");
+
+			KubernetesUtils.addDefaultMappings(client, project);
+			client.getOutputPaths().add("/home/.azure");
+			client.getOutputPaths().add("/home/.kube");
 			client.setupWrapper(project);
 		});
 	}

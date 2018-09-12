@@ -104,7 +104,8 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 		if (pipeIndex == -1) {
 			if (!commandLine.contains("token") && !commandLine.contains("pass")) {
 				project.getLogger().warn("Executing: " + commandLine);
-			} else {
+			}
+			else {
 				project.getLogger().debug("Executing: " + commandLine);
 			}
 
@@ -113,25 +114,23 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 			}
 
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				try {
-					project.exec(execSpec -> {
-						client.configureExec(execSpec, spec);
-						if (spec.getInput() != null) {
-							execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
-						}
-						if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
-							execSpec.setStandardOutput(outputStream);
-						}
-					});
-					String output = outputStream.toString();
-					return createResult(output);
-				}finally {
-					client.modifyOutputFiles();
-				}
-			} catch (IOException e) {
+				project.exec(execSpec -> {
+					client.configureExec(execSpec, spec);
+					if (spec.getInput() != null) {
+						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
+					}
+					if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
+						execSpec.setStandardOutput(outputStream);
+					}
+				});
+				String output = outputStream.toString();
+				return createResult(output);
+			}
+			catch (IOException e) {
 				throw new IllegalStateException(e);
 			}
-		} else {
+		}
+		else {
 			KubectlExecSpec leftSpec = spec.duplicate();
 			leftSpec.setCommandLine(commandLine.subList(0, pipeIndex));
 			leftSpec.setOutputFormat(OutputFormat.TEXT);

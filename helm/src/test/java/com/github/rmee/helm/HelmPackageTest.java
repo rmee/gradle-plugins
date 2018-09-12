@@ -46,7 +46,7 @@ public class HelmPackageTest {
 		runner = runner.withProjectDir(workingDir).withArguments("helmInit", "helmPackage", "--stacktrace").forwardOutput();
 		runner.build();
 
-		File rpmFile = new File(workingDir, "build/distributions/helmapp-0.1.0.tgz");
-		Assert.assertTrue(rpmFile.exists());
+		File helmFile = new File(workingDir, "build/helm/helmapp-0.1.0.tgz");
+		Assert.assertTrue(helmFile.exists());
 	}
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.rmee.common.internal.UnixUtils;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
@@ -52,9 +53,11 @@ public abstract class Client {
 
 	private boolean useWrapper = true;
 
-	private String user;
-
 	private List<String> outputPaths = new ArrayList<>();
+
+	private String runAs;
+
+	private boolean runAsEnabled;
 
 
 	public Client(ClientExtensionBase extension, String binName) {
@@ -73,28 +76,26 @@ public abstract class Client {
 		if (proxyUrl != null) {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
-
-
-		/*
-		TODO check whether to enable by default
-		if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
-			user = System.getenv("USER");
-			if (user == null) {
-				user = System.getenv("USERHOME");
-			}
-		}*/
+		environment.put("HOME", "/home");
 	}
 
-	/**
-	 * @return user name to use when running with Docker. Important to have proper file ownership
-	 * in the volume mappings. By default takes the current USER or USERNAME from the environment.
-	 */
-	public String getUser() {
-		return user;
+	public String getRunAs() {
+		if (runAs == null && runAsEnabled && getOperatingSystem() != OperatingSystem.WINDOWS) {
+			runAs = UnixUtils.getUid();
+		}
+		return runAs;
 	}
 
-	public void setUser(String user) {
-		this.user = user;
+	public void setRunAs(String runAs) {
+		this.runAs = runAs;
+	}
+
+	public boolean isRunAsEnabled() {
+		return runAsEnabled;
+	}
+
+	public void setRunAsEnabled(boolean runAsEnabled) {
+		this.runAsEnabled = runAsEnabled;
 	}
 
 	/**
@@ -158,12 +159,13 @@ public abstract class Client {
 	}
 
 	public OperatingSystem getOperatingSystem() {
-		checkNotDockerized();
+		if (operatingSystem == null) {
+			operatingSystem = org.gradle.internal.os.OperatingSystem.current();
+		}
 		return operatingSystem;
 	}
 
 	public void setOperationSystem(OperatingSystem operatingSystem) {
-		checkNotDockerized();
 		this.operatingSystem = operatingSystem;
 	}
 
@@ -400,6 +402,14 @@ public abstract class Client {
 		commandLine.add("-i");
 		commandLine.add("--rm");
 
+		// directly running docker images as non-root is causing permission issues with many images
+		// we fix the permissions of the output files instead
+		String runAs = getRunAs();
+		if (runAs != null) {
+			commandLine.add("-u");
+			commandLine.add(runAs);
+		}
+
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			commandLine.add("-e");
 			commandLine.add(entry.getKey() + "=" + entry.getValue());
@@ -501,23 +511,10 @@ public abstract class Client {
 	}
 
 	public void exec(ClientExecSpec spec) {
-		try {
-			Project project = extension.project;
-			project.exec(execSpec -> {
-				configureExec(execSpec, spec);
-			});
-		}
-		finally {
-			modifyOutputFiles();
-		}
-	}
-
-	public void modifyOutputFiles() {
-		if (user != null) {
-			for (String path : outputPaths) {
-				modifyOutputFile(path);
-			}
-		}
+		Project project = extension.project;
+		project.exec(execSpec -> {
+			configureExec(execSpec, spec);
+		});
 	}
 
 	public void deleteOutputFiles() {
@@ -543,7 +540,7 @@ public abstract class Client {
 					addVolumeMapping(commandLine, path, hostDir);
 					commandLine.add("bash");
 					commandLine.add("rm");
-					commandLine.add("-rf");
+					commandLine.add("-f");
 					commandLine.add(path + "/" + file.getName());
 
 					Project project = extension.project;
@@ -551,27 +548,5 @@ public abstract class Client {
 				}
 			}
 		}
-	}
-
-	private void modifyOutputFile(String path) {
-		Project project = extension.project;
-		project.exec(execSpec -> {
-			List<String> commandLine = new ArrayList<>();
-			commandLine.add("docker");
-			commandLine.add("run");
-			commandLine.add("-i");
-
-			for (Map.Entry<String, File> entry : volumeMappings.entrySet()) {
-				addVolumeMapping(commandLine, entry);
-			}
-
-			commandLine.add("bash");
-			commandLine.add("chown");
-			commandLine.add("-R");
-			commandLine.add(user + ":" + user);
-			commandLine.add(path);
-
-			execSpec.commandLine(commandLine);
-		});
 	}
 }

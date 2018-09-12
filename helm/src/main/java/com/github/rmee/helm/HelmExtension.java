@@ -113,7 +113,7 @@ public class HelmExtension extends ClientExtensionBase {
 		initialized = true;
 
 		if (outputDir == null) {
-			outputDir = new File(project.getBuildDir(), "distributions");
+			outputDir = new File(project.getBuildDir(), "helm");
 		}
 
 		this.client.init(project);

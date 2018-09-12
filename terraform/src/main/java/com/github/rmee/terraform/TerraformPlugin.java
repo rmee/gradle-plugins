@@ -3,6 +3,7 @@ package com.github.rmee.terraform;
 import java.io.File;
 
 import com.github.rmee.common.Client;
+import com.github.rmee.common.internal.KubernetesUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -34,13 +35,13 @@ public class TerraformPlugin implements Plugin<Project> {
 			Client client = extension.getClient();
 			client.setupWrapper(project, false);
 
-			File terraformTempDir = new File(project.getBuildDir(), ".terraform.d");
+			KubernetesUtils.addDefaultMappings(client, project);
+
 			File terraformTempDir2 = new File(project.getBuildDir(), ".terraform");
 			client.getVolumeMappings().put("/etc/project/conf", extension.getSourceDir());
-			client.getVolumeMappings().put("/root/.terraform.d", terraformTempDir);
 			client.getVolumeMappings().put("/.terraform", terraformTempDir2);
 
-			client.getOutputPaths().add("/root/.terraform.d");
+			client.getOutputPaths().add("/home/.terraform.d");
 			client.getOutputPaths().add("/.terraform");
 
 			if (extension.getDebug()) {

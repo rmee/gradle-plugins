@@ -7,7 +7,7 @@ import org.gradle.api.Project;
 
 public class KubernetesUtils {
 
-	public final static String KUBE_DIR = "/root/.kube/";
+	public final static String KUBE_DIR = "/home/.kube/";
 
 	public static File getDefaultKubeConfig(Project project) {
 		return new File(project.getRootProject().getProjectDir(), "build/.kube/config");
@@ -18,7 +18,7 @@ public class KubernetesUtils {
 			if (!kubeConfig.getName().equals("config")) {
 				throw new IllegalStateException("kubeConfig must be named 'config', got " + kubeConfig.getAbsolutePath());
 			}
-			client.getVolumeMappings().put(KUBE_DIR, kubeConfig.getParentFile());
+			//	client.getVolumeMappings().put(KUBE_DIR, kubeConfig.getParentFile());
 
 		}
 		else {
@@ -27,6 +27,7 @@ public class KubernetesUtils {
 	}
 
 	public static void addDefaultMappings(Client client, Project project) {
+		client.getVolumeMappings().put("/home", project.file("build/wrapper/"));
 		client.getVolumeMappings().put("/src", project.file("src"));
 		client.getVolumeMappings().put("/build", project.file("build"));
 	}

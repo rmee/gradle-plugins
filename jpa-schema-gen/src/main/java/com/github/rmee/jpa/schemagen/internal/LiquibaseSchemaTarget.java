@@ -40,6 +40,12 @@ public class LiquibaseSchemaTarget implements SchemaTarget {
 			File outputFile = new File(outputDirectory,
 					config.getPackageName().replace(".", File.separator) + File.separator + config.getLiquibase().getFileName());
 			outputFile.getParentFile().mkdirs();
+			if (outputFile.exists()) {
+				boolean deleted = outputFile.delete();
+				if (!deleted) {
+					throw new IllegalStateException("cannot delete " + outputFile.getAbsolutePath());
+				}
+			}
 			changeLog.print(outputFile.getAbsolutePath(), new XMLChangeLogSerializer());
 		}
 		catch (Exception e) {

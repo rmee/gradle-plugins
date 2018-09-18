@@ -51,7 +51,7 @@ public class GCloudGetKubernetesCredentialsTask extends DefaultTask {
 		file.delete();
 
 		commandLine(
-				String.format("az aks get-credentials --resource-group %s --name %s --file /home/.kube/config",
+				String.format("az aks get-credentials --resource-group %s --name %s --file /build/wrapper/.kube/config",
 						resourceGroup, clusterName)
 		);
 		*/

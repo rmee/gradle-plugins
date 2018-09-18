@@ -38,8 +38,8 @@ public class AzPlugin implements Plugin<Project> {
 			Client client = extension.getClient();
 
 			KubernetesUtils.addDefaultMappings(client, project);
-			client.getOutputPaths().add("/home/.azure");
-			client.getOutputPaths().add("/home/.kube");
+			client.getOutputPaths().add("/build/wrapper/.azure");
+			client.getOutputPaths().add("/build/wrapper/.kube");
 			client.setupWrapper(project);
 		});
 	}

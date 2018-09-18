@@ -38,8 +38,8 @@ public class GCloudPlugin implements Plugin<Project> {
 			KubernetesUtils.addDefaultMappings(client, project);
 			client.setupWrapper(project);
 
-			client.getOutputPaths().add("/home/.kube");
-			client.getOutputPaths().add("/home/.config/gcloud");
+			client.getOutputPaths().add("/build/wrapper/.kube");
+			client.getOutputPaths().add("/build/wrapper/.config/gcloud");
 
 			// integrate with Kubernetes if available
 			try {

@@ -57,7 +57,7 @@ public abstract class Client {
 
 	private String runAs;
 
-	private boolean runAsEnabled;
+	private boolean runAsEnabled = true;
 
 
 	public Client(ClientExtensionBase extension, String binName) {

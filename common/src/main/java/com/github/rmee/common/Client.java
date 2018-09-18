@@ -57,7 +57,7 @@ public abstract class Client {
 
 	private String runAs;
 
-	private boolean runAsEnabled;
+	private boolean runAsEnabled = true;
 
 
 	public Client(ClientExtensionBase extension, String binName) {
@@ -76,7 +76,7 @@ public abstract class Client {
 		if (proxyUrl != null) {
 			environment.put("HTTP_PROXY", proxyUrl);
 		}
-		environment.put("HOME", "/home");
+		environment.put("HOME", "/build/wrapper");
 	}
 
 	public String getRunAs() {
@@ -444,6 +444,7 @@ public abstract class Client {
 		commandLine.add("-v");
 		commandLine.add(hostPath + ":" + guestPath);
 
+		System.out.println("mdkir " + hostPath);
 		hostDir.mkdirs();
 	}
 

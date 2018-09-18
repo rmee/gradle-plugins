@@ -37,7 +37,7 @@ public class UnixUtils {
 				builder.append((char) c);
 			}
 			in.close();
-			return builder.toString();
+			return builder.toString().trim();
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("failed to obtain uid/gid", e);

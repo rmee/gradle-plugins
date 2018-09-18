@@ -59,5 +59,5 @@ A wrapper `kubectl` will be generated into the project root to allow easy access
 
 ```
 #!/usr/bin/env sh
-exec docker run -v build\.kube:/home/.kube/ dtzar/helm-kubectl:2.9.1 kubectl "$@"
+exec docker run -v build\.kube:/build/wrapper/.kube/ dtzar/helm-kubectl:2.9.1 kubectl "$@"
 ```

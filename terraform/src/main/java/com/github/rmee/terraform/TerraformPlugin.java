@@ -41,7 +41,7 @@ public class TerraformPlugin implements Plugin<Project> {
 			client.getVolumeMappings().put("/etc/project/conf", extension.getSourceDir());
 			client.getVolumeMappings().put("/.terraform", terraformTempDir2);
 
-			client.getOutputPaths().add("/home/.terraform.d");
+			client.getOutputPaths().add("/build/wrapper/.terraform.d");
 			client.getOutputPaths().add("/.terraform");
 
 			if (extension.getDebug()) {

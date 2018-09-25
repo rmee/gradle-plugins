@@ -1,22 +1,70 @@
 package com.github.rmee.gcloud;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.yaml.snakeyaml.Yaml;
 
 public class GCloudActivateServiceAccountTask extends DefaultTask {
 
+	public GCloudActivateServiceAccountTask() {
+		getOutputs().upToDateWhen(element -> {
+			File credentialsFile = getProject().file("build/wrapper/.config/gcloud/credentials" );
+			if (!credentialsFile.exists()) {
+				return false;
+			}
+			// looks like:
+			//{
+			//	"data": [
+			//	{
+			//		"credential": { ...
+			//			"token_expiry": "2018-09-25T14:33:35Z", ...
+			Map<String, List<Map<String, Map<String, String>>>> config;
+			try (FileInputStream fis = new FileInputStream(credentialsFile)) {
+				Yaml yaml = new Yaml();
+				config = yaml.load(fis); // not loadAs (we're just feeling lucky)
+			}
+			catch (IOException e) {
+				getProject().getLogger().warn("failed reading " + credentialsFile, e);
+				return false;
+			}
+			Date expiryDate;
+			try {
+				String expiryStr = config.get("data" ).get(0).get("credential" ).get("token_expiry" );
+				expiryDate = Date.from(Instant.parse(expiryStr));
+			}
+			catch (Exception e) {
+				// if this this file is ill formatted you end up in here
+				getProject().getLogger().info("failed parsing " + credentialsFile, e);
+				return false;
+			}
+			if (expiryDate.before(new Date())) {
+				return false;
+			}
+			return true;
+		});
+	}
+
+	private GCloudExtension getExtension() {
+		return getProject().getExtensions().getByType(GCloudExtension.class);
+	}
+
+	@InputFile
+	public File getKeyFile() {
+		return getExtension().getKeyFile();
+	}
+
 	@TaskAction
 	public void run() {
-		GCloudExtension extension = getProject().getExtensions().getByType(GCloudExtension.class);
-
-		File keyFile = extension.getKeyFile();
-		if (keyFile == null) {
-			throw new IllegalStateException("gcloud.keyFile not configured");
-		}
-
+		File keyFile = getKeyFile();
 		StringBuilder command = new StringBuilder();
 		command.append("gcloud auth activate-service-account");
 
@@ -56,7 +104,7 @@ public class GCloudActivateServiceAccountTask extends DefaultTask {
 
 		execSpec.setCommandLine(command.toString());
 		//execSpec.setStdoutFile(tempFile);
-		extension.exec(execSpec);
+		getExtension().exec(execSpec);
 
 /*
 		if (GCloudExtension.getSubscriptionId() == null || GCloudExtension.getTenantId() == null) {

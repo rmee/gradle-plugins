@@ -35,7 +35,7 @@ public class HelmExtension extends ClientExtensionBase {
 					return downloadFileName + "-linux-amd64.tar.gz";
 				}
 				else if (operatingSystem.isWindows()) {
-					return downloadFileName + "-windows-amd64.zip";
+					return downloadFileName + "-windows-amd64.tar.gz";
 				}
 				else if (operatingSystem.isMacOsX()) {
 					return downloadFileName + "-darwin-amd64.tar.gz";

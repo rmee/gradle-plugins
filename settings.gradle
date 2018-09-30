@@ -1,5 +1,6 @@
 include 'systemd-application',
 		'build-on-change',
+		'jdk-bootstrap',
 		'jpa-schema-gen',
 		'common',
 		'kubectl',

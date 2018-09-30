@@ -1,0 +1,38 @@
+
+JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL_TEMPLATE}"
+JDK_VERSION="${JDK_VERSION_TEMPLATE}"
+
+JDK_CACHE_DIR="${APP_HOME}/.gradle/jdk"
+JAVA_HOME="${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
+
+if ! [ -d "${JAVA_HOME}" ]; then
+
+  mkdir -p "${JDK_CACHE_DIR}" || die "java: Fatal error while creating local cache directory: ${JDK_CACHE_DIR}"
+
+  if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
+    JDK_ENV="windows-x64"
+    JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_DIST_SUFFIX/zip}"
+  else
+    [ "$darwin" = true ] && JDK_ENV="osx-x64" || JDK_ENV="linux-x64"
+    JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_DIST_SUFFIX/tar.gz}"
+  fi
+
+  JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_ENV/${JDK_ENV}}"
+
+  JDK_DOWNLOAD_FILE="${JDK_CACHE_DIR}/${JDK_VERSION}.tar.gz"
+
+  curl -L "${JDK_DOWNLOAD_URL}" --output "${JDK_DOWNLOAD_FILE}" || \
+    die "java: Fatal error. Could not download JDK from URL: ${JDK_DOWNLOAD_URL}"
+
+  tar xfz "${JDK_DOWNLOAD_FILE}" -C "${JDK_CACHE_DIR}/" || \
+    die "java: Fatal error. Could not gnu-unzip and untar the downloaded archive: ${JAVA_HOME}/../${JDK_VERSION}.tar.gz"
+
+  # deal with different naming conventions
+  mv -T "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
+
+  chmod u+w,g+w -R "${JAVA_HOME}"
+
+  rm "${JDK_DOWNLOAD_FILE}"
+
+  echo "Installed JDK from ${JDK_DOWNLOAD_URL} into ${JAVA_HOME}"
+fi

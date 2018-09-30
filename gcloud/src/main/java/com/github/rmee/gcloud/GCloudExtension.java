@@ -22,7 +22,7 @@ public class GCloudExtension extends ClientExtensionBase {
 
 
 	public GCloudExtension() {
-		client = new Client(this, "az") {
+		client = new Client(this, "gcloud") {
 			@Override
 			protected String computeDownloadFileName() {
 				throw new UnsupportedOperationException("download not supported, make use of docker");

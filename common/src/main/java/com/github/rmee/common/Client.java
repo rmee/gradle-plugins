@@ -444,7 +444,6 @@ public abstract class Client {
 		commandLine.add("-v");
 		commandLine.add(hostPath + ":" + guestPath);
 
-		System.out.println("mdkir " + hostPath);
 		hostDir.mkdirs();
 	}
 
@@ -468,6 +467,21 @@ public abstract class Client {
 				StringBuilder builder = new StringBuilder();
 
 				builder.append("#!/usr/bin/env sh\n");
+
+				// fix paths for mingw
+				builder.append("case \"`uname`\" in\n");
+				builder.append("  MINGW* )\n");
+				builder.append("  msys=true\n");
+				builder.append("  ;;\n");
+				builder.append("esac\n");
+				builder.append("NORMPWD=PWD\n");  // NOSONAR PWD is not an issue password issue
+				builder.append("if [ \"$msys\" = \"true\" ] ; then\n");
+				builder.append("  export MSYS_NO_PATHCONV=1\n");
+				builder.append("  export MSYS2_ARG_CONV_EXC=\"*\"\n");
+				builder.append("  NORMPWD=$(cygpath -w \"$PWD\")\n");  // NOSONAR PWD is not an issue password issue
+				builder.append("  NORMPWD=${NORMPWD//'\\'/'/'}\n"); // NOSONAR PWD is not an issue password issue
+				builder.append("fi\n");
+
 				builder.append("exec");
 				Collection<String> commandLine = buildBaseCommandLine();
 
@@ -476,22 +490,11 @@ public abstract class Client {
 				for (String element : commandLine) {
 					builder.append(' ');
 
-					// no relative paths support on windows yet
-					/*
-					String rootPath = rootProject.getProjectDir().getAbsolutePath();
-					String projectPath = project.getProjectDir().getAbsolutePath();
+					// avoid absolute paths
+					String projectPath = project.getProjectDir().getAbsolutePath().replace('\\', '/');
 					if (element.startsWith(projectPath)) {
-						element = element.substring(projectPath.length() + 1);
+						element = "$NORMPWD/" + element.substring(projectPath.length() + 1);
 					}
-					else if (element.startsWith(rootPath)) {
-						element = element.substring(rootPath.length() + 1);
-						Project p = project;
-						while (p != rootProject) {
-							element = "../" + element;
-							p = p.getParent();
-						}
-					}
-					*/
 					builder.append(element);
 				}
 				if (mustIncludeBinary) {

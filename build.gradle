@@ -148,7 +148,7 @@ gradle.beforeProject { Project project ->
 						def root = asNode()
 						root.appendNode('description', 'Gradle plugins')
 						root.appendNode('name', 'rmee-gradle')
-						root.appendNode('url', 'http://www.github.com/rmee/gradle')
+						root.appendNode('url', 'http://www.github.com/rmee/gradle-plugins')
 						//root.children().last() + pomConfig
 					}
 				}

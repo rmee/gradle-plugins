@@ -5,6 +5,7 @@
 
 Hosts a collection of Gradle plugins:
 
+- [jdk-bootstrap](../../blob/master/jdk-bootstrap): to automatically download a JDK to run Gradle.
 - [build-on-change](../../blob/master/build-on-change): perform incremental builds of PRs by only building what has 
   changed compared to a reference branch (like master).
 - [systemd-application](../../blob/master/systemd-application): builds a RPM/systemd package out of any Java main 

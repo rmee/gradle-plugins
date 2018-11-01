@@ -182,7 +182,7 @@ gradle.beforeProject { Project project ->
 				name = project.name
 				userOrg = 'rmee'
 				licenses = ['Apache-2.0']
-				vcsUrl = 'https://github.com/rmee/gradle.git'
+				vcsUrl = 'https://github.com/rmee/gradle-plugins.git'
 				websiteUrl = 'http://www.github.com/rmee/gradle-plugins/'
 				desc = 'Gradle plugins'
 				labels = ['Gradle']

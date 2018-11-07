@@ -34,7 +34,7 @@ public class KubectlPlugin implements Plugin<Project> {
 
 				client.getOutputPaths().add(KubernetesUtils.KUBE_DIR);
 			}
-			else {
+			else if (client.getDownload()) {
 				File downloadDir = client.getDownloadDir();
 				downloadDir.mkdirs();
 				bootstrap.dest(downloadDir);
@@ -44,6 +44,9 @@ public class KubectlPlugin implements Plugin<Project> {
 				catch (MalformedURLException e) {
 					throw new IllegalStateException(e);
 				}
+			}
+			else {
+				bootstrap.setEnabled(false);
 			}
 		});
 	}

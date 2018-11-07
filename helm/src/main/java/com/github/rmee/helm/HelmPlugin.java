@@ -59,6 +59,9 @@ public class HelmPlugin implements Plugin<Project> {
 				downloadDir.mkdirs();
 				helmBootstrap.dest(downloadDir);
 			}
+			else {
+				helmBootstrap.setEnabled(false);
+			}
 		});
 
 		helmInit.dependsOn(helmBootstrap);

@@ -2,6 +2,7 @@ package com.github.rmee.helm;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,7 +63,7 @@ public class HelmExtension extends ClientExtensionBase {
 
 	public Set<String> getPackageNames() {
 		if (!getSourceDir().exists()) {
-			throw new IllegalStateException("helm source directory does not exist: " + getSourceDir().getAbsolutePath());
+			return Collections.emptySet();
 		}
 		Stream<File> stream = Arrays.stream(sourceDir.listFiles());
 		return stream.filter(file -> file.isDirectory() && new File(file, "Chart.yaml").exists())

@@ -16,7 +16,7 @@ public class GCloudPlugin implements Plugin<Project> {
 		File configDir = new File(project.getBuildDir(), ".gcloud");
 
 		GCloudExtension extension = project.getExtensions().create("gcloud", GCloudExtension.class);
-		extension.setProject(project);
+		extension.initProject(project);
 		extension.getClient().setImageName("google/cloud-sdk");
 		extension.getClient().setVersion("159.0.0");
 

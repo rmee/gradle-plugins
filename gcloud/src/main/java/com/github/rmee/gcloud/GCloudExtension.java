@@ -91,7 +91,7 @@ public class GCloudExtension extends ClientExtensionBase {
 		this.keyFile = keyFile;
 	}
 
-	protected void setProject(Project project) {
+	protected void initProject(Project project) {
 		super.project = project;
 	}
 }

@@ -59,7 +59,6 @@ public abstract class Client {
 
 	private boolean runAsEnabled = true;
 
-
 	public Client(ClientExtensionBase extension, String binName) {
 		this.binName = binName;
 		this.extension = extension;
@@ -280,7 +279,6 @@ public abstract class Client {
 	 */
 	@Deprecated
 	public boolean getDownload() {
-		extension.init();
 		return download;
 	}
 

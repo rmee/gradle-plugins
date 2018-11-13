@@ -387,6 +387,10 @@ public abstract class Client {
 			if (arg.startsWith(path)) {
 				arg = entry.getKey() + arg.substring(path.length());
 				break;
+			}else if(arg.contains("=" + path)){
+				int sep = arg.indexOf("=" + path);
+				arg = arg.substring(0, sep) + "=" + entry.getKey() + arg.substring(sep + 1 + path.length());
+				break;
 			}
 		}
 		arg = arg.replace('\\', '/');

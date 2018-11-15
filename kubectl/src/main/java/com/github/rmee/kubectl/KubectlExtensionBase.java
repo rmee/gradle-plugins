@@ -110,7 +110,7 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 			}
 
 			if (spec.getOutputFormat() == OutputFormat.JSON) {
-				commandLine.add(" --output=json");
+				commandLine.add("--output=json");
 			}
 
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

@@ -348,9 +348,7 @@ public abstract class Client {
     }
 
     public void configureExec(ExecSpec execSpec, ClientExecSpec clientExecSpec) {
-        Map<String, String> execEnv = new HashMap<>();
-
-        execSpec.setEnvironment(execEnv);
+        execSpec.setEnvironment(dockerEnvironment);
         execSpec.setIgnoreExitValue(clientExecSpec.isIgnoreExitValue());
 
         List<String> args = clientExecSpec.getCommandLine();
@@ -358,7 +356,6 @@ public abstract class Client {
             List<String> commandLine = new ArrayList<>();
             commandLine.addAll(buildBaseCommandLine());
 
-            execEnv.putAll(dockerEnvironment);
 
             String proxyUrl = getProxyUrl();
             if (proxyUrl != null) {

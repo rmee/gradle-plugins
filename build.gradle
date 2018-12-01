@@ -125,6 +125,16 @@ gradle.beforeProject { Project project ->
 			}
 		}
 
+		task javadocJar(type: Jar, dependsOn: 'javadoc') {
+			from javadoc.destinationDir
+			classifier = 'javadoc'
+		}
+
+		task sourcesJar(type: Jar) {
+			from sourceSets.main.allSource
+			classifier = 'sources'
+		}
+
 		apply plugin: 'maven-publish'
 
 		publishing {
@@ -153,18 +163,6 @@ gradle.beforeProject { Project project ->
 					}
 				}
 			}
-		}
-
-
-		task javadocJar(type: Jar, dependsOn: 'javadoc') {
-			from javadoc.destinationDir
-			classifier = 'javadoc'
-		}
-
-
-		task sourcesJar(type: Jar) {
-			from sourceSets.main.allSource
-			classifier = 'sources'
 		}
 
 		def releaseBuild = project.hasProperty('stable')

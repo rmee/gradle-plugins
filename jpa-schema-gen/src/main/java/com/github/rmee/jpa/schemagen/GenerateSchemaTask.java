@@ -55,11 +55,15 @@ public class GenerateSchemaTask extends DefaultTask {
 		this.classes = classes;
 	}
 
-	@OutputDirectory
-	public File getOutputDirectory() {
-		Project project = getProject();
-		return new File(project.getBuildDir(), "generated/source/schema/main/");
-	}
+    @OutputDirectory
+    public File getOutputDirectory() {
+        Project project = getProject();
+        SchemaGenExtension config = getConfig();
+        if (config.isContinuousMode()) {
+            return new File(project.getBuildDir(), "generated/source/schema/main/");
+        }
+        return new File(project.getProjectDir(), "src/main/resources");
+    }
 
 	@InputFiles
 	Configuration getDependencies() {

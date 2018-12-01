@@ -26,6 +26,11 @@ public abstract class Client {
 
     private Map<String, String> environment = new HashMap();
 
+    /**
+     * Environment for docker engine
+     */
+    private Map<String, String> dockerEnvironment = new HashMap();
+
     private boolean download = true;
 
     private String binPath;
@@ -65,6 +70,15 @@ public abstract class Client {
         this.extension = extension;
 
         environment.put("HOME", "/build/wrapper");
+
+        String dockerHost = System.getenv("DOCKER_HOST");
+        if (dockerHost != null) {
+            dockerEnvironment.put("DOCKER_HOST", dockerHost);
+        }
+        String proxyUrl = getProxyUrl();
+        if(proxyUrl != null){
+            dockerEnvironment.put("HTTP_PROXY", proxyUrl);
+        }
     }
 
     private String getProxyUrl() {
@@ -122,6 +136,14 @@ public abstract class Client {
 
     public void setEnvironment(Map<String, String> environment) {
         this.environment = environment;
+    }
+
+    public Map<String, String> getDockerEnvironment() {
+        return dockerEnvironment;
+    }
+
+    public void setDockerEnvironment(Map<String, String> dockerEnvironment) {
+        this.dockerEnvironment = dockerEnvironment;
     }
 
     public String getImageName() {
@@ -327,7 +349,6 @@ public abstract class Client {
 
     public void configureExec(ExecSpec execSpec, ClientExecSpec clientExecSpec) {
         Map<String, String> execEnv = new HashMap<>();
-        execEnv.putAll(environment);
 
         execSpec.setEnvironment(execEnv);
         execSpec.setIgnoreExitValue(clientExecSpec.isIgnoreExitValue());
@@ -337,16 +358,12 @@ public abstract class Client {
             List<String> commandLine = new ArrayList<>();
             commandLine.addAll(buildBaseCommandLine());
 
+            execEnv.putAll(dockerEnvironment);
+
             String proxyUrl = getProxyUrl();
             if (proxyUrl != null) {
                 commandLine.add("-e");
                 commandLine.add("HTTP_PROXY=" + proxyUrl);
-            }
-
-            String dockerHost = System.getenv("DOCKER_HOST");
-            if (dockerHost != null) {
-                commandLine.add("-e");
-                commandLine.add("DOCKER_HOST=" + dockerHost);
             }
 
             String containerName = clientExecSpec.getContainerName();

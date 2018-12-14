@@ -20,7 +20,7 @@ prospect of a many benefits to the development lifecycle.
 
 Add this library to the classpath:
 
-```
+```groovy
 buildscript {
 	dependencies {
 	    ...
@@ -37,7 +37,7 @@ buildscript {
 
 ## Flyway Example
 
-```
+```groovy
 apply plugin: 'jpa-schema-gen'
 jpaSchemaGen {
 	packageName = 'com.example.demo'
@@ -54,7 +54,7 @@ constraints and indices.
 
 ## Liquibase Example
 
-```
+```groovy
 apply plugin: 'jpa-schema-gen'
 jpaSchemaGen {
 	packageName = 'com.example.demo'
@@ -69,7 +69,51 @@ jpaSchemaGen {
 }
 ```
 
+## Additional Features
+### Filter Persistence Unit
+To only generate a schema for a subset of `Entity` classes in a persistence unit, you
+can use the `includeOnlyPackages` property to list the packages (or package prefixes)
+of the classes that you want to include in the schema generation.
 
+This is useful if your application has to include entities in its persistence unit
+that it does not manage directly. E.g., if you rely on a library that will create
+it's own tables but need to query these tables directly via JPA.
+
+```groovy
+apply plugin: 'jpa-schema-gen'
+jpaSchemaGen {
+	packageName = 'com.example.demo'
+	persistenceUnitName = 'DEMO-UNIT'
+	configuration = 'runtime'
+	target = 'FLYWAY'
+	version = project.version
+	includeOnlyPackages = ['com.example']
+}
+```
+
+#### Limitations
+The filtering of the persistence unit happens _before_ the persistence provider gets its
+hands on the persistence unit. It only works if you explicitly list all Entity classes and
+declare `<exclude-unlisted-classes>true</exclude-unlisted-classes>`.  
+
+```xml
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+			 version="2.0">
+	<persistence-unit name="DEMO-UNIT" transaction-type="RESOURCE_LOCAL">
+		<class>com.example.demo.ExampleEntity</class>
+		<class>org.excluded.ExcludedEntity</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+	</persistence-unit>
+</persistence>
+
+```
+
+The mechanism used to implement the filtering is quite hack-y. The plugin only chooses
+that code path if `includeOnlyPackages` are configured. We recommend, not to configure
+that property if you don't _need_ the filtering feature.
+ 
 
 
 

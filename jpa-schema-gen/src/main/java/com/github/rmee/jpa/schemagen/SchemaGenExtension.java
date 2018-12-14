@@ -1,6 +1,9 @@
 package com.github.rmee.jpa.schemagen;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -24,6 +27,8 @@ public class SchemaGenExtension {
 	protected Project project;
 
 	private String version;
+
+	private List<String> includeOnlyPackages = new ArrayList<>();
 
 	public String getVersion() {
 		if (version == null) {
@@ -103,5 +108,18 @@ public class SchemaGenExtension {
 
 	public String getPersistenceUnitName() {
 		return persistenceUnitName;
+	}
+
+    /**
+     * Filter classes listed in persistence unit by their package and only include the classes that are match one of the packages
+     * listed in this property. No filtering is done, if this list is empty or null.
+     * @return List of package prefixes
+     */
+	List<String> getIncludeOnlyPackages() {
+		return includeOnlyPackages;
+	}
+
+	void setIncludeOnlyPackages(List<String> includeOnlyPackages) {
+		this.includeOnlyPackages = includeOnlyPackages;
 	}
 }

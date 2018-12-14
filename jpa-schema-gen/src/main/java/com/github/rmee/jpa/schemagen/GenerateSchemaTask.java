@@ -6,11 +6,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import com.github.rmee.jpa.schemagen.internal.FileUtils;
+import com.github.rmee.jpa.schemagen.internal.FilteredPersistenceUnit;
 import com.github.rmee.jpa.schemagen.internal.SchemaTarget;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -106,10 +108,13 @@ public class GenerateSchemaTask extends DefaultTask {
 					}
 
 					try {
-						Class persistenceClass = classloader.loadClass("javax.persistence.Persistence");
-						String methodName = "generateSchema"; //NOSONAR NAME global variable refers to task name
-						Method generateSchema = persistenceClass.getMethod(methodName, String.class, Map.class);
-						generateSchema.invoke(persistenceClass, config.getPersistenceUnitName(), persistenceProperties);
+						if(config.getIncludeOnlyPackages() == null || config.getIncludeOnlyPackages().isEmpty()) {
+							Class<?> persistenceClass = classloader.loadClass("javax.persistence.Persistence");
+							generateDirect(persistenceProperties, persistenceClass);
+						} else {
+							// Only use this implementation if filtering is required
+							generateViaPersistenceInfo(classloader, persistenceProperties, resourceUrl);
+						}
 					}
 					catch (Exception e) {
 						throw new IllegalStateException(e);
@@ -135,6 +140,50 @@ public class GenerateSchemaTask extends DefaultTask {
 		catch (Exception e) {
 			throw new IllegalStateException("failed to generate DDLs", e);
 		}
+	}
+
+	/**
+	 * <p>An alternate implementation of {@link #generateDirect(Properties, Class)}, which can filter the classes listed on the
+	 * persistence.xml.</p>
+	 * <p>The implementation is a bit of a hack and definitely more fragile than the direct implementation. If the filtering
+	 * feature is not required, it is recommended to rely on the direct implementation.</p>
+	 * @param classLoader The class loader of the project.
+	 * @param persistenceProperties properties for instantiating the persistence unit
+	 * @param resourceUrl The URL of the persistence.xml to generate the schema from
+	 * @throws Exception if a checked exception gets thrown
+	 */
+	private void generateViaPersistenceInfo(URLClassLoader classLoader,
+			Properties persistenceProperties, URL resourceUrl)
+			throws Exception {
+		SchemaGenExtension config = getConfig();
+		Class<?> persistenceProviderClass = classLoader.loadClass("javax.persistence.spi.PersistenceProvider");
+
+		Class<?> holderClass = classLoader.loadClass("javax.persistence.spi.PersistenceProviderResolverHolder");
+		Method getPersistenceProviderResolver = holderClass.getDeclaredMethod("getPersistenceProviderResolver");
+		Object resolver = getPersistenceProviderResolver.invoke(null);
+		Class<?> resolverClass = classLoader.loadClass("javax.persistence.spi.PersistenceProviderResolver");
+		Method getPersistenceProviders = resolverClass.getDeclaredMethod("getPersistenceProviders");
+		List<?> providers = (List<?>) getPersistenceProviders.invoke(resolver);
+		if(providers.isEmpty()){
+			throw new IllegalStateException("No persistence provider available in the classpath of the project. "
+					+ "Cannot generate the schema.");
+		}
+
+		Object provider = providers.get(0);
+		Class<?> persistenceUnitInfoClass = classLoader.loadClass("javax.persistence.spi.PersistenceUnitInfo");
+
+		Object persistenceUnitInfo = FilteredPersistenceUnit.fromXmlPersistenceUnit(classLoader, resourceUrl,
+				config.getIncludeOnlyPackages(), config.getPersistenceUnitName());
+		Method generateSchemaFromUnit =
+				persistenceProviderClass.getDeclaredMethod("generateSchema", persistenceUnitInfoClass, Map.class);
+		generateSchemaFromUnit.invoke(provider, persistenceUnitInfo, persistenceProperties);
+	}
+
+	private void generateDirect(Properties persistenceProperties, Class<?> persistenceClass) throws Exception {
+		SchemaGenExtension config = getConfig();
+		String methodName = "generateSchema"; //NOSONAR NAME global variable refers to task name
+		Method generateSchema = persistenceClass.getMethod(methodName, String.class, Map.class);
+		generateSchema.invoke(persistenceClass, config.getPersistenceUnitName(), persistenceProperties);
 	}
 
 	private SchemaTarget newInstance(String name) {

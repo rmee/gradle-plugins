@@ -1,72 +1,135 @@
 package com.github.rmee.helm;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
-
-import java.io.File;
+import org.yaml.snakeyaml.Yaml;
 
 public class HelmPackage extends DefaultTask {
 
-    private String packageName;
+	private String packageName;
 
-    public HelmPackage() {
-        setGroup("kubernetes");
-    }
+	private Map<String, Object> values = new HashMap<>();
 
-    @TaskAction
-    public void exec() {
-        HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
+	public HelmPackage() {
+		setGroup("kubernetes");
+	}
 
-        String outputDir;
-        if (extension.getClient().isDockerized()) {
-            outputDir = HelmPlugin.HELM_OUTPUT_DIR;
-        } else {
-            File fileOutputDir = extension.getOutputDir();
-            fileOutputDir.mkdirs();
-            outputDir = fileOutputDir.getAbsolutePath();
-        }
+	@TaskAction
+	public void exec() {
+		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
 
-        Project project = getProject();
+		String outputDir;
+		if (extension.getClient().isDockerized()) {
+			outputDir = HelmPlugin.HELM_OUTPUT_DIR;
+		}
+		else {
+			File fileOutputDir = extension.getOutputDir();
+			fileOutputDir.mkdirs();
+			outputDir = fileOutputDir.getAbsolutePath();
+		}
 
-        File sourceDir = getSourceDir();
+		Project project = getProject();
 
-        // consider start supporting dependencies
-        //File requirementsFile = new File(sourceDir, "requirements.yaml");
-        //if (requirementsFile.exists() && requirementsFile.length() > 0) {
-        //    HelmExecSpec updateSpec = new HelmExecSpec();
-        //    updateSpec.setCommandLine("helm dependency update --skip-refresh --debug " + sourceDir.getAbsolutePath());
-        //    extension.exec(updateSpec);
-        //}
+		File sourceDir = getSourceDir();
 
-        HelmExecSpec packageSpec = new HelmExecSpec();
-        packageSpec.setCommandLine("helm package " + sourceDir.getAbsolutePath() + " --destination " + outputDir
-                + " --version " + project.getVersion());
-        extension.exec(packageSpec);
-    }
+		File templatedDir = new File(getProject().getBuildDir(), "tmp/helm/" + sourceDir.getName());
+		try {
+			FileUtils.deleteDirectory(templatedDir);
+			templatedDir.mkdirs();
+			FileUtils.copyDirectory(sourceDir, templatedDir);
+
+			applyValues(templatedDir);
+		}
+		catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 
 
-    @InputDirectory
-    public File getSourceDir() {
-        HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-        return new File(extension.getSourceDir(), packageName);
-    }
+		// consider start supporting dependencies
+		//File requirementsFile = new File(sourceDir, "requirements.yaml");
+		//if (requirementsFile.exists() && requirementsFile.length() > 0) {
+		//    HelmExecSpec updateSpec = new HelmExecSpec();
+		//    updateSpec.setCommandLine("helm dependency update --skip-refresh --debug " + sourceDir.getAbsolutePath());
+		//    extension.exec(updateSpec);
+		//}
 
-    @OutputFile
-    public File getOutputFile() {
-        HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-        return extension.getOutputFile(packageName);
-    }
+		HelmExecSpec packageSpec = new HelmExecSpec();
+		packageSpec.setCommandLine("helm package " + templatedDir.getAbsolutePath() + " --destination " + outputDir
+				+ " --version " + project.getVersion());
+		extension.exec(packageSpec);
+	}
 
-    @Input
-    public String getPackageName() {
-        return packageName;
-    }
+	private void applyValues(File templatedDir) throws IOException {
+		File valuesFile = new File(templatedDir, "values.yaml");
 
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
+		Yaml yaml = new Yaml();
+		Map data;
+		try (FileReader reader = new FileReader(valuesFile)) {
+			data = yaml.load(reader);
+		}
+
+		for (Map.Entry<String, Object> entry : values.entrySet()) {
+			List<String> key = Arrays.asList(entry.getKey().split("\\."));
+			putValue(data, key, entry.getValue());
+		}
+
+		try (FileWriter writer = new FileWriter(valuesFile)) {
+			yaml.dump(data, writer);
+		}
+	}
+
+	private void putValue(Map data, List<String> key, Object value) {
+		String keyElement = key.get(0);
+		if (key.size() == 1) {
+			data.put(keyElement, value);
+		}
+		else {
+			Object innerData = data.computeIfAbsent(keyElement, o -> new HashMap<>());
+			putValue((Map) innerData, key.subList(1, key.size()), value);
+		}
+	}
+
+
+	@InputDirectory
+	public File getSourceDir() {
+		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
+		return new File(extension.getSourceDir(), packageName);
+	}
+
+	@OutputFile
+	public File getOutputFile() {
+		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
+		return extension.getOutputFile(packageName);
+	}
+
+	@Input
+	public String getPackageName() {
+		return packageName;
+	}
+
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
+
+	public Map<String, Object> getValues() {
+		return values;
+	}
+
+	public void setValues(Map<String, Object> values) {
+		this.values = values;
+	}
 }

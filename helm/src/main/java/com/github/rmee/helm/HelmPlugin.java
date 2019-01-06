@@ -1,15 +1,15 @@
 package com.github.rmee.helm;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.util.Set;
+
 import com.github.rmee.common.Client;
 import com.github.rmee.common.internal.KubernetesUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.Set;
 
 public class HelmPlugin implements Plugin<Project> {
 
@@ -30,6 +30,7 @@ public class HelmPlugin implements Plugin<Project> {
         HelmPublish helmPublish = project.getTasks().create("helmPublish", HelmPublish.class);
         Task helmUpdateRepository = project.getTasks().create("helmUpdateRepository", HelmUpdateRepository.class);
         HelmInit helmInit = project.getTasks().create("helmInit", HelmInit.class);
+		DefaultTask helmPackagePrepare = project.getTasks().create("helmPackagePrepare", DefaultTask.class);
         project.getTasks().create("helmClean", HelmClean.class);
 
         helmUpdateRepository.dependsOn(helmInit);
@@ -44,6 +45,7 @@ public class HelmPlugin implements Plugin<Project> {
             HelmPackage helmPackage = project.getTasks().create("helmPackage" + toCamelCase(packageName), HelmPackage.class);
             helmPackage.setPackageName(packageName);
             helmPackage.dependsOn(helmInit);
+            helmPackage.dependsOn(helmPackagePrepare);
             helmPackages.dependsOn(helmPackage);
         }
 

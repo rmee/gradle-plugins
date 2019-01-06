@@ -16,6 +16,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 public class HelmPackage extends DefaultTask {
@@ -76,7 +77,10 @@ public class HelmPackage extends DefaultTask {
 	private void applyValues(File templatedDir) throws IOException {
 		File valuesFile = new File(templatedDir, "values.yaml");
 
-		Yaml yaml = new Yaml();
+
+		DumperOptions options = new DumperOptions();
+		options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+		Yaml yaml = new Yaml(options);
 		Map data;
 		try (FileReader reader = new FileReader(valuesFile)) {
 			data = yaml.load(reader);

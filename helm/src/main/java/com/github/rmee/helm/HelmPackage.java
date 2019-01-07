@@ -129,6 +129,7 @@ public class HelmPackage extends DefaultTask {
 		this.packageName = packageName;
 	}
 
+	@Input
 	public Map<String, Object> getValues() {
 		return values;
 	}

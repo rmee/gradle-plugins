@@ -354,7 +354,7 @@ public abstract class Client {
         List<String> args = clientExecSpec.getCommandLine();
         if (dockerized) {
             List<String> commandLine = new ArrayList<>();
-            commandLine.addAll(buildBaseCommandLine());
+            commandLine.addAll(buildBaseCommandLine(false));
 
 
             String proxyUrl = getProxyUrl();
@@ -421,12 +421,15 @@ public abstract class Client {
         return arg;
     }
 
-    private Collection<String> buildBaseCommandLine(String... additionalParams) {
+    private Collection<String> buildBaseCommandLine(boolean wrapper, String... additionalParams) {
         List<String> commandLine = new ArrayList<>();
         commandLine.add("docker");
         commandLine.add("run");
         commandLine.add("-i");
         commandLine.add("--rm");
+        if(wrapper) {
+            commandLine.add("--tty");
+        }
 
         // directly running docker images as non-root is causing permission issues with many images
         // we fix the permissions of the output files instead
@@ -517,7 +520,7 @@ public abstract class Client {
                 builder.append("fi\n");
 
                 builder.append("exec");
-                Collection<String> commandLine = buildBaseCommandLine("$PROXY_PARAM");
+                Collection<String> commandLine = buildBaseCommandLine(true, "$PROXY_PARAM");
 
                 commandLine.add(imageName + ":" + version);
 

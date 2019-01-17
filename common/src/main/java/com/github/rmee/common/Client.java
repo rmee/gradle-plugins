@@ -497,30 +497,31 @@ public abstract class Client {
             wrapper.doLast(task -> {
                 StringBuilder builder = new StringBuilder();
 
-                builder.append("#!/usr/bin/env sh\n");
+                // Replacement ${x//y/z} requires bash (not a POSIX feature)
+                builder.append("#!/usr/bin/env bash\n");
 
                 // fix paths for mingw
-                builder.append("case \"`uname`\" in\n");
+                builder.append("case \"$(uname)\" in\n");
                 builder.append("  MINGW* )\n");
                 builder.append("  msys=true\n");
                 builder.append("  ;;\n");
                 builder.append("esac\n");
-                builder.append("NORMPWD=PWD\n");  // NOSONAR PWD is not an issue password issue
+                builder.append("NORMPWD=\"$(pwd)\"\n");  // NOSONAR PWD is not an issue password issue
                 builder.append("if [ \"$msys\" = \"true\" ] ; then\n");
                 builder.append("  export MSYS_NO_PATHCONV=1\n");
                 builder.append("  export MSYS2_ARG_CONV_EXC=\"*\"\n");
-                builder.append("  NORMPWD=$(cygpath -w \"$PWD\")\n");  // NOSONAR PWD is not an issue password issue
-                builder.append("  NORMPWD=${NORMPWD//'\\'/'/'}\n"); // NOSONAR PWD is not an issue password issue
+                builder.append("  NORMPWD=\"$(cygpath -w \"$(pwd)\")\"\n");  // NOSONAR PWD is not an issue password issue
+                builder.append("  NORMPWD=\"${NORMPWD//'\\'/'/'}\"\n"); // NOSONAR PWD is not an issue password issue
                 builder.append("fi\n");
 
                 builder.append("if [ -z \"$HTTP_PROXY\" ] ; then\n");
-                builder.append("  PROXY_PARAM=\"\"\n");
+                builder.append("  PROXY_PARAM=()\n");
                 builder.append("else\n");
-                builder.append("  PROXY_PARAM=\" -e HTTP_PROXY=$HTTP_PROXY \"\n");
+                builder.append("  PROXY_PARAM=(-e \"HTTP_PROXY=$HTTP_PROXY\")\n");
                 builder.append("fi\n");
 
                 builder.append("exec");
-                Collection<String> commandLine = buildBaseCommandLine(true, "$PROXY_PARAM");
+                Collection<String> commandLine = buildBaseCommandLine(true, "\"${PROXY_PARAM[@]}\"");
 
                 commandLine.add(imageName + ":" + version);
 
@@ -530,7 +531,7 @@ public abstract class Client {
                     // avoid absolute paths
                     String projectPath = project.getProjectDir().getAbsolutePath().replace('\\', '/');
                     if (element.startsWith(projectPath)) {
-                        element = "$NORMPWD/" + element.substring(projectPath.length() + 1);
+                        element = "\"$NORMPWD\"/" + element.substring(projectPath.length() + 1);
                     }
                     builder.append(element);
                 }

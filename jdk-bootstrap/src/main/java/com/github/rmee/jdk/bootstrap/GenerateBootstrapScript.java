@@ -1,14 +1,14 @@
 package com.github.rmee.jdk.bootstrap;
 
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-
-import java.io.File;
-import java.io.IOException;
 
 class GenerateBootstrapScript implements Action<Task> {
 
@@ -38,6 +38,9 @@ class GenerateBootstrapScript implements Action<Task> {
 			String bootstrapScript = generateBootstrapScript();
 
 			String updatedScript = script.substring(0, sep) + bootstrapScript + '\n' + script.substring(sep);
+
+			updatedScript = updatedScript.replace("#!/usr/bin/env sh", "#!/bin/bash");
+
 			FileUtils.write(wrapperFile, updatedScript);
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
@@ -48,7 +51,8 @@ class GenerateBootstrapScript implements Action<Task> {
 		String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("bootstrap.sh.template"));
 
 		String template = extension.getUrlTemplate();
-		template = template.replace("${os}", "JDK_ENV");
+		template = template.replace("${env}", "JDK_ENV");
+		template = template.replace("${os}", "JDK_OS");
 		template = template.replace("${suffix}", "JDK_DIST_SUFFIX");
 		template = template.replace("${version}", extension.getVersion());
 

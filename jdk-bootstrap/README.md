@@ -44,13 +44,23 @@ The setup the plugin accordingly:
 ```
 apply plugin: 'jdk-bootstrap'
 jdk {
+    version = ...
 	urlTemplate = 'https://download.java.net/java/GA/jdk10/${version}/19aef61b38124481863b1413dce1855f/13/openjdk-${version}_${os}_bin.tar.gz'
 }
 ```
 
-Here `os` is a provided placeholder translating to `windows-x64`, `osx-x64` or `linux-x64` at runtime.
+Here `os` is a provided placeholder translating to `windows`, `mac` or `linux` at runtime.
 The URLs are rather complicated and not predicable and for this reason cannot be automated by this plugin
 for the time being.
+
+Or just make use a built-in default to download a JDK from https://github.com/AdoptOpenJDK/:
+
+```
+apply plugin: 'jdk-bootstrap'
+jdk {
+	useAdoptOpenJdk8('jdk8u202-b08')
+}
+```
 
 
 ## IDE setup

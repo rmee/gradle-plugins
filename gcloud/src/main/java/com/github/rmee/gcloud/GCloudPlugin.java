@@ -24,7 +24,7 @@ public class GCloudPlugin implements Plugin<Project> {
 				project.getTasks().create("gcloudActivateServiceAccount", GCloudActivateServiceAccountTask.class);
 		GCloudGetKubernetesCredentialsTask getCredentials =
 				project.getTasks().create("gcloudGetKubernetesCredentials", GCloudGetKubernetesCredentialsTask.class);
-		GCloudSetProjectTask setProject = project.getTasks().create("gcloudSetProjectTask",
+		GCloudSetProjectTask setProject = project.getTasks().create("gcloudSetProject",
 				GCloudSetProjectTask.class);
 		project.getTasks().create("gcloudClean", GCloudCleanTask.class);
 

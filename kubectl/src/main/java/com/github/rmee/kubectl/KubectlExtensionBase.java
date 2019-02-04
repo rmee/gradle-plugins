@@ -1,167 +1,152 @@
 package com.github.rmee.kubectl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import com.github.rmee.common.Client;
 import com.github.rmee.common.ClientExtensionBase;
 import com.github.rmee.common.Credentials;
 import com.github.rmee.common.OutputFormat;
-import com.github.rmee.common.internal.KubernetesUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+
 public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
-	private String url;
+    private String url;
 
-	protected Credentials credentials;
+    protected Credentials credentials;
 
-	private String namespace;
+    private String namespace;
 
-	private boolean insecureSkipTlsVerify = false;
-
-	private File kubeConfig;
-
-	public KubectlExtensionBase() {
-		credentials = new Credentials(this);
-		client = createClient();
-	}
-
-	protected abstract Client createClient();
-
-	public File getKubeConfig() {
-		return kubeConfig;
-	}
-
-	public void setKubeConfig(File kubeConfig) {
-		this.kubeConfig = kubeConfig;
-		KubernetesUtils.setKubeConfig(client, kubeConfig);
-	}
-
-	public boolean isInsecureSkipTlsVerify() {
-		return insecureSkipTlsVerify;
-	}
-
-	public void setInsecureSkipTlsVerify(boolean insecureSkipTlsVerify) {
-		this.insecureSkipTlsVerify = insecureSkipTlsVerify;
-	}
+    private boolean insecureSkipTlsVerify = false;
 
 
-	public Credentials credentials(Closure closure) {
-		return (Credentials) project.configure(credentials, closure);
-	}
+    public KubectlExtensionBase() {
+        credentials = new Credentials(this);
+        client = createClient();
+    }
 
-	public String getUrl() {
-		init();
-		return url;
-	}
+    protected abstract Client createClient();
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public boolean isInsecureSkipTlsVerify() {
+        return insecureSkipTlsVerify;
+    }
 
-	public Credentials getCredentials() {
-		init();
-		return credentials;
-	}
+    public void setInsecureSkipTlsVerify(boolean insecureSkipTlsVerify) {
+        this.insecureSkipTlsVerify = insecureSkipTlsVerify;
+    }
 
-	public String getNamespace() {
-		init();
-		return namespace;
-	}
 
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
-	}
+    public Credentials credentials(Closure closure) {
+        return (Credentials) project.configure(credentials, closure);
+    }
 
-	public String getToken(String serviceAccount) {
-		KubectlExecSpec spec = new KubectlExecSpec();
-		spec.setCommandLine(client.getBinName() + " describe serviceaccount " + serviceAccount);
-		KubectlExecResult result = exec(spec);
-		String tokenName = result.getProperty("tokens");
+    public String getUrl() {
+        init();
+        return url;
+    }
 
-		spec.setCommandLine(client.getBinName() + " describe secret " + tokenName);
-		result = exec(spec);
-		return result.getProperty("token");
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public KubectlExecResult exec(String command) {
-		KubectlExecSpec spec = new KubectlExecSpec();
-		spec.setCommandLine(command);
-		return exec(spec);
-	}
+    public Credentials getCredentials() {
+        init();
+        return credentials;
+    }
 
-	protected KubectlExecResult exec(KubectlExecSpec execSpec1) {
-		// prevent from giving changes back to caller
-		final KubectlExecSpec spec = execSpec1.duplicate();
+    public String getNamespace() {
+        init();
+        return namespace;
+    }
 
-		List<String> commandLine = spec.getCommandLine();
-		int pipeIndex = commandLine.indexOf("|");
-		if (pipeIndex == -1) {
-			if (!commandLine.contains("token") && !commandLine.contains("pass")) {
-				project.getLogger().warn("Executing: " + commandLine);
-			}
-			else {
-				project.getLogger().debug("Executing: " + commandLine);
-			}
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 
-			if (spec.getOutputFormat() == OutputFormat.JSON) {
-				commandLine.add("--output=json");
-			}
+    public String getToken(String serviceAccount) {
+        KubectlExecSpec spec = new KubectlExecSpec();
+        spec.setCommandLine(client.getBinName() + " describe serviceaccount " + serviceAccount);
+        KubectlExecResult result = exec(spec);
+        String tokenName = result.getProperty("tokens");
 
-			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				project.exec(execSpec -> {
-					client.configureExec(execSpec, spec);
-					if (spec.getInput() != null) {
-						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
-					}
-					if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
-						execSpec.setStandardOutput(outputStream);
-					}
-				});
-				String output = outputStream.toString();
-				return createResult(output);
-			}
-			catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
-		}
-		else {
-			KubectlExecSpec leftSpec = spec.duplicate();
-			leftSpec.setCommandLine(commandLine.subList(0, pipeIndex));
-			leftSpec.setOutputFormat(OutputFormat.TEXT);
-			KubectlExecResult leftResult = exec(leftSpec);
+        spec.setCommandLine(client.getBinName() + " describe secret " + tokenName);
+        result = exec(spec);
+        return result.getProperty("token");
+    }
 
-			KubectlExecSpec rightSpec = spec.duplicate();
-			rightSpec.setCommandLine(commandLine.subList(pipeIndex + 1, commandLine.size()));
-			rightSpec.setInput(leftResult.getText());
-			return exec(rightSpec);
-		}
-	}
+    public KubectlExecResult exec(String command) {
+        KubectlExecSpec spec = new KubectlExecSpec();
+        spec.setCommandLine(command);
+        return exec(spec);
+    }
 
-	protected KubectlExecResult createResult(String output) {
-		return new KubectlExecResult(output);
-	}
+    protected KubectlExecResult exec(KubectlExecSpec execSpec1) {
+        // prevent from giving changes back to caller
+        final KubectlExecSpec spec = execSpec1.duplicate();
 
-	@Override
-	public void init() {
-		if (initialized) {
-			return;
-		}
-		initialized = true;
+        List<String> commandLine = spec.getCommandLine();
+        int pipeIndex = commandLine.indexOf("|");
+        if (pipeIndex == -1) {
+            if (!commandLine.contains("token") && !commandLine.contains("pass")) {
+                project.getLogger().warn("Executing: " + commandLine);
+            } else {
+                project.getLogger().debug("Executing: " + commandLine);
+            }
 
-		if (url == null) {
-			throw new IllegalArgumentException("url must be set");
-		}
+            if (spec.getOutputFormat() == OutputFormat.JSON) {
+                commandLine.add("--output=json");
+            }
 
-		client.init(project);
-	}
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                project.exec(execSpec -> {
+                    client.configureExec(execSpec, spec);
+                    if (spec.getInput() != null) {
+                        execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
+                    }
+                    if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
+                        execSpec.setStandardOutput(outputStream);
+                    }
+                });
+                String output = outputStream.toString();
+                return createResult(output);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            KubectlExecSpec leftSpec = spec.duplicate();
+            leftSpec.setCommandLine(commandLine.subList(0, pipeIndex));
+            leftSpec.setOutputFormat(OutputFormat.TEXT);
+            KubectlExecResult leftResult = exec(leftSpec);
 
-	protected void setProject(Project project) {
-		this.project = project;
-	}
+            KubectlExecSpec rightSpec = spec.duplicate();
+            rightSpec.setCommandLine(commandLine.subList(pipeIndex + 1, commandLine.size()));
+            rightSpec.setInput(leftResult.getText());
+            return exec(rightSpec);
+        }
+    }
+
+    protected KubectlExecResult createResult(String output) {
+        return new KubectlExecResult(output);
+    }
+
+    @Override
+    public void init() {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+
+        if (url == null) {
+            throw new IllegalArgumentException("url must be set");
+        }
+
+        client.init(project);
+    }
+
+    protected void setProject(Project project) {
+        this.project = project;
+    }
 }

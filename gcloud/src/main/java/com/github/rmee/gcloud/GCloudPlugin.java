@@ -26,7 +26,6 @@ public class GCloudPlugin implements Plugin<Project> {
 				project.getTasks().create("gcloudGetKubernetesCredentials", GCloudGetKubernetesCredentialsTask.class);
 		GCloudSetProjectTask setProject = project.getTasks().create("gcloudSetProject",
 				GCloudSetProjectTask.class);
-		project.getTasks().create("gcloudClean", GCloudCleanTask.class);
 
 		getCredentials.dependsOn(setProject);
 
@@ -37,9 +36,6 @@ public class GCloudPlugin implements Plugin<Project> {
 			Client client = extension.getClient();
 			KubernetesUtils.addDefaultMappings(client, project);
 			client.setupWrapper(project);
-
-			client.getOutputPaths().add("/build/wrapper/.kube");
-			client.getOutputPaths().add("/build/wrapper/.config/gcloud");
 
 			// integrate with Kubernetes if available
 			try {

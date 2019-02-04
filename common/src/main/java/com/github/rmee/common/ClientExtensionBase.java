@@ -26,5 +26,4 @@ public abstract class ClientExtensionBase {
 	public Client client(Closure closure) {
 		return (Client) project.configure(client, closure);
 	}
-
 }

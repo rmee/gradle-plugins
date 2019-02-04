@@ -1,15 +1,15 @@
 package com.github.rmee.helm;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.Set;
-
 import com.github.rmee.common.Client;
 import com.github.rmee.common.internal.KubernetesUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.util.Set;
 
 public class HelmPlugin implements Plugin<Project> {
 
@@ -22,7 +22,7 @@ public class HelmPlugin implements Plugin<Project> {
 
         HelmExtension extension = project.getExtensions().create("helm", HelmExtension.class);
         extension.setProject(project);
-        extension.setKubeConfig(KubernetesUtils.getDefaultKubeConfig(project));
+        // extension.setKubeConfig(KubernetesUtils.getDefaultKubeConfig(project));
 
         HelmBootstrap helmBootstrap = project.getTasks().create("helmBootstrap", HelmBootstrap.class);
 
@@ -30,8 +30,7 @@ public class HelmPlugin implements Plugin<Project> {
         HelmPublish helmPublish = project.getTasks().create("helmPublish", HelmPublish.class);
         Task helmUpdateRepository = project.getTasks().create("helmUpdateRepository", HelmUpdateRepository.class);
         HelmInit helmInit = project.getTasks().create("helmInit", HelmInit.class);
-		DefaultTask helmPackagePrepare = project.getTasks().create("helmPackagePrepare", DefaultTask.class);
-        project.getTasks().create("helmClean", HelmClean.class);
+        DefaultTask helmPackagePrepare = project.getTasks().create("helmPackagePrepare", DefaultTask.class);
 
         helmUpdateRepository.dependsOn(helmInit);
         helmPublish.dependsOn(helmUpdateRepository);
@@ -57,7 +56,6 @@ public class HelmPlugin implements Plugin<Project> {
                 client.setupWrapper(project);
 
                 KubernetesUtils.addDefaultMappings(client, project);
-                client.getOutputPaths().add(HELM_OUTPUT_DIR);
             } else if (client.getDownload()) {
                 try {
                     helmBootstrap.src(client.getDownloadUrl());

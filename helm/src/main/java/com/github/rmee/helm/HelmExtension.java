@@ -2,7 +2,6 @@ package com.github.rmee.helm;
 
 import com.github.rmee.common.Client;
 import com.github.rmee.common.ClientExtensionBase;
-import com.github.rmee.common.internal.KubernetesUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -23,8 +22,6 @@ public class HelmExtension extends ClientExtensionBase {
     private File sourceDir;
 
     private File outputDir;
-
-    private File kubeConfig;
 
     private String repository;
 
@@ -158,22 +155,10 @@ public class HelmExtension extends ClientExtensionBase {
     public void exec(HelmExecSpec spec) {
         project.getLogger().warn("Executing: " + spec.getCommandLine());
 
-        if (kubeConfig != null) {
-            kubeConfig.getParentFile().mkdirs();
-        }
         client.exec(spec);
     }
 
     protected void setProject(Project project) {
         this.project = project;
-    }
-
-    public File getKubeConfig() {
-        return kubeConfig;
-    }
-
-    public void setKubeConfig(File kubeConfig) {
-        this.kubeConfig = kubeConfig;
-        KubernetesUtils.setKubeConfig(client, kubeConfig);
     }
 }

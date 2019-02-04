@@ -59,8 +59,6 @@ public abstract class Client {
 
     private boolean useWrapper = true;
 
-    private List<String> outputPaths = new ArrayList<>();
-
     private String runAs;
 
     private boolean runAsEnabled = true;
@@ -69,14 +67,12 @@ public abstract class Client {
         this.binName = binName;
         this.extension = extension;
 
-        environment.put("HOME", "/build/wrapper");
-
         String dockerHost = System.getenv("DOCKER_HOST");
         if (dockerHost != null) {
             dockerEnvironment.put("DOCKER_HOST", dockerHost);
         }
         String proxyUrl = getProxyUrl();
-        if(proxyUrl != null){
+        if (proxyUrl != null) {
             dockerEnvironment.put("HTTP_PROXY", proxyUrl);
         }
     }
@@ -154,14 +150,6 @@ public abstract class Client {
         this.imageName = imageName;
     }
 
-    public List<String> getOutputPaths() {
-        return outputPaths;
-    }
-
-    public void setOutputPaths(List<String> outputPaths) {
-        this.outputPaths = outputPaths;
-    }
-
     public String getVersion() {
         extension.init();
         return version;
@@ -191,7 +179,17 @@ public abstract class Client {
     }
 
     public void init(Project project) {
-        if (!dockerized) {
+        if (dockerized) {
+            String home = System.getenv("HOME");
+            if (home != null && !environment.containsKey("HOME")) {
+                environment.put("HOME", home);
+            }
+        } else {
+            // in non-Docker version use current environment by default
+            if (environment.isEmpty()) {
+                environment.putAll(System.getenv());
+            }
+
             if (downloadDir == null && download) {
                 downloadDir = new File(project.getBuildDir(), "tmp/" + binName + "/v" + version);
                 downloadDir.mkdirs();
@@ -385,6 +383,8 @@ public abstract class Client {
 
         } else {
             args.set(0, getBinPath());
+
+            execSpec.setEnvironment(environment);
             execSpec.setCommandLine(args);
         }
 
@@ -427,7 +427,7 @@ public abstract class Client {
         commandLine.add("run");
         commandLine.add("-i");
         commandLine.add("--rm");
-        if(wrapper) {
+        if (wrapper) {
             commandLine.add("--tty");
         }
 
@@ -558,36 +558,14 @@ public abstract class Client {
         });
     }
 
-    public void deleteOutputFiles() {
-        for (String path : outputPaths) {
-            deleteOutputFile(path);
+    public File getHome(String file) {
+        String home = environment.get("HOME");
+        if (home == null) {
+            home = System.getenv("HOME");
         }
-    }
-
-    private void deleteOutputFile(String path) {
-        File hostDir = volumeMappings.get(path);
-        if (hostDir == null) {
-            throw new IllegalStateException("volume mapping not found for " + path);
+        if (home == null) {
+            throw new IllegalStateException("HOME not specified in environment");
         }
-
-        if (hostDir.exists()) {
-            for (File file : hostDir.listFiles()) {
-                if (!file.delete()) {
-                    // permission issue => delete with docker as ROOT
-                    List<String> commandLine = new ArrayList<>();
-                    commandLine.add("docker");
-                    commandLine.add("run");
-                    commandLine.add("-i");
-                    addVolumeMapping(commandLine, path, hostDir);
-                    commandLine.add("bash");
-                    commandLine.add("rm");
-                    commandLine.add("-f");
-                    commandLine.add(path + "/" + file.getName());
-
-                    Project project = extension.project;
-                    project.exec(execSpec -> execSpec.commandLine(commandLine));
-                }
-            }
-        }
+        return new File(new File(home), file);
     }
 }

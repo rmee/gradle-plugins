@@ -7,12 +7,6 @@ import org.gradle.api.Project;
 
 public class KubernetesUtils {
 
-	public final static String KUBE_DIR = "/build/wrapper/.kube/";
-
-	public static File getDefaultKubeConfig(Project project) {
-		return new File(project.getRootProject().getProjectDir(), "build/.kube/config");
-	}
-
 	public static void setKubeConfig(Client client, File kubeConfig) {
 		if (client.isDockerized()) {
 			if (!kubeConfig.getName().equals("config")) {

@@ -139,10 +139,6 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
         }
         initialized = true;
 
-        if (url == null) {
-            throw new IllegalArgumentException("url must be set");
-        }
-
         client.init(project);
     }
 

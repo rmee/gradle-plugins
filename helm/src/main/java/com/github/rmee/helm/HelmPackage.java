@@ -1,14 +1,5 @@
 package com.github.rmee.helm;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -18,6 +9,15 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HelmPackage extends DefaultTask {
 
@@ -29,6 +29,16 @@ public class HelmPackage extends DefaultTask {
 		setGroup("kubernetes");
 	}
 
+	private void cleanOutputDir(File outputDir) {
+		if (outputDir.exists()) {
+			for (File file : outputDir.listFiles()) {
+				if (file.getName().startsWith(packageName) && file.getName().endsWith(".tgz")) {
+					file.delete();
+				}
+			}
+		}
+	}
+
 	@TaskAction
 	public void exec() {
 		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
@@ -36,11 +46,12 @@ public class HelmPackage extends DefaultTask {
 		String outputDir;
 		if (extension.getClient().isDockerized()) {
 			outputDir = HelmPlugin.HELM_OUTPUT_DIR;
-		}
-		else {
+			cleanOutputDir(new File(getProject().getBuildDir(), "helm"));
+		} else {
 			File fileOutputDir = extension.getOutputDir();
 			fileOutputDir.mkdirs();
 			outputDir = fileOutputDir.getAbsolutePath();
+			cleanOutputDir(fileOutputDir);
 		}
 
 		Project project = getProject();
@@ -54,8 +65,7 @@ public class HelmPackage extends DefaultTask {
 			FileUtils.copyDirectory(sourceDir, templatedDir);
 
 			applyValues(templatedDir);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
 
@@ -67,6 +77,7 @@ public class HelmPackage extends DefaultTask {
 		//    updateSpec.setCommandLine("helm dependency update --skip-refresh --debug " + sourceDir.getAbsolutePath());
 		//    extension.exec(updateSpec);
 		//}
+
 
 		HelmExecSpec packageSpec = new HelmExecSpec();
 		packageSpec.setCommandLine("helm package " + templatedDir.getAbsolutePath() + " --destination " + outputDir
@@ -100,8 +111,7 @@ public class HelmPackage extends DefaultTask {
 		String keyElement = key.get(0);
 		if (key.size() == 1) {
 			data.put(keyElement, value);
-		}
-		else {
+		} else {
 			Object innerData = data.computeIfAbsent(keyElement, o -> new HashMap<>());
 			putValue((Map) innerData, key.subList(1, key.size()), value);
 		}

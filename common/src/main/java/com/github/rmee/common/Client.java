@@ -76,6 +76,7 @@ public abstract class Client {
 		String proxyUrl = getProxyUrl();
 		if (proxyUrl != null) {
 			dockerEnvironment.put("HTTP_PROXY", proxyUrl);
+			dockerEnvironment.put("HTTPS_PROXY", proxyUrl);
 		}
 	}
 
@@ -83,7 +84,13 @@ public abstract class Client {
 		String proxyHostName = System.getProperty("http.proxyHost");
 		String proxyPort = System.getProperty("http.proxyPort");
 		if (proxyHostName == null) {
-			return System.getenv("HTTP_PROXY");
+			for (String envName : Arrays.asList("HTTPS_PROXY", "HTTP_PROXY", "http_proxy", "https_proxy")) {
+				String envValue = System.getenv(envName);
+				if(envValue != null && envValue.length() > 0){
+					return envValue;
+				}
+			}
+			return null;
 		} else {
 			return "http://" + proxyHostName + ":" + proxyPort;
 		}
@@ -361,6 +368,8 @@ public abstract class Client {
 			if (proxyUrl != null) {
 				commandLine.add("-e");
 				commandLine.add("HTTP_PROXY=" + proxyUrl);
+				commandLine.add("-e");
+				commandLine.add("HTTPS_PROXY=" + proxyUrl);
 			}
 
 			String containerName = clientExecSpec.getContainerName();
@@ -516,10 +525,12 @@ public abstract class Client {
 				builder.append("  NORMPWD=\"${NORMPWD//'\\'/'/'}\"\n"); // NOSONAR PWD is not an issue password issue
 				builder.append("fi\n");
 
-				builder.append("if [ -z \"$HTTP_PROXY\" ] ; then\n");
-				builder.append("  PROXY_PARAM=()\n");
-				builder.append("else\n");
-				builder.append("  PROXY_PARAM=(-e \"HTTP_PROXY=$HTTP_PROXY\")\n");
+				builder.append("PROXY_PARAM=()");
+				builder.append("if [[ -n \"$HTTP_PROXY\" ]] ; then\n");
+				builder.append("  PROXY_PARAM+=(-e \"HTTP_PROXY=$HTTP_PROXY\")\n");
+				builder.append("fi\n");
+				builder.append("if [[ -n \"$HTTPS_PROXY\" ]] ; then\n");
+				builder.append("  PROXY_PARAM+=(-e \"HTTPS_PROXY=$HTTPS_PROXY\")\n");
 				builder.append("fi\n");
 
 				builder.append("exec");

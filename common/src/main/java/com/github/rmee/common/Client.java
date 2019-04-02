@@ -86,7 +86,7 @@ public abstract class Client {
 		if (proxyHostName == null) {
 			for (String envName : Arrays.asList("HTTPS_PROXY", "HTTP_PROXY", "http_proxy", "https_proxy")) {
 				String envValue = System.getenv(envName);
-				if(envValue != null && envValue.length() > 0){
+				if (envValue != null && envValue.length() > 0) {
 					return envValue;
 				}
 			}
@@ -223,10 +223,6 @@ public abstract class Client {
 
 	protected abstract String computeDownloadFileName();
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	protected String getBinSuffix() {
 		checkNotDockerized();
 		return operatingSystem.isWindows() ? ".exe" : "";
@@ -234,56 +230,32 @@ public abstract class Client {
 
 	protected abstract String computeDownloadUrl(String repository, String downloadFileName);
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public File getInstallDir() {
 		checkNotDockerized();
 		extension.init();
 		return installDir;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public void setInstallDir(File installDir) {
 		this.installDir = installDir;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public File getDownloadDir() {
 		extension.init();
 		return downloadDir;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public void setDownloadDir(File downloadDir) {
 		checkNotDockerized();
 		this.downloadDir = downloadDir;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public String getRepository() {
 		checkNotDockerized();
 		extension.init();
 		return repository;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public void setRepository(String repository) {
 		this.repository = repository;
 	}
@@ -306,7 +278,6 @@ public abstract class Client {
 	/**
 	 * @deprecated move to dockerized version
 	 */
-	@Deprecated
 	public boolean getDownload() {
 		return download;
 	}
@@ -314,7 +285,6 @@ public abstract class Client {
 	/**
 	 * @deprecated move to dockerized version
 	 */
-	@Deprecated
 	public void setDownload(boolean download) {
 		checkNotDockerized();
 		this.download = download;
@@ -323,7 +293,6 @@ public abstract class Client {
 	/**
 	 * @deprecated move to dockerized version
 	 */
-	@Deprecated
 	public String getBinPath() {
 		extension.init();
 		return binPath;
@@ -337,7 +306,6 @@ public abstract class Client {
 	/**
 	 * @deprecated move to dockerized version
 	 */
-	@Deprecated
 	public File getDownloadedFile() {
 		extension.init();
 		return new File(downloadDir, getDownloadFileName());

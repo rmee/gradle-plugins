@@ -40,7 +40,7 @@ public class OcPlugin implements Plugin<Project> {
                 ocBootstrap.setEnabled(false);
                 client.setupWrapper(project);
                 KubernetesUtils.addDefaultMappings(client, project);
-            } else {
+            } else if(client.getDownload()){
                 ocBootstrap.dest(client.getDownloadDir());
                 try {
                     ocBootstrap.src(client.getDownloadUrl());

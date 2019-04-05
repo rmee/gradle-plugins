@@ -210,13 +210,17 @@ public abstract class Client {
 				operatingSystem = org.gradle.internal.os.OperatingSystem.current();
 			}
 
-			if (binPath == null) {
+			if (binPath == null && download) {
+				// use downloaded binary
 				String binSuffix = getBinSuffix();
 				binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
 				if (downloadUrl == null && download) {
 					downloadFileName = computeDownloadFileName();
 					downloadUrl = computeDownloadUrl(repository, downloadFileName);
 				}
+			}else if(binPath == null){
+				// assume binary available from PATH
+				binPath = binName;
 			}
 		}
 	}

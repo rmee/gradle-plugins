@@ -290,7 +290,9 @@ public abstract class Client {
 	 * @deprecated move to dockerized version
 	 */
 	public void setDownload(boolean download) {
-		checkNotDockerized();
+		if(download) {
+			checkNotDockerized();
+		}
 		this.download = download;
 	}
 

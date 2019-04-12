@@ -45,6 +45,3 @@ if ! [ -d "${JAVA_HOME}" ]; then
 
   echo "Installed JDK from ${JDK_DOWNLOAD_URL} into ${JAVA_HOME}"
 fi
-
-# set mac osx java home
-[ "$darwin" = true ] && JAVA_HOME="$JAVA_HOME/Contents/Home"

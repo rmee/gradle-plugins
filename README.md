@@ -21,6 +21,7 @@ Hosts a collection of Gradle plugins:
   with Azure.
 - [gcloud](../../blob/master/gcloud): gives access to the Google Cloud command line tool &quot;gcloud&quot;.
 - [jpa-schema-gen](../../blob/master/jpa-schema-gen): to generate Flyway and Liquibase-compatible schema setup and migration scripts.
+- [assemble-needed](../../blob/master/assemble-needed): assembles a project and all its project dependencies. 
   
 The `oc`, `kubernetes`, `helm`, `az`, 'gcloud' and `terraform` plugins make use of:
 

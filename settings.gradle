@@ -1,9 +1,22 @@
+def map = ['HTTP_PROXY': 'http', 'HTTPS_PROXY': 'https']
+for (e in System.getenv()) {
+	def key = e.key.toUpperCase()
+	if (key in map) {
+		def base = map[key]
+		def url = e.value.toURL()
+		println "configuring systemProp.${base}.proxy=${url.host}:${url.port}"
+		System.setProperty("${base}.proxyHost", url.host.toString())
+		System.setProperty("${base}.proxyPort", url.port.toString())
+	}
+}
+
 include 'systemd-application',
 		'build-on-change',
 		'jdk-bootstrap',
 		'jpa-schema-gen',
 		'common',
 		'kubectl',
+		'assemble-needed',
 		'gcloud',
 		'terraform',
 		'az',

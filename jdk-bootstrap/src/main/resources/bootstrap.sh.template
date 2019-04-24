@@ -39,7 +39,7 @@ if ! [ -d "${JAVA_HOME}" ]; then
   fi
 
   # deal with different naming conventions
-  mv -T "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
+  mv "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
 
   chmod u+w,g+w -R "${JAVA_HOME}"
 

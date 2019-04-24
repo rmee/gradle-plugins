@@ -7,7 +7,7 @@ buildscript {
 
 		classpath "com.gradle.publish:plugin-publish-plugin:0.9.9"
 		classpath "io.spring.gradle:dependency-management-plugin:${versions.'dependency.management.plugin.version'}"
-		classpath 'org.ajoberstar:gradle-git-publish:0.2.1'
+		classpath 'org.ajoberstar:gradle-git-publish:1.0.1'
 		classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5-rc1'
 		classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1"
 		classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.4.4'
@@ -22,6 +22,7 @@ wrapper {
 	gradleVersion = versions.'gradle.version'
 }
 
+
 // note that a production build creates javadoc, sources jars and signatures undesired during development
 // for performance reasons
 final boolean isProductionBuild = System.env.GRADLE_PUBLISH_KEY != null && System.env.GRADLE_PUBLISH_SECRET != null
@@ -32,14 +33,15 @@ if (isProductionBuild) {
 	}
 }
 
-final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss")
+apply plugin: 'org.ajoberstar.grgit'
 if (isProductionBuild) {
-	version = BUILD_VERSION_PREFIX + "." + format.format(new Date())
-}
-else {
+	def gitCommitTimestamp = grgit.head().date.format("yyyyMMddHHmmss", TimeZone.getTimeZone('GMT'))
+	version = BUILD_VERSION_PREFIX + "." + gitCommitTimestamp
+} else {
 	version = '0.0.0-SNAPSHOT'
 }
 group = GROUP_ID
+
 
 if (JavaVersion.current().isJava8Compatible()) {
 	allprojects {
@@ -103,8 +105,7 @@ gradle.beforeProject { Project project ->
 				rootProject.tasks.jacocoRootReport.sourceDirectories = files(sourceSets.main.allSource.srcDirs)
 				rootProject.tasks.jacocoRootReport.classDirectories = mainOutput
 
-			}
-			else {
+			} else {
 				rootProject.tasks.jacocoRootReport.sourceDirectories = sourceDirs.plus(files(sourceSets.main.allSource.srcDirs))
 				rootProject.tasks.jacocoRootReport.classDirectories = classDirs.plus(mainOutput)
 			}

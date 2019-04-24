@@ -11,6 +11,7 @@ testSets {
 jar {
 	// bundle common project with plugin
 	from { project(':common').file('build/classes/java/main') }
+	from { project(':common').file('build/resources/main') }
 }
 
 dependencies {

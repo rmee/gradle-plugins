@@ -1,5 +1,6 @@
 package com.github.rmee.common;
 
+import com.github.rmee.common.internal.IOUtils;
 import com.github.rmee.common.internal.UnixUtils;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -218,7 +219,7 @@ public abstract class Client {
 					downloadFileName = computeDownloadFileName();
 					downloadUrl = computeDownloadUrl(repository, downloadFileName);
 				}
-			}else if(binPath == null){
+			} else if (binPath == null) {
 				// assume binary available from PATH
 				binPath = binName;
 			}
@@ -290,7 +291,7 @@ public abstract class Client {
 	 * @deprecated move to dockerized version
 	 */
 	public void setDownload(boolean download) {
-		if(download) {
+		if (download) {
 			checkNotDockerized();
 		}
 		this.download = download;
@@ -482,51 +483,19 @@ public abstract class Client {
 			wrapper.doLast(task -> {
 				StringBuilder builder = new StringBuilder();
 
-				// Replacement ${x//y/z} requires bash (not a POSIX feature)
-				builder.append("#!/usr/bin/env bash\n");
+				// consider additional volume mappings in the future by calling
+				// buildBaseCommandLine(true, ...);
+				try {
+					String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
 
-				// fix paths for mingw
-				builder.append("case \"$(uname)\" in\n");
-				builder.append("  MINGW* )\n");
-				builder.append("  msys=true\n");
-				builder.append("  ;;\n");
-				builder.append("esac\n");
-				builder.append("NORMPWD=\"$(pwd)\"\n");  // NOSONAR PWD is not an issue password issue
-				builder.append("if [ \"$msys\" = \"true\" ] ; then\n");
-				builder.append("  export MSYS_NO_PATHCONV=1\n");
-				builder.append("  export MSYS2_ARG_CONV_EXC=\"*\"\n");
-				builder.append("  NORMPWD=\"$(cygpath -w \"$(pwd)\")\"\n");  // NOSONAR PWD is not an issue password issue
-				builder.append("  NORMPWD=\"${NORMPWD//'\\'/'/'}\"\n"); // NOSONAR PWD is not an issue password issue
-				builder.append("fi\n");
+					bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + version);
+					bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", mustIncludeBinary ? binName : "");
+					bootstrapSnipped = bootstrapSnipped.replace("\r", "");
 
-				builder.append("PROXY_PARAM=()");
-				builder.append("if [[ -n \"$HTTP_PROXY\" ]] ; then\n");
-				builder.append("  PROXY_PARAM+=(-e \"HTTP_PROXY=$HTTP_PROXY\")\n");
-				builder.append("fi\n");
-				builder.append("if [[ -n \"$HTTPS_PROXY\" ]] ; then\n");
-				builder.append("  PROXY_PARAM+=(-e \"HTTPS_PROXY=$HTTPS_PROXY\")\n");
-				builder.append("fi\n");
-
-				builder.append("exec");
-				Collection<String> commandLine = buildBaseCommandLine(true, "\"${PROXY_PARAM[@]}\"");
-
-				commandLine.add(imageName + ":" + version);
-
-				for (String element : commandLine) {
-					builder.append(' ');
-
-					// avoid absolute paths
-					String projectPath = project.getProjectDir().getAbsolutePath().replace('\\', '/');
-					if (element.startsWith(projectPath)) {
-						element = "\"$NORMPWD\"/" + element.substring(projectPath.length() + 1);
-					}
-					builder.append(element);
+					builder.append(bootstrapSnipped);
+				} catch (IOException e) {
+					throw new IllegalStateException("failed to find wrapper template", e);
 				}
-				if (mustIncludeBinary) {
-					builder.append(' ');
-					builder.append(binName);
-				}
-				builder.append(" \"$@\"\n");
 
 				File file = new File(project.getProjectDir(), binName);
 				try (FileWriter writer = new FileWriter(file)) {
@@ -537,6 +506,7 @@ public abstract class Client {
 			});
 		}
 	}
+
 
 	public void exec(ClientExecSpec spec) {
 		Project project = extension.project;

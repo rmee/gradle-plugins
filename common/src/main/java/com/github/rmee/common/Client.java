@@ -70,31 +70,15 @@ public abstract class Client {
 
 		environment.put("HOME", "/build/wrapper");
 
-		String dockerHost = System.getenv("DOCKER_HOST");
-		if (dockerHost != null) {
-			dockerEnvironment.put("DOCKER_HOST", dockerHost);
-		}
-		String proxyUrl = getProxyUrl();
-		if (proxyUrl != null) {
-			dockerEnvironment.put("HTTP_PROXY", proxyUrl);
-			dockerEnvironment.put("HTTPS_PROXY", proxyUrl);
-		}
+		dockerEnvironment.putAll(System.getenv());
 	}
 
-	private String getProxyUrl() {
-		String proxyHostName = System.getProperty("http.proxyHost");
-		String proxyPort = System.getProperty("http.proxyPort");
-		if (proxyHostName == null) {
-			for (String envName : Arrays.asList("HTTPS_PROXY", "HTTP_PROXY", "http_proxy", "https_proxy")) {
-				String envValue = System.getenv(envName);
-				if (envValue != null && envValue.length() > 0) {
-					return envValue;
-				}
-			}
-			return null;
-		} else {
-			return "http://" + proxyHostName + ":" + proxyPort;
+	private String getEnvValue(String name) {
+		String value = System.getenv(name);
+		if (value == null) {
+			value = System.getenv(name.toLowerCase());
 		}
+		return value;
 	}
 
 
@@ -338,13 +322,15 @@ public abstract class Client {
 			List<String> commandLine = new ArrayList<>();
 			commandLine.addAll(buildBaseCommandLine(false));
 
-
-			String proxyUrl = getProxyUrl();
-			if (proxyUrl != null) {
+			String httpProxy = getEnvValue("HTTP_PROXY");
+			String httpsProxy = getEnvValue("HTTPS_PROXY");
+			if (httpProxy != null) {
 				commandLine.add("-e");
-				commandLine.add("HTTP_PROXY=" + proxyUrl);
+				commandLine.add("HTTP_PROXY=" + httpProxy);
+			}
+			if (httpsProxy != null) {
 				commandLine.add("-e");
-				commandLine.add("HTTPS_PROXY=" + proxyUrl);
+				commandLine.add("HTTPS_PROXY=" + httpsProxy);
 			}
 
 			String containerName = clientExecSpec.getContainerName();

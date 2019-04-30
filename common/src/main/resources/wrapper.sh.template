@@ -1,37 +1,23 @@
 #!/usr/bin/env bash
-case "`uname`" in
-  MINGW* )
-  msys=true
-  ;;
-esac
-DEPLOYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-pwd="$PWD"
-tty=()
-if [ "$msys" = "true" ] ; then
-  export MSYS_NO_PATHCONV=1
-  export MSYS2_ARG_CONV_EXC="*"
-  DEPLOYDIR=$(cygpath -w "$DEPLOYDIR")
-  DEPLOYDIR=${DEPLOYDIR//'\'/'/'}
-  pwd="$(cygpath -w "$pwd")"
-  pwd="${pwd//'\'/'/'}"
-else
-  # add -t (forward TTY) if we are connected to a TTY.
-  # Doesn't seem to work in the msys based git shell on Windows.
-  if [[ -t 1 ]] ; then
-  	tty=(-t)
-  fi
-fi
-if [[ -z "$HTTP_PROXY" ]] ; then
-  PROXY_PARAM=()
-else
-  PROXY_PARAM=(-e "HTTP_PROXY=$HTTP_PROXY")
-fi
-exec docker run -i ${tty[*]} --rm \
+
+# current directory to work in and user to work as, preventing permission problems on mapped volumes
+WORK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+USER_PARAM="-u `id -u`"
+mkdir -m 0775 -p build/wrapper build/src
+
+# current tty if any (to interactively run attached to current user)
+TTY_PARAM=
+[ -t 1 ] && TTY_PARAM="-t"
+
+# outbound enterprise proxy if any
+PROXY_PARAM=()
+[ -n "$HTTP_PROXY" ] && PROXY_PARAM=(-e "HTTP_PROXY=$HTTP_PROXY")
+
+# run CLI within docker container
+exec docker run -i $TTY_PARAM $USER_PARAM --rm \
     "${PROXY_PARAM[@]}" \
     -e HOME=/build/wrapper \
-    -v "$pwd":/pwd \
-    -v $DEPLOYDIR/build:/build \
-    -v $DEPLOYDIR/src:/src \
-    --workdir /pwd \
+    --workdir /build/wrapper \
+    -v $WORK_DIR/build:/build \
+    -v $WORK_DIR/src:/src \
     ${DOCKER_IMAGE} ${DOCKER_COMMAND} "$@"
-

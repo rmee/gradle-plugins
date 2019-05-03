@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-# current directory to work in and user to work as, preventing permission problems on mapped volumes
+# current directory to work in, handle paths passed to windows docker client in windows mixed mode
 WORK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+[ -x /bin/cygpath ] && WORK_DIR=$(/bin/cygpath -m "$WORK_DIR")
+
+# current user to work as, create directories mapped as volumes to prevent permission problems
 USER_PARAM="-u `id -u`"
 mkdir -m 0775 -p build/wrapper build/src
 

@@ -2,44 +2,57 @@ package com.github.rmee.helm;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class HelmInit extends DefaultTask {
 
-	private boolean skipRefresh;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HelmInit.class);
 
-	private String commandLine;
+    private boolean skipRefresh;
 
-	public HelmInit() {
-		setGroup("kubernetes");
-	}
+    private String commandLine;
 
-	@TaskAction
-	public void exec() {
-		if (commandLine == null) {
-			commandLine = "helm init --client-only";
-			if (skipRefresh) {
-				commandLine += " --skip-refresh";
-			}
-		}
-		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-		HelmExecSpec spec = new HelmExecSpec();
-		spec.setCommandLine(commandLine);
-		extension.exec(spec);
-	}
+    public HelmInit() {
+        setGroup("kubernetes");
 
-	public String getCommandLine() {
-		return commandLine;
-	}
+        getOutputs().upToDateWhen(task -> {
+            HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
+            File repositoriesFile = extension.getClient().getHome(".helm/repository/repositories.yaml");
+            LOGGER.debug("helmInit up-to-data: {}", repositoriesFile.exists());
+            return repositoriesFile.exists();
+        });
+    }
 
-	public void setCommandLine(String commandLine) {
-		this.commandLine = commandLine;
-	}
+    @TaskAction
+    public void exec() {
+        if (commandLine == null) {
+            commandLine = "helm init --client-only";
+            if (skipRefresh) {
+                commandLine += " --skip-refresh";
+            }
+        }
+        HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
+        HelmExecSpec spec = new HelmExecSpec();
+        spec.setCommandLine(commandLine);
+        extension.exec(spec);
+    }
 
-	public boolean isSkipRefresh() {
-		return skipRefresh;
-	}
+    public String getCommandLine() {
+        return commandLine;
+    }
 
-	public void setSkipRefresh(boolean skipRefresh) {
-		this.skipRefresh = skipRefresh;
-	}
+    public void setCommandLine(String commandLine) {
+        this.commandLine = commandLine;
+    }
+
+    public boolean isSkipRefresh() {
+        return skipRefresh;
+    }
+
+    public void setSkipRefresh(boolean skipRefresh) {
+        this.skipRefresh = skipRefresh;
+    }
 }

@@ -1,10 +1,32 @@
 package com.github.rmee.gcloud;
 
+import com.github.rmee.common.internal.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 public class GCloudSetProjectTask extends DefaultTask {
+
+    public GCloudSetProjectTask() {
+        getOutputs().upToDateWhen(task -> {
+            File file = getProject().file("build/wrapper/.config/gcloud/configurations/config_default");
+            if (file.exists()) {
+                try {
+                    GCloudExtension extension = getExtension();
+                    try (FileInputStream in = new FileInputStream((file))) {
+                        String text = IOUtils.toString(in);
+                        return text.contains("project = " + extension.getProject());
+                    }
+                } catch (Exception e) {
+                    throw new IllegalStateException("failed to perform up-to-date check", e);
+                }
+            }
+            return false;
+        });
+    }
 
     private GCloudExtension getExtension() {
         return getProject().getExtensions().getByType(GCloudExtension.class);
@@ -14,12 +36,6 @@ public class GCloudSetProjectTask extends DefaultTask {
     public String getProjectName() {
         return getExtension().getProject();
     }
-
-    // TODO deletes config_default from time to time => find better way
-    // @OutputFile
-    //public File getConfigDefaultFile() {
-    //	return getProject().file("build/wrapper/.config/gcloud/configurations/config_default" );
-    //}
 
     @TaskAction
     public void run() {

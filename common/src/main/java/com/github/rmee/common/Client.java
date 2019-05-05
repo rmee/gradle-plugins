@@ -69,7 +69,7 @@ public abstract class Client {
         this.binName = binName;
         this.extension = extension;
 
-        environment.put("HOME", "/build/wrapper");
+        environment.put("HOME", "/build/home");
 
         dockerEnvironment.putAll(System.getenv());
     }
@@ -85,7 +85,7 @@ public abstract class Client {
     public File getHomeDir() {
         if (dockerized) {
             File buildDir = extension.project.getBuildDir();
-            return new File(buildDir, "wrapper");
+            return new File(buildDir, "home");
         }
 
         String home = environment.get("HOME");
@@ -176,7 +176,7 @@ public abstract class Client {
 
     public void setDockerized(boolean dockerized) {
         if (dockerized) {
-            environment.put("HOME", "/build/wrapper");
+            environment.put("HOME", "/build/home");
         } else {
             environment.remove("HOME");
         }

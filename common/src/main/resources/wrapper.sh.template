@@ -17,7 +17,7 @@ fi
 
 # current user to work as, create directories mapped as volumes to prevent permission problems
 USER_PARAM="-u `id -u`"
-mkdir -m 0775 -p build/wrapper build/src
+mkdir -m 0775 -p build/home build/src
 
 # current tty if any (to interactively run attached to current user)
 TTY_PARAM=
@@ -30,8 +30,8 @@ PROXY_PARAM=()
 # run CLI within docker container
 exec docker run -i $TTY_PARAM $USER_PARAM --rm \
     "${PROXY_PARAM[@]}" \
-    -e HOME=/build/wrapper \
-    --workdir /build/wrapper \
+    -e HOME=/build/home \
+    --workdir /build/home \
     -v $WORK_DIR/build:/build \
     -v $WORK_DIR/src:/src \
     ${DOCKER_IMAGE} ${DOCKER_COMMAND} "$@"

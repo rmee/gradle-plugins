@@ -12,10 +12,10 @@ public class GCloudSetProjectTask extends DefaultTask {
 
     public GCloudSetProjectTask() {
         getOutputs().upToDateWhen(task -> {
-            File file = getProject().file("build/wrapper/.config/gcloud/configurations/config_default");
+            GCloudExtension extension = getExtension();
+            File file = extension.getClient().getHome(".config/gcloud/configurations/config_default");
             if (file.exists()) {
                 try {
-                    GCloudExtension extension = getExtension();
                     try (FileInputStream in = new FileInputStream((file))) {
                         String text = IOUtils.toString(in);
                         return text.contains("project = " + extension.getProject());

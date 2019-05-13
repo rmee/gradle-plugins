@@ -7,13 +7,9 @@ WORK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 # msys path conversion not working due to mixed use of windows and linux-style paths for volume mappings
 case "`uname`" in
   MINGW* )
-  msys=true
+  export MSYS_NO_PATHCONV=1
   ;;
 esac
-if [ "$msys" = "true" ] ; then
-  export MSYS_NO_PATHCONV=1
-  export MSYS2_ARG_CONV_EXC="*"
-fi
 
 # current user to work as, create directories mapped as volumes to prevent permission problems
 USER_PARAM="-u `id -u`"

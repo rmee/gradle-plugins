@@ -332,16 +332,18 @@ public abstract class Client {
 	}
 
 	public void configureExec(ExecSpec execSpec, ClientExecSpec clientExecSpec) {
-		execSpec.setEnvironment(dockerEnvironment);
 		execSpec.setIgnoreExitValue(clientExecSpec.isIgnoreExitValue());
 
 		List<String> args = clientExecSpec.getCommandLine();
 		if (dockerized) {
+			execSpec.setEnvironment(dockerEnvironment);
+
 			List<String> commandLine = new ArrayList<>();
 			commandLine.addAll(buildBaseCommandLine(false));
 
 			String httpProxy = getEnvValue("HTTP_PROXY");
 			String httpsProxy = getEnvValue("HTTPS_PROXY");
+			String noProxy = getEnvValue("NO_PROXY");
 			if (httpProxy != null) {
 				commandLine.add("-e");
 				commandLine.add("HTTP_PROXY=" + httpProxy);
@@ -349,6 +351,10 @@ public abstract class Client {
 			if (httpsProxy != null) {
 				commandLine.add("-e");
 				commandLine.add("HTTPS_PROXY=" + httpsProxy);
+			}
+			if (noProxy != null) {
+				commandLine.add("-e");
+				commandLine.add("NO_PROXY=" + noProxy);
 			}
 
 			String containerName = clientExecSpec.getContainerName();

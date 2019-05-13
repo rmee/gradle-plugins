@@ -20,12 +20,18 @@ TTY_PARAM=
 [ -t 1 ] && TTY_PARAM="-t"
 
 # outbound enterprise proxy if any
-PROXY_PARAM=()
-[ -n "$HTTP_PROXY" ] && PROXY_PARAM=(-e "HTTP_PROXY=$HTTP_PROXY")
+HTTP_PROXY_PARAM=()
+HTTPS_PROXY_PARAM=()
+NO_PROXY_PARAM=()
+[ -n "$HTTP_PROXY" ] && HTTP_PROXY_PARAM=(-e "HTTP_PROXY=$HTTP_PROXY")
+[ -n "$HTTPS_PROXY" ] && HTTPS_PROXY_PARAM=(-e "HTTPS_PROXY=$HTTPS_PROXY")
+[ -n "$NO_PROXY" ] && NO_PROXY_PARAM=(-e "NO_PROXY=$NO_PROXY")
 
 # run CLI within docker container
 exec docker run -i $TTY_PARAM $USER_PARAM --rm \
-    "${PROXY_PARAM[@]}" \
+    "${HTTP_PROXY_PARAM[@]}" \
+    "${HTTPS_PROXY_PARAM[@]}" \
+    "${NO_PROXY_PARAM[@]}" \
     -e HOME=/build/home \
     --workdir /build/home \
     -v $WORK_DIR/build:/build \

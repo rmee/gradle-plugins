@@ -1,15 +1,16 @@
 package com.github.rmee.terraform;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.github.rmee.common.Client;
 import com.github.rmee.common.ClientExecSpec;
 import com.github.rmee.common.ClientExtensionBase;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TerraformExtension extends ClientExtensionBase {
 
@@ -42,7 +43,7 @@ public class TerraformExtension extends ClientExtensionBase {
 	}
 
 	public void exec(TerraformExecSpec spec) {
-		project.getLogger().warn("Executing: " + spec.getCommandLine());
+		project.getLogger().warn("Executing: " + spec.getCommandLine().stream().collect(Collectors.joining(" ")));
 
 		project.exec(execSpec -> {
 

@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
@@ -91,9 +92,9 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
         int pipeIndex = commandLine.indexOf("|");
         if (pipeIndex == -1) {
             if (!commandLine.contains("token") && !commandLine.contains("pass")) {
-                project.getLogger().warn("Executing: " + commandLine);
+                project.getLogger().warn("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
             } else {
-                project.getLogger().debug("Executing: " + commandLine);
+                project.getLogger().debug("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
             }
 
             if (spec.getOutputFormat() == OutputFormat.JSON) {

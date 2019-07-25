@@ -44,6 +44,9 @@ kubectl{
 
 For more detailed information, have a look at the `KubectlExtension`.
 
+For an example app have a look at https://github.com/crnk-project/crnk-example[crnk-example] how to deploy
+to Google Cloud with Kubernetes and Helm.
+
 
 ## Tasks
 

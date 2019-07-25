@@ -58,6 +58,9 @@ Make sure the service account also has the proper Kubernetes credentials, like:
 ./kubectl create clusterrolebinding your-user-cluster-admin-binding --clusterrole=cluster-admin --user=your.google.cloud.email@example.org
 ```
 
+For an example app have a look at https://github.com/crnk-project/crnk-example[crnk-example] how to deploy
+to Google Cloud with Kubernetes and Helm.
+
 ## Tasks
 
 `gcloud` offers three Gradle tasks:

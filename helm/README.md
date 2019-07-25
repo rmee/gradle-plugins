@@ -68,18 +68,13 @@ The `helm` plugin makes this tasks available:
 
 # Example
 
-For an example app have a look at 
-https://github.com/rmee/gradle-plugins/tree/master/kubernetes/src/test/resources/
-and `HelmSysTest`.
+For an example app have a look at https://github.com/crnk-project/crnk-example[crnk-example] how to deploy
+to Google Cloud with Kubernetes and Helm.
 
 
 ## Wrapper
 
-A wrapper `helm` will be generated into the project root to allow easy access from the command line next to Gradle tasks:
-
-```
-./helm ...
-```
+A wrapper `helm` will be generated into the project root to allow easy access from the command line next to Gradle tasks.
 
 
 

@@ -1,6 +1,6 @@
 # Kubectl
 
-Provides access to `kubectl`, the command line client from Kubernetes to manage clusters.
+Provides access to `kubectl`, the command line cli from Kubernetes to manage clusters.
 
 The plugin may also be used together with `terraform`, `oc`, `helm` and `az`. In this case all the plugins
 will share the same Kubernetes context configuration through volume mappings. This allows, for example, to
@@ -34,7 +34,7 @@ kubectl{
    }
    namespace = 'default'
    insecureSkipTlsVerify = false
-   client {
+   cli {
      version = '2.9.1'
      imageName = 'dtzar/helm-kubectl' 
    }

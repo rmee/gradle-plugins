@@ -1,6 +1,6 @@
 # gcloud
 
-Provides access to `gcloud`, the command line client of Google Cloud to manage cloud resources.
+Provides access to `gcloud`, the command line cli of Google Cloud to manage cloud resources.
 
 ## Setup
 
@@ -36,7 +36,7 @@ gcloud {
 	gke {
 		clusterName = 'sb4bdemo'
 	}
-	client{
+	cli{
 		imageName = 'google/cloud-sdk'
 		version = '159.0.0'
 	}

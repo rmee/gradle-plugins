@@ -44,7 +44,7 @@ public class HelmPackage extends DefaultTask {
 		HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
 
 		String outputDir;
-		if (extension.getClient().isDockerized()) {
+		if (extension.getCli().isDockerized()) {
 			outputDir = HelmPlugin.HELM_OUTPUT_DIR;
 			cleanOutputDir(new File(getProject().getBuildDir(), "helm"));
 		} else {

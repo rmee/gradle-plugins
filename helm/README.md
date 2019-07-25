@@ -28,7 +28,7 @@ apply plugin: 'helm'
 helm {
 	tillerNamespace = oc.projectName
 
-	client {
+	cli {
 		version = '2.9.1` // version to use
 		imageName = 'dtzar/helm-kubectl'
 	}
@@ -57,8 +57,8 @@ For more detailed information, have a look at the `HelmExtension`.
 
 The `helm` plugin makes this tasks available:
 
-- `HelmBootstrap` downloads the client.
-- `HelmInit` to setup Helm locally on the client-side.
+- `HelmBootstrap` downloads the cli.
+- `HelmInit` to setup Helm locally on the cli-side.
 - `HelmExec` allow to issue a command. Alternatively, `helm.exec(...)` can be used.
 - `HelmPackage` to package the Helm sources. Helm packages must be specified in `src/main/helm`. Each subdirectory will make up one helm package.
   The `helmPackage` command will then build each of the packages and put the result into
@@ -78,7 +78,7 @@ and `HelmSysTest`.
 A wrapper `helm` will be generated into the project root to allow easy access from the command line next to Gradle tasks:
 
 ```
-TODO
+./helm ...
 ```
 
 

@@ -1,16 +1,7 @@
 package com.github.rmee.az;
 
-import com.github.rmee.common.ClientExecSpec;
+import com.github.rmee.cli.base.CliExecSpec;
 
-public class AzExecSpec extends ClientExecSpec<AzExecSpec> {
+public class AzExecSpec extends CliExecSpec<AzExecSpec> {
 
-	@Override
-	protected AzExecSpec newSpec() {
-		return new AzExecSpec();
-	}
-
-	@Override
-	protected void duplicate(AzExecSpec duplicate) {
-		// nothing to do
-	}
 }

@@ -1,10 +1,10 @@
 package com.github.rmee.helm;
 
-import com.github.rmee.common.ClientBootstrapBase;
+import com.github.rmee.cli.base.internal.CliBootstrapBase;
 
-class HelmBootstrap extends ClientBootstrapBase {
+class HelmBootstrap extends CliBootstrapBase {
 
-	public HelmBootstrap() {
-		super(HelmExtension.class);
-	}
+    public HelmBootstrap() {
+        super(HelmExtension.class);
+    }
 }

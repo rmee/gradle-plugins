@@ -1,8 +1,7 @@
 package com.github.rmee.az;
 
 import com.github.rmee.az.aks.AzGetKubernetesCredentialsTask;
-import com.github.rmee.common.Client;
-import com.github.rmee.common.internal.KubernetesUtils;
+import com.github.rmee.cli.base.Cli;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -16,9 +15,9 @@ public class AzPlugin implements Plugin<Project> {
         AzExtension extension = project.getExtensions().create("az", AzExtension.class);
         extension.setProject(project);
         // TODO azure-cli image insufficient by default: https://github.com/Azure/AKS/issues/469
-        //extension.getClient().setImageName("microsoft/azure-cli");
-        extension.getClient().setImageName("remmeier/azure-cli-kubectl");
-        extension.getClient().setVersion("2.0.38");
+        //extension.getCli().setImageName("microsoft/azure-cli");
+        extension.getCli().setImageName("remmeier/azure-cli-kubectl");
+        extension.getCli().setVersion("2.0.38");
 
         AzLoginTask login = project.getTasks().create("azLogin", AzLoginTask.class);
         AzGetKubernetesCredentialsTask getCredentials =
@@ -33,10 +32,10 @@ public class AzPlugin implements Plugin<Project> {
         extension.getAks().setKubeDir(new File(project.getRootProject().getProjectDir(), "build/.kube"));
 
         project.afterEvaluate(project1 -> {
-            Client client = extension.getClient();
+            Cli cli = extension.getCli();
 
-            KubernetesUtils.addDefaultMappings(client, project);
-            client.setupWrapper(project);
+            cli.addDefaultMappings(project);
+            cli.setupWrapper(project);
         });
     }
 }

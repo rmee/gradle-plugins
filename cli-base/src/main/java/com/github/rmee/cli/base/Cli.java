@@ -1,7 +1,8 @@
-package com.github.rmee.common;
+package com.github.rmee.cli.base;
 
-import com.github.rmee.common.internal.IOUtils;
-import com.github.rmee.common.internal.UnixUtils;
+import com.github.rmee.cli.base.internal.CliDownloadStrategy;
+import com.github.rmee.cli.base.internal.IOUtils;
+import com.github.rmee.cli.base.internal.UnixUtils;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
@@ -20,8 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class Client {
+public final class Cli {
 
+    private final CliDownloadStrategy downloadStrategy;
 
 	private ClientExtensionBase extension;
 
@@ -66,14 +68,19 @@ public abstract class Client {
 
 	private boolean runAsEnabled = true;
 
-	public Client(ClientExtensionBase extension, String binName) {
+    public Cli(ClientExtensionBase extension, String binName, CliDownloadStrategy downloadStrategy) {
 		this.binName = binName;
+        this.downloadStrategy = downloadStrategy;
 		this.extension = extension;
 
-		environment.put("HOME", "/build/home");
+        environment.put("HOME", "/workdir/build/home");
 
 		dockerEnvironment.putAll(System.getenv());
 	}
+
+    public void addDefaultMappings(Project project) {
+        volumeMappings.put("/workdir", project.getProjectDir());
+    }
 
 	private String getEnvValue(String name) {
 		String value = System.getenv(name);
@@ -177,7 +184,7 @@ public abstract class Client {
 
 	public void setDockerized(boolean dockerized) {
 		if (dockerized) {
-			environment.put("HOME", "/build/home");
+            environment.put("HOME", "/workdir/build/home");
 		} else {
 			environment.remove("HOME");
 		}
@@ -218,8 +225,8 @@ public abstract class Client {
 				String binSuffix = getBinSuffix();
 				binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
 				if (downloadUrl == null && download) {
-					downloadFileName = computeDownloadFileName();
-					downloadUrl = computeDownloadUrl(repository, downloadFileName);
+                    downloadFileName = downloadStrategy.computeDownloadFileName(this);
+                    downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
 				}
 			} else if (binPath == null) {
 				// assume binary available from PATH
@@ -228,14 +235,11 @@ public abstract class Client {
 		}
 	}
 
-	protected abstract String computeDownloadFileName();
 
 	protected String getBinSuffix() {
 		checkNotDockerized();
 		return operatingSystem.isWindows() ? ".exe" : "";
 	}
-
-	protected abstract String computeDownloadUrl(String repository, String downloadFileName);
 
 	public File getInstallDir() {
 		checkNotDockerized();
@@ -267,10 +271,6 @@ public abstract class Client {
 		this.repository = repository;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
-	@Deprecated
 	public String getDownloadUrl() {
 		extension.init();
 		return downloadUrl;
@@ -282,16 +282,10 @@ public abstract class Client {
 		return downloadFileName;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
 	public boolean getDownload() {
 		return download;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
 	public void setDownload(boolean download) {
 		if (download) {
 			checkNotDockerized();
@@ -299,9 +293,6 @@ public abstract class Client {
 		this.download = download;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
 	public String getBinPath() {
 		extension.init();
 		return binPath;
@@ -312,9 +303,6 @@ public abstract class Client {
 		this.binPath = binPath;
 	}
 
-	/**
-	 * @deprecated move to dockerized version
-	 */
 	public File getDownloadedFile() {
 		extension.init();
 		return new File(downloadDir, getDownloadFileName());
@@ -331,10 +319,10 @@ public abstract class Client {
 		}
 	}
 
-	public void configureExec(ExecSpec execSpec, ClientExecSpec clientExecSpec) {
-		execSpec.setIgnoreExitValue(clientExecSpec.isIgnoreExitValue());
+    public void configureExec(ExecSpec execSpec, CliExecSpec cliExecSpec) {
+        execSpec.setIgnoreExitValue(cliExecSpec.isIgnoreExitValue());
 
-		List<String> args = clientExecSpec.getCommandLine();
+        List<String> args = cliExecSpec.getCommandLine();
 		if (dockerized) {
 			execSpec.setEnvironment(dockerEnvironment);
 
@@ -357,13 +345,13 @@ public abstract class Client {
 				commandLine.add("NO_PROXY=" + noProxy);
 			}
 
-			String containerName = clientExecSpec.getContainerName();
+            String containerName = cliExecSpec.getContainerName();
 			if (containerName != null) {
 				commandLine.add("--name");
 				commandLine.add(containerName);
 			}
 
-			String volumesFrom = clientExecSpec.getVolumesFrom();
+            String volumesFrom = cliExecSpec.getVolumesFrom();
 			if (volumesFrom != null) {
 				commandLine.add("--volumes-from");
 				commandLine.add(volumesFrom);
@@ -384,7 +372,7 @@ public abstract class Client {
 			execSpec.setCommandLine(args);
 		}
 
-		File stdoutFile = clientExecSpec.getStdoutFile();
+        File stdoutFile = cliExecSpec.getStdoutFile();
 		if (stdoutFile != null) {
 			try {
 				if (stdoutFile.exists() && !stdoutFile.delete()) {
@@ -518,7 +506,7 @@ public abstract class Client {
 	}
 
 
-	public void exec(ClientExecSpec spec) {
+    public void exec(CliExecSpec spec) {
 		Project project = extension.project;
 		project.exec(execSpec -> {
 			configureExec(execSpec, spec);

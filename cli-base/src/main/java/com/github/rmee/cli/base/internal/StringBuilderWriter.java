@@ -1,4 +1,4 @@
-package com.github.rmee.common.internal;
+package com.github.rmee.cli.base.internal;
 
 import java.io.Serializable;
 import java.io.Writer;

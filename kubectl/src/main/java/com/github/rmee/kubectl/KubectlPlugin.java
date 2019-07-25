@@ -1,18 +1,17 @@
 package com.github.rmee.kubectl;
 
-import com.github.rmee.common.Client;
-import com.github.rmee.common.internal.KubernetesUtils;
+import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.CliExecPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import java.io.File;
-import java.net.MalformedURLException;
 
 public class KubectlPlugin implements Plugin<Project> {
 
 
     public void apply(Project project) {
-        project.getPlugins().apply("de.undercouch.download");
+        project.getPlugins().apply(CliExecPlugin.class);
 
         KubectlExtension extension = project.getExtensions().create("kubectl", KubectlExtension.class);
         extension.setProject(project);
@@ -24,20 +23,16 @@ public class KubectlPlugin implements Plugin<Project> {
         login.dependsOn(bootstrap);
 
         project.afterEvaluate(project1 -> {
-            Client client = extension.getClient();
-            if (client.isDockerized()) {
+            Cli cli = extension.getCli();
+            if (cli.isDockerized()) {
                 bootstrap.setEnabled(false);
-                client.setupWrapper(project);
-                KubernetesUtils.addDefaultMappings(client, project);
-            } else if (client.getDownload()) {
-                File downloadDir = client.getDownloadDir();
+                cli.setupWrapper(project);
+                cli.addDefaultMappings(project);
+            } else if (cli.getDownload()) {
+                File downloadDir = cli.getDownloadDir();
                 downloadDir.mkdirs();
                 bootstrap.dest(downloadDir);
-                try {
-                    bootstrap.src(client.getDownloadUrl());
-                } catch (MalformedURLException e) {
-                    throw new IllegalStateException(e);
-                }
+                bootstrap.src(cli.getDownloadUrl());
             } else {
                 bootstrap.setEnabled(false);
             }

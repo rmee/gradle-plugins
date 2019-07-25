@@ -1,6 +1,6 @@
 package com.github.rmee.oc;
 
-import com.github.rmee.common.Client;
+import com.github.rmee.cli.base.Cli;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 import org.junit.Test;
@@ -30,14 +30,14 @@ public class OcDownloadTest {
 	private void testDownload(OperatingSystem operatingSystem) throws IOException {
 		OcExtension extension = new OcExtension();
 		extension.setUrl("test");
-		Client client = extension.getClient();
-		client.setDockerized(false);
-		client.setVersion("3.7.2-282e43f");
-		client.setOperationSystem(operatingSystem);
+		Cli cli = extension.getCli();
+		cli.setDockerized(false);
+		cli.setVersion("3.11.0-0cbc58b");
+		cli.setOperationSystem(operatingSystem);
 
 		extension.setProject(Mockito.mock(Project.class));
 		extension.init();
-		String downloadUrl = client.getDownloadUrl();
+		String downloadUrl = cli.getDownloadUrl();
 
 		try {
 			URL url = new URL(downloadUrl);

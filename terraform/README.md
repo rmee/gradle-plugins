@@ -1,6 +1,6 @@
 # Terraform
 
-Provides access to `terraform`, the command line client of Terraform to manage cloud environments.
+Provides access to `terraform`, the command line cli of Terraform to manage cloud environments.
 
 ## Classpath
 

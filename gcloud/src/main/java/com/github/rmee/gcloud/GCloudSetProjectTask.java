@@ -1,6 +1,6 @@
 package com.github.rmee.gcloud;
 
-import com.github.rmee.common.internal.IOUtils;
+import com.github.rmee.cli.base.internal.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -13,7 +13,7 @@ public class GCloudSetProjectTask extends DefaultTask {
     public GCloudSetProjectTask() {
         getOutputs().upToDateWhen(task -> {
             GCloudExtension extension = getExtension();
-            File file = extension.getClient().getHome(".config/gcloud/configurations/config_default");
+            File file = extension.getCli().getHome(".config/gcloud/configurations/config_default");
             if (file.exists()) {
                 try {
                     try (FileInputStream in = new FileInputStream((file))) {

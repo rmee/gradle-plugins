@@ -1,6 +1,6 @@
 package com.github.rmee.kubectl;
 
-import com.github.rmee.common.Client;
+import com.github.rmee.cli.base.Cli;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 import org.junit.Test;
@@ -29,16 +29,16 @@ public class KubectlDownloadTest {
 
 	private void testDownload(OperatingSystem operatingSystem) throws IOException {
 		KubectlExtension extension = new KubectlExtension();
-		Client client = extension.getClient();
-		client.setVersion("1.8.0");
-		client.setDockerized(false);
-		client.setOperationSystem(operatingSystem);
+		Cli cli = extension.getCli();
+		cli.setVersion("1.8.0");
+		cli.setDockerized(false);
+		cli.setOperationSystem(operatingSystem);
 
 		extension.setProject(Mockito.mock(Project.class));
 		extension.setUrl("test");
 		extension.init();
 
-		String downloadUrl = client.getDownloadUrl();
+		String downloadUrl = cli.getDownloadUrl();
 		try {
 			try (InputStream inputStream = new URL(downloadUrl).openStream()) {
 				inputStream.read();

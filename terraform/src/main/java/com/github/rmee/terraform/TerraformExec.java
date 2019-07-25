@@ -1,6 +1,6 @@
 package com.github.rmee.terraform;
 
-import com.github.rmee.common.internal.ClientExecBase;
+import com.github.rmee.cli.base.internal.ClientExecBase;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 

@@ -32,7 +32,7 @@ oc {
 		password = 'doe'
 		token = 'someToken // alternative to userName/password
 	}
-	client {
+	cli {
 	  version = '3.7.2-282e43f' 
 	  imageName = 
 	}
@@ -53,7 +53,7 @@ The plugin makes use of dockerized binarizes, for more information have a look a
  
 ## Tasks
 
-- `OcBootstrap` downloads the client.
+- `OcBootstrap` downloads the cli.
 - `OcExec` allow to issue a command. Alternatively, `oc.exec(...)` can be used.
 - `OcLogin` performs the login.
 - `OcSetProject` sets the currently used project.

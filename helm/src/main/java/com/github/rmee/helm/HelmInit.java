@@ -20,7 +20,7 @@ public class HelmInit extends DefaultTask {
 
         getOutputs().upToDateWhen(task -> {
             HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
-            File repositoriesFile = extension.getClient().getHome(".helm/repository/repositories.yaml");
+            File repositoriesFile = extension.getCli().getHome(".helm/repository/repositories.yaml");
             LOGGER.debug("helmInit up-to-data: {}", repositoriesFile.exists());
             return repositoriesFile.exists();
         });

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.github.rmee.common.Client;
+import com.github.rmee.cli.base.Cli;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 import org.junit.Test;
@@ -29,13 +29,13 @@ public class HelmDownloadTest {
 
 	private void testDownload(OperatingSystem operatingSystem) throws IOException {
 		HelmExtension extension = new HelmExtension();
-		Client client = extension.getClient();
-		client.setDockerized(false);
-		client.setOperationSystem(operatingSystem);
+		Cli cli = extension.getCli();
+		cli.setDockerized(false);
+		cli.setOperationSystem(operatingSystem);
 
 		extension.setProject(Mockito.mock(Project.class));
 		extension.init();
-		String downloadUrl = client.getDownloadUrl();
+		String downloadUrl = cli.getDownloadUrl();
 
 		try {
 			try (InputStream inputStream = new URL(downloadUrl).openStream()) {

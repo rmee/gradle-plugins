@@ -1,4 +1,4 @@
-package com.github.rmee.common;
+package com.github.rmee.cli.base;
 
 import groovy.lang.Closure;
 import org.gradle.api.Project;
@@ -9,7 +9,7 @@ public abstract class ClientExtensionBase {
 
 	protected boolean initialized = false;
 
-	protected Client client;
+	protected Cli cli;
 
 	protected abstract void init();
 
@@ -19,11 +19,11 @@ public abstract class ClientExtensionBase {
 		}
 	}
 
-	public Client getClient() {
-		return client;
+	public Cli getCli() {
+		return cli;
 	}
 
-	public Client client(Closure closure) {
-		return (Client) project.configure(client, closure);
+	public Cli client(Closure closure) {
+		return (Cli) project.configure(cli, closure);
 	}
 }

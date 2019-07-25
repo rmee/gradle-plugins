@@ -1,9 +1,9 @@
 package com.github.rmee.kubectl;
 
-import com.github.rmee.common.Client;
-import com.github.rmee.common.ClientExtensionBase;
-import com.github.rmee.common.Credentials;
-import com.github.rmee.common.OutputFormat;
+import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.ClientExtensionBase;
+import com.github.rmee.cli.base.Credentials;
+import com.github.rmee.cli.base.OutputFormat;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
 
@@ -26,10 +26,10 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
     public KubectlExtensionBase() {
         credentials = new Credentials(this);
-        client = createClient();
+        cli = createClient();
     }
 
-    protected abstract Client createClient();
+    protected abstract Cli createClient();
 
     public boolean isInsecureSkipTlsVerify() {
         return insecureSkipTlsVerify;
@@ -69,11 +69,11 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
     public String getToken(String serviceAccount) {
         KubectlExecSpec spec = new KubectlExecSpec();
-        spec.setCommandLine(client.getBinName() + " describe serviceaccount " + serviceAccount);
+        spec.setCommandLine(cli.getBinName() + " describe serviceaccount " + serviceAccount);
         KubectlExecResult result = exec(spec);
         String tokenName = result.getProperty("tokens");
 
-        spec.setCommandLine(client.getBinName() + " describe secret " + tokenName);
+        spec.setCommandLine(cli.getBinName() + " describe secret " + tokenName);
         result = exec(spec);
         return result.getProperty("token");
     }
@@ -103,7 +103,7 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 project.exec(execSpec -> {
-                    client.configureExec(execSpec, spec);
+                    cli.configureExec(execSpec, spec);
                     if (spec.getInput() != null) {
                         execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
                     }
@@ -140,7 +140,7 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
         }
         initialized = true;
 
-        client.init(project);
+        cli.init(project);
     }
 
     protected void setProject(Project project) {

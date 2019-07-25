@@ -1,6 +1,6 @@
 package com.github.rmee.gcloud.gke;
 
-import com.github.rmee.common.Client;
+import com.github.rmee.cli.base.Cli;
 import com.github.rmee.gcloud.GCloudExecSpec;
 import com.github.rmee.gcloud.GCloudExtension;
 import org.gradle.api.DefaultTask;
@@ -45,8 +45,8 @@ public class GCloudGetKubernetesCredentialsTask extends DefaultTask {
 
     @OutputFile
     public File getConfigFile() {
-        Client client = getExtension().getClient();
-        return client.getHome(".kube/config");
+        Cli cli = getExtension().getCli();
+        return cli.getHome(".kube/config");
     }
 
     @TaskAction

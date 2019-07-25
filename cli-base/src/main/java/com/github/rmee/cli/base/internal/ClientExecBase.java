@@ -1,6 +1,6 @@
-package com.github.rmee.common.internal;
+package com.github.rmee.cli.base.internal;
 
-import com.github.rmee.common.ClientExecSpec;
+import com.github.rmee.cli.base.CliExecSpec;
 import groovy.lang.Closure;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
@@ -15,7 +15,7 @@ public abstract class ClientExecBase extends DefaultTask {
 		return retrieveSpec().isIgnoreExitValue();
 	}
 
-	protected abstract ClientExecSpec retrieveSpec();
+	protected abstract CliExecSpec retrieveSpec();
 
 
 	public void setIgnoreExitValue(boolean ignoreExitValue) {

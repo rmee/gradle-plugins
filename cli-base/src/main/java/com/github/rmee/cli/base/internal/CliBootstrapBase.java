@@ -1,8 +1,10 @@
-package com.github.rmee.common;
+package com.github.rmee.cli.base.internal;
 
 import java.io.File;
 import java.io.IOException;
 
+import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.ClientExtensionBase;
 import de.undercouch.gradle.tasks.download.Download;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -11,13 +13,13 @@ import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientBootstrapBase extends Download {
+public class CliBootstrapBase extends Download {
 
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
 	private Class<? extends ClientExtensionBase> extensionClass;
 
-	protected ClientBootstrapBase(Class<? extends ClientExtensionBase> extensionClass) {
+	protected CliBootstrapBase(Class<? extends ClientExtensionBase> extensionClass) {
 		this.extensionClass = extensionClass;
 
 		setGroup("kubernetes");
@@ -27,13 +29,13 @@ public class ClientBootstrapBase extends Download {
 		getOutputs().upToDateWhen(task -> {
 			Project project = getProject();
 			ClientExtensionBase extension = project.getExtensions().getByType(extensionClass);
-			Client client = extension.getClient();
-			return !client.getDownload()
-					|| getDownloadedFile().exists() && new File(client.getBinPath()).exists();
+			Cli cli = extension.getCli();
+			return !cli.getDownload()
+					|| getDownloadedFile().exists() && new File(cli.getBinPath()).exists();
 		});
 
 		doFirst(task -> {
-			LOGGER.info("downloading client from {}", getSrc());
+			LOGGER.info("downloading cli from {}", getSrc());
 		});
 
 		doLast(task -> {
@@ -60,7 +62,7 @@ public class ClientBootstrapBase extends Download {
 				}
 				ClientExtensionBase extension = project.getExtensions().getByType(extensionClass);
 
-				File unzippedDir = extension.getClient().getInstallDir();
+				File unzippedDir = extension.getCli().getInstallDir();
 				unzippedDir.mkdirs();
 				copySpec.into(unzippedDir);
 			};
@@ -81,7 +83,7 @@ public class ClientBootstrapBase extends Download {
 	protected File getDownloadedFile() {
 		Project project = getProject();
 		ClientExtensionBase extension = project.getExtensions().getByType(extensionClass);
-		return extension.getClient().getDownloadedFile();
+		return extension.getCli().getDownloadedFile();
 	}
 
 	protected boolean isCompressed() {

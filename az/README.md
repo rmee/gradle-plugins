@@ -1,6 +1,6 @@
 # az
 
-Provides access to `az`, the command line client of Azure to manage cloud resources.
+Provides access to `az`, the command line cli of Azure to manage cloud resources.
 
 ## Setup
 
@@ -24,7 +24,7 @@ az {
 	aks {
 		clusterName = '...'
 	}
-	client {
+	cli {
 		version = `2.0.38`
 		imageName = 'microsoft/azure-cli'
 	}

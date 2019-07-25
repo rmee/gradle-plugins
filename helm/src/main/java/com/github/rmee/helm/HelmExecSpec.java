@@ -1,8 +1,8 @@
 package com.github.rmee.helm;
 
-import com.github.rmee.common.ClientExecSpec;
+import com.github.rmee.cli.base.CliExecSpec;
 
-public class HelmExecSpec extends ClientExecSpec<HelmExecSpec> {
+public class HelmExecSpec extends CliExecSpec<HelmExecSpec> {
 
 	@Override
 	protected HelmExecSpec newSpec() {

@@ -18,7 +18,7 @@ public class GCloudActivateServiceAccountTask extends DefaultTask {
     public GCloudActivateServiceAccountTask() {
         getOutputs().upToDateWhen(element -> {
             GCloudExtension extension = getExtension();
-            File credentialsFile = extension.getClient().getHome(".config/gcloud/credentials");
+            File credentialsFile = extension.getCli().getHome(".config/gcloud/credentials");
             if (!credentialsFile.exists()) {
                 return false;
             }

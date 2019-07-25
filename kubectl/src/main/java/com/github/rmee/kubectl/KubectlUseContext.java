@@ -3,7 +3,7 @@ package com.github.rmee.kubectl;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.github.rmee.common.Credentials;
+import com.github.rmee.cli.base.Credentials;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 

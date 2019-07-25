@@ -1,24 +1,21 @@
 package com.github.rmee.helm;
 
-import com.github.rmee.common.Client;
-import com.github.rmee.common.internal.KubernetesUtils;
+import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.CliExecPlugin;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.Set;
 
 public class HelmPlugin implements Plugin<Project> {
 
-    protected static final String HELM_SOURCES_DIR = "/src/helm";
-
-    protected static final String HELM_OUTPUT_DIR = "/build/helm";
+    protected static final String HELM_OUTPUT_DIR = "/workdir/build/helm";
 
     public void apply(Project project) {
-        project.getPlugins().apply("de.undercouch.download");
+        project.getPlugins().apply(CliExecPlugin.class);
 
         HelmExtension extension = project.getExtensions().create("helm", HelmExtension.class);
         extension.setProject(project);
@@ -49,20 +46,16 @@ public class HelmPlugin implements Plugin<Project> {
         }
 
         project.afterEvaluate(project1 -> {
-            Client client = extension.getClient();
+            Cli cli = extension.getCli();
 
-            if (client.isDockerized()) {
+            if (cli.isDockerized()) {
                 helmBootstrap.setEnabled(false);
-                client.setupWrapper(project);
+                cli.setupWrapper(project);
 
-                KubernetesUtils.addDefaultMappings(client, project);
-            } else if (client.getDownload()) {
-                try {
-                    helmBootstrap.src(client.getDownloadUrl());
-                } catch (MalformedURLException e) {
-                    throw new IllegalStateException(e);
-                }
-                File downloadDir = client.getDownloadDir();
+                cli.addDefaultMappings(project);
+            } else if (cli.getDownload()) {
+                helmBootstrap.src(cli.getDownloadUrl());
+                File downloadDir = cli.getDownloadDir();
                 downloadDir.mkdirs();
                 helmBootstrap.dest(downloadDir);
             } else {

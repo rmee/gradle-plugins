@@ -1,6 +1,6 @@
 package com.github.rmee.oc;
 
-import com.github.rmee.common.Credentials;
+import com.github.rmee.cli.base.Credentials;
 import org.gradle.api.tasks.TaskAction;
 
 public class OcLogin extends OcExec {

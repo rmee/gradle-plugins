@@ -3,9 +3,7 @@ plugins {
 }
 version = '0.1.0'
 repositories {
-	maven {
-		mavenCentral()
-	}
+	jcenter()
 }
 
 import com.github.rmee.oc.OcExec

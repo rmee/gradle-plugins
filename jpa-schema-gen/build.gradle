@@ -2,7 +2,6 @@ apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
 
 apply plugin: "com.gradle.plugin-publish"
-apply plugin: 'org.unbroken-dome.test-sets'
 
 def hibernateVersion = versions["hibernate.version"]
 def junitVersion = versions["junit.version"]

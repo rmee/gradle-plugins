@@ -1,4 +1,4 @@
-package com.github.rmee.common;
+package com.github.rmee.cli.base;
 
 public class Credentials {
 

@@ -1,7 +1,7 @@
 package com.github.rmee.kubectl;
 
-import com.github.rmee.common.OutputFormat;
-import com.github.rmee.common.internal.ClientExecBase;
+import com.github.rmee.cli.base.OutputFormat;
+import com.github.rmee.cli.base.internal.ClientExecBase;
 import org.gradle.api.tasks.Input;
 
 public class KubectlExecBase extends ClientExecBase {

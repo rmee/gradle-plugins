@@ -1,7 +1,7 @@
 package com.github.rmee.gcloud;
 
-import com.github.rmee.common.ClientExecSpec;
-import com.github.rmee.common.internal.ClientExecBase;
+import com.github.rmee.cli.base.CliExecSpec;
+import com.github.rmee.cli.base.internal.ClientExecBase;
 import org.gradle.api.tasks.TaskAction;
 
 public class GCloudExec extends ClientExecBase {
@@ -19,7 +19,7 @@ public class GCloudExec extends ClientExecBase {
 	}
 
 	@Override
-	protected ClientExecSpec retrieveSpec() {
+	protected CliExecSpec retrieveSpec() {
 		return spec;
 	}
 }

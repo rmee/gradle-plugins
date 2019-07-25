@@ -19,7 +19,7 @@ public class AzGetKubernetesCredentialsTask extends AzExec {
         Object clusterName = azExtension.getAks().getClusterName();
 
         // replace contents
-        File file = azExtension.getClient().getHome(".kube/config");
+        File file = azExtension.getCli().getHome(".kube/config");
         commandLine(
                 String.format("az aks get-credentials --resource-group %s --name %s --file " + file,
                         resourceGroup, clusterName)

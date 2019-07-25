@@ -1,8 +1,8 @@
 package com.github.rmee.kubectl;
 
-import com.github.rmee.common.ClientBootstrapBase;
+import com.github.rmee.cli.base.internal.CliBootstrapBase;
 
-public class KubectlBootstrap extends ClientBootstrapBase {
+public class KubectlBootstrap extends CliBootstrapBase {
 
 	public KubectlBootstrap() {
 		super(KubectlExtension.class);

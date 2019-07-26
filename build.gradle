@@ -20,8 +20,9 @@ wrapper {
 
 // note that a production build creates javadoc, sources jars and signatures undesired during development
 // for performance reasons
-final boolean isProductionBuild = System.env.GRADLE_PUBLISH_KEY != null && System.env.GRADLE_PUBLISH_SECRET != null
-if (isProductionBuild) {
+final boolean hasPublishSecrets = System.env.GRADLE_PUBLISH_KEY != null && System.env.GRADLE_PUBLISH_SECRET != null;
+final boolean isProductionBuild = System.getenv("CI_VERSION") != null || hasPublishSecrets
+if (hasPublishSecrets) {
     ext {
         System.setProperty("gradle.publish.key", System.env.GRADLE_PUBLISH_KEY)
         System.setProperty("gradle.publish.secret", System.env.GRADLE_PUBLISH_SECRET)

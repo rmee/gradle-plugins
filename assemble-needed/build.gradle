@@ -4,26 +4,26 @@ apply plugin: 'java-gradle-plugin'
 apply plugin: "com.gradle.plugin-publish"
 
 dependencies {
-	compile gradleApi()
+    compile gradleApi()
 
 
-	compile 'commons-io:commons-io:2.6'
+    compile 'commons-io:commons-io:2.6'
 
-	testCompile "junit:junit:${versions["junit.version"]}"
+    testCompile "junit:junit:${versions["junit.version"]}"
 }
 
 pluginBundle {
-	website = 'https://github.com/rmee/gradle-plugins/tree/master/jdk-bootstrap'
-	vcsUrl = 'https://github.com/rmee/gradle-plugins/tree/master/jdk-bootstrap'
-	description = 'Bootstraps a JDK installation within the Gradle wrapper to make Gradle builds truely self-contained.'
-	tags = ['jdk', 'openjdk', 'wrapper']
+    website = 'https://github.com/rmee/gradle-plugins/tree/master/assemble-needed'
+    vcsUrl = 'https://github.com/rmee/gradle-plugins/tree/master/assemble-needed'
+    description = 'Assembles a project and all its project dependencies.'
+    tags = ['assemble']
 
-	plugins {
-		'jdk-bootstrap' {
-			id = 'com.github.rmee.jdk-bootstrap'
-			displayName = 'jdk-bootstrap'
-		}
-	}
+    plugins {
+        'jdk-bootstrap' {
+            id = 'com.github.rmee.assemble-needed'
+            displayName = 'assemble-needed'
+        }
+    }
 }
 
 

@@ -26,4 +26,8 @@ public abstract class ClientExtensionBase {
 	public Cli client(Closure closure) {
 		return (Cli) project.configure(cli, closure);
 	}
+
+	public Cli cli(Closure closure) {
+		return (Cli) project.configure(cli, closure);
+	}
 }

@@ -6,8 +6,6 @@
 Hosts a collection of Gradle plugins:
 
 - [jdk-bootstrap](../../blob/master/jdk-bootstrap): to automatically download a JDK to run Gradle.
-- [build-on-change](../../blob/master/build-on-change): perform incremental builds of PRs by only building what has 
-  changed compared to a reference branch (like master).
 - [systemd-application](../../blob/master/systemd-application): builds a RPM/systemd package out of any Java main 
   application, such as Spring Boot or Dropwizard.
 - [oc](../../blob/master/oc): gives access to the OpenShift command line tool &quot;oc&quot; to interface
@@ -22,8 +20,12 @@ Hosts a collection of Gradle plugins:
 - [gcloud](../../blob/master/gcloud): gives access to the Google Cloud command line tool &quot;gcloud&quot;.
 - [jpa-schema-gen](../../blob/master/jpa-schema-gen): to generate Flyway and Liquibase-compatible schema setup and migration scripts.
 - [assemble-needed](../../blob/master/assemble-needed): assembles a project and all its project dependencies.
+- [build-on-change](../../blob/master/build-on-change):(experimental!) perform incremental builds of PRs by only building what has 
+  changed compared to a reference branch (like master).
 
-Have a look at https://github.com/crnk-project/crnk-example[crnk-example] to see some of the plugins in a larger example application.
+Have a look at https://github.com/crnk-project/crnk-example to see some of the plugins applied to a larger example application.
+For a general introduction into the architecture of most plugins see 
+https://jaxenter.com/tooling-as-code-truly-self-contained-gradle-builds-160998.html.
   
 The `oc`, `kubernetes`, `helm`, `az`, 'gcloud' and `terraform` plugins make use of:
 

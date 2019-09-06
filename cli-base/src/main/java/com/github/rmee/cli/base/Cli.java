@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public final class Cli {
 
-    private final CliDownloadStrategy downloadStrategy;
+	private final CliDownloadStrategy downloadStrategy;
 
 	private ClientExtensionBase extension;
 
@@ -68,19 +68,29 @@ public final class Cli {
 
 	private boolean runAsEnabled = true;
 
-    public Cli(ClientExtensionBase extension, String binName, CliDownloadStrategy downloadStrategy) {
+	private String workingDir;
+
+	public Cli(ClientExtensionBase extension, String binName, CliDownloadStrategy downloadStrategy) {
 		this.binName = binName;
-        this.downloadStrategy = downloadStrategy;
+		this.downloadStrategy = downloadStrategy;
 		this.extension = extension;
 
-        environment.put("HOME", "/workdir/build/home");
+		environment.put("HOME", "/workdir/build/home");
 
 		dockerEnvironment.putAll(System.getenv());
 	}
 
-    public void addDefaultMappings(Project project) {
-        volumeMappings.put("/workdir", project.getProjectDir());
-    }
+	public String getWorkingDir() {
+		return workingDir;
+	}
+
+	public void setWorkingDir(String workingDir) {
+		this.workingDir = workingDir;
+	}
+
+	public void addDefaultMappings(Project project) {
+		volumeMappings.put("/workdir", project.getProjectDir());
+	}
 
 	private String getEnvValue(String name) {
 		String value = System.getenv(name);
@@ -184,7 +194,7 @@ public final class Cli {
 
 	public void setDockerized(boolean dockerized) {
 		if (dockerized) {
-            environment.put("HOME", "/workdir/build/home");
+			environment.put("HOME", "/workdir/build/home");
 		} else {
 			environment.remove("HOME");
 		}
@@ -225,8 +235,8 @@ public final class Cli {
 				String binSuffix = getBinSuffix();
 				binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
 				if (downloadUrl == null && download) {
-                    downloadFileName = downloadStrategy.computeDownloadFileName(this);
-                    downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
+					downloadFileName = downloadStrategy.computeDownloadFileName(this);
+					downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
 				}
 			} else if (binPath == null) {
 				// assume binary available from PATH
@@ -319,10 +329,10 @@ public final class Cli {
 		}
 	}
 
-    public void configureExec(ExecSpec execSpec, CliExecSpec cliExecSpec) {
-        execSpec.setIgnoreExitValue(cliExecSpec.isIgnoreExitValue());
+	public void configureExec(ExecSpec execSpec, CliExecSpec cliExecSpec) {
+		execSpec.setIgnoreExitValue(cliExecSpec.isIgnoreExitValue());
 
-        List<String> args = cliExecSpec.getCommandLine();
+		List<String> args = cliExecSpec.getCommandLine();
 		if (dockerized) {
 			execSpec.setEnvironment(dockerEnvironment);
 
@@ -345,13 +355,18 @@ public final class Cli {
 				commandLine.add("NO_PROXY=" + noProxy);
 			}
 
-            String containerName = cliExecSpec.getContainerName();
+			if (workingDir != null) {
+				commandLine.add("--workdir");
+				commandLine.add(workingDir);
+			}
+
+			String containerName = cliExecSpec.getContainerName();
 			if (containerName != null) {
 				commandLine.add("--name");
 				commandLine.add(containerName);
 			}
 
-            String volumesFrom = cliExecSpec.getVolumesFrom();
+			String volumesFrom = cliExecSpec.getVolumesFrom();
 			if (volumesFrom != null) {
 				commandLine.add("--volumes-from");
 				commandLine.add(volumesFrom);
@@ -372,7 +387,7 @@ public final class Cli {
 			execSpec.setCommandLine(args);
 		}
 
-        File stdoutFile = cliExecSpec.getStdoutFile();
+		File stdoutFile = cliExecSpec.getStdoutFile();
 		if (stdoutFile != null) {
 			try {
 				if (stdoutFile.exists() && !stdoutFile.delete()) {
@@ -506,7 +521,7 @@ public final class Cli {
 	}
 
 
-    public void exec(CliExecSpec spec) {
+	public void exec(CliExecSpec spec) {
 		Project project = extension.project;
 		project.exec(execSpec -> {
 			configureExec(execSpec, spec);

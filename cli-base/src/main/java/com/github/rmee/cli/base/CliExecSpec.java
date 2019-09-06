@@ -1,5 +1,7 @@
 package com.github.rmee.cli.base;
 
+import org.gradle.api.tasks.Input;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,78 +9,90 @@ import java.util.List;
 
 public abstract class CliExecSpec<T extends CliExecSpec> {
 
-    private List<String> commandLine;
+	private List<String> commandLine;
 
-    private boolean ignoreExitValue = false;
+	private boolean ignoreExitValue = false;
 
-    private File stdoutFile;
+	private File stdoutFile;
 
-    private String volumesFrom;
+	private String volumesFrom;
 
-    private String containerName;
+	private String containerName;
 
-    public String getVolumesFrom() {
-        return volumesFrom;
-    }
+	protected OutputFormat outputFormat = OutputFormat.CONSOLE;
 
-    public void setVolumesFrom(String volumesFrom) {
-        this.volumesFrom = volumesFrom;
-    }
+	@Input
+	public OutputFormat getOutputFormat() {
+		return outputFormat;
+	}
 
-    public String getContainerName() {
-        return containerName;
-    }
+	public void setOutputFormat(OutputFormat outputFormat) {
+		this.outputFormat = outputFormat;
+	}
 
-    public void setContainerName(String containerName) {
-        this.containerName = containerName;
-    }
+	public String getVolumesFrom() {
+		return volumesFrom;
+	}
 
-    public boolean isIgnoreExitValue() {
-        return ignoreExitValue;
-    }
+	public void setVolumesFrom(String volumesFrom) {
+		this.volumesFrom = volumesFrom;
+	}
 
-    public void setIgnoreExitValue(boolean ignoreExitValue) {
-        this.ignoreExitValue = ignoreExitValue;
-    }
+	public String getContainerName() {
+		return containerName;
+	}
 
-    public List<String> getCommandLine() {
-        return commandLine;
-    }
+	public void setContainerName(String containerName) {
+		this.containerName = containerName;
+	}
 
-    public void setCommandLine(String commandLine) {
-        this.commandLine = Arrays.asList(commandLine.split("\\s+"));
-    }
+	public boolean isIgnoreExitValue() {
+		return ignoreExitValue;
+	}
 
-    public void setCommandLine(List<String> commandLine) {
-        this.commandLine = commandLine;
-    }
+	public void setIgnoreExitValue(boolean ignoreExitValue) {
+		this.ignoreExitValue = ignoreExitValue;
+	}
 
-    public final T duplicate() {
-        CliExecSpec duplicate = newSpec();
-        duplicate.commandLine = new ArrayList(commandLine);
-        duplicate.ignoreExitValue = ignoreExitValue;
-        duplicate.volumesFrom = volumesFrom;
-        duplicate.containerName = containerName;
-        duplicate((T) duplicate);
-        return (T) duplicate;
-    }
+	public List<String> getCommandLine() {
+		return commandLine;
+	}
 
-    protected T newSpec() {
-        try {
-            return (T) getClass().newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+	public void setCommandLine(String commandLine) {
+		this.commandLine = Arrays.asList(commandLine.split("\\s+"));
+	}
 
-    protected void duplicate(T duplicate) {
-    }
+	public void setCommandLine(List<String> commandLine) {
+		this.commandLine = commandLine;
+	}
 
-    public File getStdoutFile() {
-        return stdoutFile;
-    }
+	public final T duplicate() {
+		CliExecSpec duplicate = newSpec();
+		duplicate.commandLine = new ArrayList(commandLine);
+		duplicate.outputFormat = outputFormat;
+		duplicate.ignoreExitValue = ignoreExitValue;
+		duplicate.volumesFrom = volumesFrom;
+		duplicate.containerName = containerName;
+		duplicate((T) duplicate);
+		return (T) duplicate;
+	}
 
-    public void setStdoutFile(File stdoutFile) {
-        this.stdoutFile = stdoutFile;
-    }
+	protected T newSpec() {
+		try {
+			return (T) getClass().newInstance();
+		} catch (IllegalAccessException | InstantiationException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	protected void duplicate(T duplicate) {
+	}
+
+	public File getStdoutFile() {
+		return stdoutFile;
+	}
+
+	public void setStdoutFile(File stdoutFile) {
+		this.stdoutFile = stdoutFile;
+	}
 }

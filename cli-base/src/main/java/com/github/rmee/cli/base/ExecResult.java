@@ -1,12 +1,12 @@
-package com.github.rmee.kubectl;
+package com.github.rmee.cli.base;
 
 import groovy.json.JsonSlurper;
 
-public class KubectlExecResult {
+public class ExecResult {
 
 	private String text;
 
-	protected KubectlExecResult(String text) {
+	public ExecResult(String text) {
 		this.text = text;
 	}
 

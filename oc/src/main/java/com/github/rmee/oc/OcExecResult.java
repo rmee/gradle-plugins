@@ -1,8 +1,8 @@
 package com.github.rmee.oc;
 
-import com.github.rmee.kubectl.KubectlExecResult;
+import com.github.rmee.cli.base.ExecResult;
 
-class OcExecResult extends KubectlExecResult {
+class OcExecResult extends ExecResult {
 
 	protected OcExecResult(String text) {
 		super(text);

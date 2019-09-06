@@ -1,5 +1,6 @@
 package com.github.rmee.kubectl;
 
+import com.github.rmee.cli.base.ExecResult;
 import com.github.rmee.cli.base.OutputFormat;
 import com.github.rmee.cli.base.internal.ClientExecBase;
 import org.gradle.api.tasks.Input;
@@ -8,7 +9,7 @@ public class KubectlExecBase extends ClientExecBase {
 
 	protected KubectlExecSpec spec;
 
-	protected KubectlExecResult result;
+	protected ExecResult result;
 
 	public KubectlExecBase() {
 		setGroup("kubernetes");
@@ -20,7 +21,7 @@ public class KubectlExecBase extends ClientExecBase {
 		return new KubectlExecSpec();
 	}
 
-	public KubectlExecResult getResult() {
+	public ExecResult getResult() {
 		return result;
 	}
 

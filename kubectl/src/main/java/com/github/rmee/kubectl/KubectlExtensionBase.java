@@ -3,6 +3,7 @@ package com.github.rmee.kubectl;
 import com.github.rmee.cli.base.Cli;
 import com.github.rmee.cli.base.ClientExtensionBase;
 import com.github.rmee.cli.base.Credentials;
+import com.github.rmee.cli.base.ExecResult;
 import com.github.rmee.cli.base.OutputFormat;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
@@ -15,135 +16,135 @@ import java.util.stream.Collectors;
 
 public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
-    private String url;
+	private String url;
 
-    protected Credentials credentials;
+	protected Credentials credentials;
 
-    private String namespace;
+	private String namespace;
 
-    private boolean insecureSkipTlsVerify = false;
-
-
-    public KubectlExtensionBase() {
-        credentials = new Credentials(this);
-        cli = createClient();
-    }
-
-    protected abstract Cli createClient();
-
-    public boolean isInsecureSkipTlsVerify() {
-        return insecureSkipTlsVerify;
-    }
-
-    public void setInsecureSkipTlsVerify(boolean insecureSkipTlsVerify) {
-        this.insecureSkipTlsVerify = insecureSkipTlsVerify;
-    }
+	private boolean insecureSkipTlsVerify = false;
 
 
-    public Credentials credentials(Closure closure) {
-        return (Credentials) project.configure(credentials, closure);
-    }
+	public KubectlExtensionBase() {
+		credentials = new Credentials(this);
+		cli = createClient();
+	}
 
-    public String getUrl() {
-        init();
-        return url;
-    }
+	protected abstract Cli createClient();
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+	public boolean isInsecureSkipTlsVerify() {
+		return insecureSkipTlsVerify;
+	}
 
-    public Credentials getCredentials() {
-        init();
-        return credentials;
-    }
+	public void setInsecureSkipTlsVerify(boolean insecureSkipTlsVerify) {
+		this.insecureSkipTlsVerify = insecureSkipTlsVerify;
+	}
 
-    public String getNamespace() {
-        init();
-        return namespace;
-    }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
+	public Credentials credentials(Closure closure) {
+		return (Credentials) project.configure(credentials, closure);
+	}
 
-    public String getToken(String serviceAccount) {
-        KubectlExecSpec spec = new KubectlExecSpec();
-        spec.setCommandLine(cli.getBinName() + " describe serviceaccount " + serviceAccount);
-        KubectlExecResult result = exec(spec);
-        String tokenName = result.getProperty("tokens");
+	public String getUrl() {
+		init();
+		return url;
+	}
 
-        spec.setCommandLine(cli.getBinName() + " describe secret " + tokenName);
-        result = exec(spec);
-        return result.getProperty("token");
-    }
+	public void setUrl(String url) {
+		this.url = url;
+	}
 
-    public KubectlExecResult exec(String command) {
-        KubectlExecSpec spec = new KubectlExecSpec();
-        spec.setCommandLine(command);
-        return exec(spec);
-    }
+	public Credentials getCredentials() {
+		init();
+		return credentials;
+	}
 
-    protected KubectlExecResult exec(KubectlExecSpec execSpec1) {
-        // prevent from giving changes back to caller
-        final KubectlExecSpec spec = execSpec1.duplicate();
+	public String getNamespace() {
+		init();
+		return namespace;
+	}
 
-        List<String> commandLine = spec.getCommandLine();
-        int pipeIndex = commandLine.indexOf("|");
-        if (pipeIndex == -1) {
-            if (!commandLine.contains("token") && !commandLine.contains("pass")) {
-                project.getLogger().warn("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
-            } else {
-                project.getLogger().debug("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
-            }
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
 
-            if (spec.getOutputFormat() == OutputFormat.JSON) {
-                commandLine.add("--output=json");
-            }
+	public String getToken(String serviceAccount) {
+		KubectlExecSpec spec = new KubectlExecSpec();
+		spec.setCommandLine(cli.getBinName() + " describe serviceaccount " + serviceAccount);
+		ExecResult result = exec(spec);
+		String tokenName = result.getProperty("tokens");
 
-            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                project.exec(execSpec -> {
-                    cli.configureExec(execSpec, spec);
-                    if (spec.getInput() != null) {
-                        execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
-                    }
-                    if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
-                        execSpec.setStandardOutput(outputStream);
-                    }
-                });
-                String output = outputStream.toString();
-                return createResult(output);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-        } else {
-            KubectlExecSpec leftSpec = spec.duplicate();
-            leftSpec.setCommandLine(commandLine.subList(0, pipeIndex));
-            leftSpec.setOutputFormat(OutputFormat.TEXT);
-            KubectlExecResult leftResult = exec(leftSpec);
+		spec.setCommandLine(cli.getBinName() + " describe secret " + tokenName);
+		result = exec(spec);
+		return result.getProperty("token");
+	}
 
-            KubectlExecSpec rightSpec = spec.duplicate();
-            rightSpec.setCommandLine(commandLine.subList(pipeIndex + 1, commandLine.size()));
-            rightSpec.setInput(leftResult.getText());
-            return exec(rightSpec);
-        }
-    }
+	public ExecResult exec(String command) {
+		KubectlExecSpec spec = new KubectlExecSpec();
+		spec.setCommandLine(command);
+		return exec(spec);
+	}
 
-    protected KubectlExecResult createResult(String output) {
-        return new KubectlExecResult(output);
-    }
+	protected ExecResult exec(KubectlExecSpec execSpec1) {
+		// prevent from giving changes back to caller
+		final KubectlExecSpec spec = execSpec1.duplicate();
 
-    @Override
-    public void init() {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
+		List<String> commandLine = spec.getCommandLine();
+		int pipeIndex = commandLine.indexOf("|");
+		if (pipeIndex == -1) {
+			if (!commandLine.contains("token") && !commandLine.contains("pass")) {
+				project.getLogger().warn("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
+			} else {
+				project.getLogger().debug("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
+			}
 
-        cli.init(project);
-    }
+			if (spec.getOutputFormat() == OutputFormat.JSON) {
+				commandLine.add("--output=json");
+			}
 
-    protected void setProject(Project project) {
-        this.project = project;
-    }
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				project.exec(execSpec -> {
+					cli.configureExec(execSpec, spec);
+					if (spec.getInput() != null) {
+						execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
+					}
+					if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
+						execSpec.setStandardOutput(outputStream);
+					}
+				});
+				String output = outputStream.toString();
+				return createResult(output);
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
+		} else {
+			KubectlExecSpec leftSpec = spec.duplicate();
+			leftSpec.setCommandLine(commandLine.subList(0, pipeIndex));
+			leftSpec.setOutputFormat(OutputFormat.TEXT);
+			ExecResult leftResult = exec(leftSpec);
+
+			KubectlExecSpec rightSpec = spec.duplicate();
+			rightSpec.setCommandLine(commandLine.subList(pipeIndex + 1, commandLine.size()));
+			rightSpec.setInput(leftResult.getText());
+			return exec(rightSpec);
+		}
+	}
+
+	protected ExecResult createResult(String output) {
+		return new ExecResult(output);
+	}
+
+	@Override
+	public void init() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+
+		cli.init(project);
+	}
+
+	protected void setProject(Project project) {
+		this.project = project;
+	}
 }

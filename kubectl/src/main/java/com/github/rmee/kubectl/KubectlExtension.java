@@ -1,6 +1,7 @@
 package com.github.rmee.kubectl;
 
 import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.ExecResult;
 import com.github.rmee.cli.base.internal.CliDownloadStrategy;
 import groovy.lang.Closure;
 import org.gradle.internal.os.OperatingSystem;
@@ -47,11 +48,11 @@ public class KubectlExtension extends KubectlExtensionBase {
     }
 
     @Override
-    public KubectlExecResult exec(KubectlExecSpec execSpec) {
+    public ExecResult exec(KubectlExecSpec execSpec) {
         return super.exec(execSpec);
     }
 
-    public KubectlExecResult exec(Closure<KubectlExecSpec> closure) {
+    public ExecResult exec(Closure<KubectlExecSpec> closure) {
         KubectlExecSpec spec = new KubectlExecSpec();
         project.configure(spec, closure);
         return exec(spec);

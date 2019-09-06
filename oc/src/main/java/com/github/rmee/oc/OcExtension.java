@@ -3,7 +3,7 @@ package com.github.rmee.oc;
 import com.github.rmee.cli.base.Cli;
 import com.github.rmee.cli.base.Credentials;
 import com.github.rmee.cli.base.internal.CliDownloadStrategy;
-import com.github.rmee.kubectl.KubectlExecResult;
+import com.github.rmee.cli.base.ExecResult;
 import com.github.rmee.kubectl.KubectlExtensionBase;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
@@ -58,7 +58,7 @@ public class OcExtension extends KubectlExtensionBase {
     }
 
     @Override
-    protected KubectlExecResult createResult(String output) {
+    protected ExecResult createResult(String output) {
         return new OcExecResult(output);
     }
 

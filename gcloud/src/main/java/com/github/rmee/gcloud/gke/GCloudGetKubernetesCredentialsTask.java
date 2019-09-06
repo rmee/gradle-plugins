@@ -16,59 +16,57 @@ import java.io.File;
  */
 public class GCloudGetKubernetesCredentialsTask extends DefaultTask {
 
-    private GCloudExtension getExtension() {
-        return getProject().getExtensions().getByType(GCloudExtension.class);
-    }
+	private GCloudExtension getExtension() {
+		return getProject().getExtensions().getByType(GCloudExtension.class);
+	}
 
-    @Optional
-    @Input
-    public String getRegion() {
-        return getExtension().getRegion();
-    }
+	@Optional
+	@Input
+	public String getRegion() {
+		return getExtension().getRegion();
+	}
 
-    @Optional
-    @Input
-    public String getZone() {
-        return getExtension().getZone();
-    }
+	@Optional
+	@Input
+	public String getZone() {
+		return getExtension().getZone();
+	}
 
-    @Optional
-    @Input
-    public String getGkeProject() {
-        return getExtension().getProject();
-    }
+	@Optional
+	@Input
+	public String getGkeProject() {
+		return getExtension().getProject();
+	}
 
-    @Input
-    public String getClusterName() {
-        return getExtension().getGke().getClusterName();
-    }
+	@Input
+	public String getClusterName() {
+		return getExtension().getGke().getClusterName();
+	}
 
-    @OutputFile
-    public File getConfigFile() {
-        Cli cli = getExtension().getCli();
-        return cli.getHome(".kube/config");
-    }
+	@OutputFile
+	public File getConfigFile() {
+		Cli cli = getExtension().getCli();
+		return cli.getHome(".kube/config");
+	}
 
-    @TaskAction
-    public void run() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("gcloud container clusters get-credentials ");
-        builder.append(getClusterName());
+	@TaskAction
+	public void run() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("gcloud container clusters get-credentials ");
+		builder.append(getClusterName());
 
-        String region = getRegion();
-        if (region != null) {
-            builder.append(" --region=");
-            builder.append(region);
-        }
+		String region = getRegion();
+		String zone = getZone();
+		if (zone != null) {
+			builder.append(" --zone=");
+			builder.append(zone);
+		} else if (region != null) {
+			builder.append(" --region=");
+			builder.append(region);
+		}
 
-        String zone = getZone();
-        if (zone != null) {
-            builder.append(" --zone=");
-            builder.append(zone);
-        }
-
-        GCloudExecSpec execSpec = new GCloudExecSpec();
-        execSpec.setCommandLine(builder.toString());
-        getExtension().exec(execSpec);
-    }
+		GCloudExecSpec execSpec = new GCloudExecSpec();
+		execSpec.setCommandLine(builder.toString());
+		getExtension().exec(execSpec);
+	}
 }

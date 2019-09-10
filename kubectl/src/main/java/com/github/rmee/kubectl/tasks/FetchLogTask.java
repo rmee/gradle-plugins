@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class FetchLogTask extends DefaultTask {
 
-	private Supplier<String> namespace;
+	private Supplier<String> namespaceSupplier;
 
 	public FetchLogTask() {
 		setDescription("fetches all logs from all pods collected within the last 5 minutes");
@@ -24,21 +24,23 @@ public class FetchLogTask extends DefaultTask {
 
 	@Input
 	public String getNamespace() {
-		return namespace.get();
+		return namespaceSupplier.get();
 	}
 
 	public void setNamespace(String namespace) {
-		this.namespace = () -> namespace;
+		this.namespaceSupplier = () -> namespace;
 	}
 
 	public void setNamespace(Supplier<String> namespace) {
-		this.namespace = namespace;
+		this.namespaceSupplier = namespace;
 	}
 
 	@TaskAction
 	public void run() throws IOException {
 		Project project = getProject();
 		KubectlExtension extension = project.getExtensions().getByType(KubectlExtension.class);
+
+		String namespace = namespaceSupplier.get();
 
 		KubectlExecSpec execSpec = new KubectlExecSpec();
 		execSpec.setCommandLine(String.format("kubectl get deployment,statefulset -o name --namespace=%s", namespace));

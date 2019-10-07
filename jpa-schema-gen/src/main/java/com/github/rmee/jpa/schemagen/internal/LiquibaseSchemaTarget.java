@@ -1,10 +1,5 @@
 package com.github.rmee.jpa.schemagen.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import com.github.rmee.jpa.schemagen.SchemaGenExtension;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
@@ -16,6 +11,11 @@ import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.DiffToChangeLog;
 import liquibase.serializer.core.xml.XMLChangeLogSerializer;
 import org.h2.jdbcx.JdbcDataSource;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class LiquibaseSchemaTarget implements SchemaTarget {
 
@@ -47,8 +47,13 @@ public class LiquibaseSchemaTarget implements SchemaTarget {
 				}
 			}
 			changeLog.print(outputFile.getAbsolutePath(), new XMLChangeLogSerializer());
-		}
-		catch (Exception e) {
+
+			if (config.getConstraintNamePrefix() != null) {
+				String sql = FileUtils.readAsString(outputFile);
+				sql = sql.replace("primaryKeyName=\"CONSTRAINT_", "primaryKeyName=\"" + config.getConstraintNamePrefix() + "CONSTRAINT_");
+				FileUtils.writeString(sql, outputFile);
+			}
+		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
 	}

@@ -2,6 +2,7 @@ package com.github.rmee.jpa.schemagen.internal;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class FileUtils {
@@ -16,11 +17,18 @@ public class FileUtils {
 	}
 
 	public static final String readAsString(File file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
-		byte[] data = new byte[(int) file.length()];
-		fis.read(data);
-		fis.close();
-		return new String(data, "UTF-8");
+		try (FileInputStream fis = new FileInputStream(file)) {
+			byte[] data = new byte[(int) file.length()];
+			fis.read(data);
+			return new String(data, "UTF-8");
+		}
+
+	}
+
+	public static final void writeString(String contents, File file) throws IOException {
+		try (FileWriter fis = new FileWriter(file)) {
+			fis.write(contents);
+		}
 
 	}
 }

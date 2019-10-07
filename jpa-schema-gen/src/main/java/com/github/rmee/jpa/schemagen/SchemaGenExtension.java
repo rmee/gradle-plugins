@@ -1,12 +1,12 @@
 package com.github.rmee.jpa.schemagen;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchemaGenExtension {
 
@@ -30,6 +30,11 @@ public class SchemaGenExtension {
 
 	private List<String> includeOnlyPackages = new ArrayList<>();
 
+	/**
+	 * prefix to add to constraints names.
+	 */
+	private String constraintNamePrefix = null;
+
 	public String getVersion() {
 		if (version == null) {
 			version = (String) project.getVersion();
@@ -38,6 +43,17 @@ public class SchemaGenExtension {
 			version = "0.0.1";
 		}
 		return version;
+	}
+
+	public String getConstraintNamePrefix() {
+		return constraintNamePrefix;
+	}
+
+	public void setConstraintNamePrefix(String constraintNamePrefix) {
+		this.constraintNamePrefix = constraintNamePrefix;
+		if (target != SchemaTargetType.LIQUIBASE) {
+			throw new IllegalStateException("constraintNamePrefix only implemented for Liquibase yet");
+		}
 	}
 
 	public void setVersion(String version) {
@@ -110,11 +126,12 @@ public class SchemaGenExtension {
 		return persistenceUnitName;
 	}
 
-    /**
-     * Filter classes listed in persistence unit by their package and only include the classes that are match one of the packages
-     * listed in this property. No filtering is done, if this list is empty or null.
-     * @return List of package prefixes
-     */
+	/**
+	 * Filter classes listed in persistence unit by their package and only include the classes that are match one of the packages
+	 * listed in this property. No filtering is done, if this list is empty or null.
+	 *
+	 * @return List of package prefixes
+	 */
 	List<String> getIncludeOnlyPackages() {
 		return includeOnlyPackages;
 	}

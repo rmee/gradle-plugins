@@ -62,6 +62,8 @@ jpaSchemaGen {
 	configuration = 'runtime'
 	target = 'LIQUIBASE'
 	version = project.version
+	forked = false
+	constraintNamePrefix = "DEMO_"
 	liquibase{
 		user = 'john' // USER and USERNAME from environment used as default
 	 	fileName = 'liquibase-changelog.xml' 

@@ -1,25 +1,16 @@
 package com.github.rmee.jpa.schemagen;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import com.github.rmee.jpa.schemagen.internal.FileUtils;
-import com.github.rmee.jpa.schemagen.internal.FilteredPersistenceUnit;
-import com.github.rmee.jpa.schemagen.internal.SchemaTarget;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.github.rmee.jpa.schemagen.internal.SchemaGenerator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.LogLevel;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
@@ -28,6 +19,17 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class GenerateSchemaTask extends DefaultTask {
@@ -57,15 +59,15 @@ public class GenerateSchemaTask extends DefaultTask {
 		this.classes = classes;
 	}
 
-    @OutputDirectory
-    public File getOutputDirectory() {
-        Project project = getProject();
-        SchemaGenExtension config = getConfig();
-        if (config.isContinuousMode()) {
-            return new File(project.getBuildDir(), "generated/source/schema/main/");
-        }
-        return new File(project.getProjectDir(), "src/main/resources");
-    }
+	@OutputDirectory
+	public File getOutputDirectory() {
+		Project project = getProject();
+		SchemaGenExtension config = getConfig();
+		if (config.isContinuousMode()) {
+			return new File(project.getBuildDir(), "generated/source/schema/main/");
+		}
+		return new File(project.getProjectDir(), "src/main/resources");
+	}
 
 	@InputFiles
 	Configuration getDependencies() {
@@ -86,112 +88,38 @@ public class GenerateSchemaTask extends DefaultTask {
 		processSchemaRelatedResources();
 
 		try {
-			File tempFile = File.createTempFile("ddl", ".sql");
-			try (URLClassLoader classloader = getProjectClassLoader(contextClassLoader)) {
-				Properties persistenceProperties = new Properties();
-				if (config.getDialect() != null) {
-					persistenceProperties.setProperty("hibernate.dialect", config.getDialect());
-				}
-				persistenceProperties.setProperty("hibernate.hbm2ddl.delimiter", ";");
-				persistenceProperties.setProperty("hibernate.format_sql", "true");
-				persistenceProperties.setProperty("hibernate.hbm2ddl.auto", "none");
-				persistenceProperties.setProperty("javax.persistence.schema-generation.scripts.action", "create");
-				persistenceProperties
-						.setProperty("javax.persistence.schema-generation.scripts.create-target", tempFile.getAbsolutePath());
+			if (config.isForked()) {
+				File buildDir = getProject().getBuildDir();
+				buildDir.mkdirs();
+				try (FileOutputStream out = new FileOutputStream(new File(buildDir, "schema-gen.log"))) {
 
-				// execution in a separate thread as Hibernate searches the thread context classloader
-				Thread generator = new Thread(() -> {
-					URL resourceUrl = classloader.getResource("META-INF/persistence.xml");
-					if (resourceUrl == null) {
-						throw new IllegalStateException("META-INF/persistence.xml not found on " + config.getConfiguration() +
-								" classpath: " + getProjectClassPathEntries());
-					}
-
-					try {
-						if(config.getIncludeOnlyPackages() == null || config.getIncludeOnlyPackages().isEmpty()) {
-							Class<?> persistenceClass = classloader.loadClass("javax.persistence.Persistence");
-							generateDirect(persistenceProperties, persistenceClass);
-						} else {
-							// Only use this implementation if filtering is required
-							generateViaPersistenceInfo(classloader, persistenceProperties, resourceUrl);
+					Project project = getProject();
+					project.javaexec(javaExecSpec -> {
+						ObjectMapper mapper = new ObjectMapper();
+						ObjectWriter writer = mapper.writerFor(SchemaGenConfig.class);
+						String json;
+						try {
+							json = writer.writeValueAsString(config);
+						} catch (JsonProcessingException e) {
+							throw new IllegalStateException(e);
 						}
-					}
-					catch (Exception e) {
-						throw new IllegalStateException(e);
-					}
+						javaExecSpec.setClasspath(project.files(getClassPathEntries()));
+						javaExecSpec.setMain("com.github.rmee.jpa.schemagen.internal.SchemaGenerator");
+						javaExecSpec.args(getOutputDirectory().getAbsoluteFile(), Base64.getEncoder().encodeToString(json.getBytes()));
 
-					SchemaTargetType target = config.getTarget();
-					SchemaTarget schemaTarget;
-					if (target == SchemaTargetType.FLYWAY) {
-						schemaTarget = newInstance("com.github.rmee.jpa.schemagen.internal.FlywaySchemaTarget");
-					}
-					else {
-						schemaTarget = newInstance("com.github.rmee.jpa.schemagen.internal.LiquibaseSchemaTarget");
-					}
-					schemaTarget.process(tempFile, getOutputDirectory(), config);
-				});
-				generator.setContextClassLoader(classloader);
-				generator.start();
-				generator.join();
+						javaExecSpec.setStandardOutput(out);
+						javaExecSpec.setErrorOutput(out);
+					});
+				}
+			} else {
+				try (URLClassLoader classloader = getProjectClassLoader(contextClassLoader)) {
+					SchemaGenerator gen = new SchemaGenerator();
+					gen.run(config, classloader, getOutputDirectory());
+				}
 			}
-
-			FileUtils.delete(tempFile);
-		}
-		catch (Exception e) {
-			throw new IllegalStateException("failed to generate DDLs", e);
-		}
-	}
-
-	/**
-	 * <p>An alternate implementation of {@link #generateDirect(Properties, Class)}, which can filter the classes listed on the
-	 * persistence.xml.</p>
-	 * <p>The implementation is a bit of a hack and definitely more fragile than the direct implementation. If the filtering
-	 * feature is not required, it is recommended to rely on the direct implementation.</p>
-	 * @param classLoader The class loader of the project.
-	 * @param persistenceProperties properties for instantiating the persistence unit
-	 * @param resourceUrl The URL of the persistence.xml to generate the schema from
-	 * @throws Exception if a checked exception gets thrown
-	 */
-	private void generateViaPersistenceInfo(URLClassLoader classLoader,
-			Properties persistenceProperties, URL resourceUrl)
-			throws Exception {
-		SchemaGenExtension config = getConfig();
-		Class<?> persistenceProviderClass = classLoader.loadClass("javax.persistence.spi.PersistenceProvider");
-
-		Class<?> holderClass = classLoader.loadClass("javax.persistence.spi.PersistenceProviderResolverHolder");
-		Method getPersistenceProviderResolver = holderClass.getDeclaredMethod("getPersistenceProviderResolver");
-		Object resolver = getPersistenceProviderResolver.invoke(null);
-		Class<?> resolverClass = classLoader.loadClass("javax.persistence.spi.PersistenceProviderResolver");
-		Method getPersistenceProviders = resolverClass.getDeclaredMethod("getPersistenceProviders");
-		List<?> providers = (List<?>) getPersistenceProviders.invoke(resolver);
-		if(providers.isEmpty()){
-			throw new IllegalStateException("No persistence provider available in the classpath of the project. "
-					+ "Cannot generate the schema.");
-		}
-
-		Object provider = providers.get(0);
-		Class<?> persistenceUnitInfoClass = classLoader.loadClass("javax.persistence.spi.PersistenceUnitInfo");
-
-		Object persistenceUnitInfo = FilteredPersistenceUnit.fromXmlPersistenceUnit(classLoader, resourceUrl,
-				config.getIncludeOnlyPackages(), config.getPersistenceUnitName());
-		Method generateSchemaFromUnit =
-				persistenceProviderClass.getDeclaredMethod("generateSchema", persistenceUnitInfoClass, Map.class);
-		generateSchemaFromUnit.invoke(provider, persistenceUnitInfo, persistenceProperties);
-	}
-
-	private void generateDirect(Properties persistenceProperties, Class<?> persistenceClass) throws Exception {
-		SchemaGenExtension config = getConfig();
-		String methodName = "generateSchema"; //NOSONAR NAME global variable refers to task name
-		Method generateSchema = persistenceClass.getMethod(methodName, String.class, Map.class);
-		generateSchema.invoke(persistenceClass, config.getPersistenceUnitName(), persistenceProperties);
-	}
-
-	private SchemaTarget newInstance(String name) {
-		try {
-			return (SchemaTarget) Class.forName(name).newInstance();
-		}
-		catch (Exception e) {
-			throw new IllegalStateException(e);
+		} catch (Exception e) {
+			Throwable cause = e.getCause();
+			throw new IllegalStateException("failed to generate DDLs: " + e.getMessage() + (cause != null ? ". Caused by " + cause.getMessage() : "") + ". Further information may can be found in build/schema-gen.log.", e);
 		}
 	}
 
@@ -218,8 +146,7 @@ public class GenerateSchemaTask extends DefaultTask {
 
 		if (optional && inputResourceFile == null) {
 			throw new IllegalStateException("no " + name + " found in " + resources.getSrcDirs());
-		}
-		else if (inputResourceFile != null && hasChanged(inputResourceFile, outputResourceFile)) {
+		} else if (inputResourceFile != null && hasChanged(inputResourceFile, outputResourceFile)) {
 			outputResourceFile.getParentFile().mkdirs();
 			Project project = getProject();
 			project.copy(copySpec -> {
@@ -241,8 +168,7 @@ public class GenerateSchemaTask extends DefaultTask {
 			boolean exists = candidateFile.exists();
 			if (exists && inputResourceFile == null) {
 				inputResourceFile = candidateFile;
-			}
-			else if (exists) {
+			} else if (exists) {
 				throw new IllegalStateException(
 						"duplicate " + name + ": " + candidateFile.getAbsolutePath() + " vs " + inputResourceFile
 								.getAbsolutePath());
@@ -263,17 +189,41 @@ public class GenerateSchemaTask extends DefaultTask {
 		return sourceSets.getByName("main");
 	}
 
-	private Set<File> getProjectClassPathEntries() {
+	@Input
+	public Set<File> getProjectClassPathEntries() {
 		Set<File> classpath = new HashSet<>();
 		classpath.addAll(getClasses().getFiles());
+		classpath.addAll(getGradleEntries());
 		classpath.addAll(getMainSourceSet().getResources().getSrcDirs());
 		return classpath;
+	}
+
+	private Set<File> getGradleEntries() {
+		Set<File> classpath = new HashSet<>();
+		URLClassLoader classLoader = (URLClassLoader) getClass().getClassLoader();
+		for (URL gradleClassUrl : classLoader.getURLs()) {
+			String file = gradleClassUrl.getFile();
+			if (file.contains("jpa-schema-gen") || file.contains("jackson")) {
+				classpath.add(toFile(gradleClassUrl));
+			}
+		}
+		return classpath;
+	}
+
+
+	private File toFile(URL url) {
+		try {
+			return Paths.get(url.toURI()).toFile();
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private Set<File> getClassPathEntries() {
 		Set<File> classpath = new HashSet<>();
 		classpath.addAll(getDependencies().getFiles());
 		classpath.addAll(getProjectClassPathEntries());
+		classpath.addAll(getGradleEntries());
 		LOGGER.debug("schemaGen classpath: {}", classpath);
 		return classpath;
 	}
@@ -288,8 +238,7 @@ public class GenerateSchemaTask extends DefaultTask {
 		URL[] classURLs = classFiles.stream().map(it -> {
 			try {
 				return it.toURI().toURL();
-			}
-			catch (MalformedURLException e) {
+			} catch (MalformedURLException e) {
 				throw new IllegalStateException();
 			}
 		}).toArray(URL[]::new);

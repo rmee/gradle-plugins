@@ -1,6 +1,6 @@
 package com.github.rmee.jpa.schemagen.internal;
 
-import com.github.rmee.jpa.schemagen.SchemaGenExtension;
+import com.github.rmee.jpa.schemagen.SchemaGenConfig;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -20,7 +20,7 @@ import java.sql.SQLException;
 public class LiquibaseSchemaTarget implements SchemaTarget {
 
 	@Override
-	public void process(File generatedFile, File outputDirectory, SchemaGenExtension config) {
+	public void process(File generatedFile, File outputDirectory, SchemaGenConfig config) {
 		try (Connection connection = setupDataSource(generatedFile); Connection emptyConnection = setupEmptySource()) {
 			DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
 			Database database = databaseFactory.findCorrectDatabaseImplementation(new JdbcConnection(connection));

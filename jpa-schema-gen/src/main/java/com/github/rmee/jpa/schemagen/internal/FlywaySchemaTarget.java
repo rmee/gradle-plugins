@@ -1,5 +1,7 @@
 package com.github.rmee.jpa.schemagen.internal;
 
+import com.github.rmee.jpa.schemagen.SchemaGenConfig;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -8,12 +10,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.rmee.jpa.schemagen.SchemaGenExtension;
-
 public class FlywaySchemaTarget implements SchemaTarget {
 
 	@Override
-	public void process(File generatedFile, File outputDirectory, SchemaGenExtension config) {
+	public void process(File generatedFile, File outputDirectory, SchemaGenConfig config) {
 		// split the single hibernate generated files into multiple, properly formatted ones
 
 		String version = config.getVersion();

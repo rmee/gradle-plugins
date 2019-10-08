@@ -13,6 +13,8 @@ dependencies {
 
 	compile "com.h2database:h2:${versions['h2.version']}"
 	compile "org.liquibase:liquibase-core:${liquibaseVersion}"
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
+
 	implementation "org.hibernate:hibernate-core:${hibernateVersion}"
 
 	compileOnly "org.liquibase:liquibase-core:${liquibaseVersion}"

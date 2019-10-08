@@ -19,10 +19,10 @@ import java.util.List;
 public class SchemaGenerationPluginTest {
 
 	public static final String FLYWAY_ACTUAL_SCRIPT =
-			"build/generated/source/schema/main/example/current/v0.0.1.200__create_tables.sql";
+			"build/resources/main/example/current/v0.0.1.200__create_tables.sql";
 
 	public static final String LIQUIBASE_ACTUAL_CHANGELOG =
-			"build/generated/source/schema/main/example/liquibase-changelog.xml";
+			"build/resources/main/example/liquibase-changelog.xml";
 
 	public TemporaryFolder testFolder;
 

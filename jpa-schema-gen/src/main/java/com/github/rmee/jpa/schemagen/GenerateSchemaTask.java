@@ -9,7 +9,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.logging.LogLevel;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
@@ -43,8 +42,7 @@ public class GenerateSchemaTask extends DefaultTask {
 	public static final String NAME = "generateSchema";
 
 	public GenerateSchemaTask() {
-		//
-		getLogging().setLevel(LogLevel.QUIET);
+		// crashes gradle with NPE: getLogging().setLevel(LogLevel.QUIET);
 		setGroup("generation");
 		setDescription("generate DDLs from entities with Hibernate");
 	}

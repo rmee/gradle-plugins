@@ -70,6 +70,8 @@ public final class Cli {
 
 	private String workingDir;
 
+	private boolean appendBinaryName = true;
+
 	public Cli(ClientExtensionBase extension, String binName, CliDownloadStrategy downloadStrategy) {
 		this.binName = binName;
 		this.downloadStrategy = downloadStrategy;
@@ -78,6 +80,20 @@ public final class Cli {
 		environment.put("HOME", "/workdir/build/home");
 
 		dockerEnvironment.putAll(System.getenv());
+	}
+
+	public boolean isAppendBinaryName() {
+		return appendBinaryName;
+	}
+
+	/**
+	 * Official Terraform Docker image does not allow to pass &quot;terraform&quot; as binary name to the image.
+	 * Other images do. This flag allows to choose what to do.
+	 *
+	 * @param appendBinaryName
+	 */
+	public void setAppendBinaryName(boolean appendBinaryName) {
+		this.appendBinaryName = appendBinaryName;
 	}
 
 	public String getWorkingDir() {
@@ -330,6 +346,7 @@ public final class Cli {
 	}
 
 	public void configureExec(ExecSpec execSpec, CliExecSpec cliExecSpec) {
+
 		execSpec.setIgnoreExitValue(cliExecSpec.isIgnoreExitValue());
 
 		List<String> args = cliExecSpec.getCommandLine();
@@ -373,6 +390,13 @@ public final class Cli {
 			}
 
 			commandLine.add(imageName + ":" + version);
+
+			if (appendBinaryName && !args.get(0).equals(binName)) {
+				args.add(0, binName);
+			} else if (!appendBinaryName && commandLine.get(0).equals(binName)) {
+				args.remove(0);
+			}
+
 
 			for (String arg : args) {
 				commandLine.add(mapArg(arg));

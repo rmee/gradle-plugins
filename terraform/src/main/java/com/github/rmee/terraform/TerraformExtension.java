@@ -38,6 +38,7 @@ public class TerraformExtension extends ClientExtensionBase {
 			}
 		};
 		cli = new Cli(this, "terraform", downloadStratey);
+		cli.setAppendBinaryName(false); // official docker image does not allow it
 	}
 
 	public void init() {
@@ -63,8 +64,7 @@ public class TerraformExtension extends ClientExtensionBase {
 				List<String> commandLine = duplicate.getCommandLine();
 
 				if (debug) {
-					commandLine.add("-e");
-					commandLine.add("TF_LOG=DEBUG");
+					cli.getDockerEnvironment().put("TF_LOG", "DEBUG");
 				}
 
 				if (spec.getOutputFormat() != OutputFormat.CONSOLE) {

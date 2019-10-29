@@ -4,29 +4,29 @@ import com.github.rmee.cli.base.CliExecSpec;
 
 public class TerraformExecSpec extends CliExecSpec<TerraformExecSpec> {
 
-    private boolean addConfigDirectory = true;
+	private boolean addConfigDirectory = true;
 
-    private boolean addVariables = true;
+	private boolean addVariables = true;
 
-    protected boolean getAddConfigDirectory() {
-        return addConfigDirectory;
-    }
+	public boolean getAddConfigDirectory() {
+		return addConfigDirectory;
+	}
 
-    protected void setAddConfigDirectory(boolean addConfigDirectory) {
-        this.addConfigDirectory = addConfigDirectory;
-    }
+	public void setAddConfigDirectory(boolean addConfigDirectory) {
+		this.addConfigDirectory = addConfigDirectory;
+	}
 
-    protected boolean getAddVariables() {
-        return addVariables;
-    }
+	public boolean getAddVariables() {
+		return addVariables;
+	}
 
-    protected void setAddVariables(boolean addVariables) {
-        this.addVariables = addVariables;
-    }
+	public void setAddVariables(boolean addVariables) {
+		this.addVariables = addVariables;
+	}
 
-    @Override
-    protected void duplicate(TerraformExecSpec duplicate) {
-        duplicate.addConfigDirectory = addConfigDirectory;
-        duplicate.addVariables = addVariables;
-    }
+	@Override
+	public void duplicate(TerraformExecSpec duplicate) {
+		duplicate.addConfigDirectory = addConfigDirectory;
+		duplicate.addVariables = addVariables;
+	}
 }

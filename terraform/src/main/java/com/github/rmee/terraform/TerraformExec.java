@@ -25,4 +25,12 @@ public class TerraformExec extends ClientExecBase {
 	protected TerraformExecSpec retrieveSpec() {
 		return spec;
 	}
+
+	public boolean getAddVariables() {
+		return spec.getAddVariables();
+	}
+
+	public void setAddVariables(boolean addVariables) {
+		this.spec.setAddVariables(addVariables);
+	}
 }

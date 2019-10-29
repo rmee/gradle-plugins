@@ -18,6 +18,8 @@ public class TerraformPlugin implements Plugin<Project> {
 		extension.setSourceDir(configDir);
 		extension.getCli().setImageName("hashicorp/terraform");
 		extension.getCli().setVersion("0.11.7");
+
+		// terraform needs to have its files in the local working directory
 		extension.getCli().setWorkingDir("/workdir/src/main/terraform");
 
 		TerraformInitTask initTask = project.getTasks().create("terraformInit", TerraformInitTask.class);

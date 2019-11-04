@@ -10,7 +10,9 @@ import java.util.function.Supplier;
 
 public class CliExecSpec<T extends CliExecSpec> {
 
-	private Supplier<List<String>> commandLine;
+	private Supplier<List<String>> commandLineSupplier;
+
+	private List<String> commandLine;
 
 	private boolean ignoreExitValue = false;
 
@@ -56,24 +58,27 @@ public class CliExecSpec<T extends CliExecSpec> {
 	}
 
 	public List<String> getCommandLine() {
-		return commandLine.get();
+		if (commandLine == null && commandLineSupplier != null) {
+			commandLine = commandLineSupplier.get();
+		}
+		return commandLine;
 	}
 
 	public void setCommandLine(String commandLine) {
-		this.commandLine = () -> Arrays.asList(commandLine.split("\\s+"));
+		this.commandLine = new ArrayList<>(Arrays.asList(commandLine.split("\\s+")));
 	}
 
 	public void setCommandLine(Supplier<String> commandLine) {
-		this.commandLine = () -> Arrays.asList(commandLine.get().split("\\s+"));
+		this.commandLineSupplier = () -> new ArrayList<>(Arrays.asList(commandLine.get().split("\\s+")));
 	}
 
 	public void setCommandLine(List<String> commandLine) {
-		this.commandLine = () -> commandLine;
+		this.commandLine = commandLine;
 	}
 
 	public final T duplicate() {
 		CliExecSpec duplicate = newSpec();
-		duplicate.commandLine = commandLine != null ? () -> new ArrayList(commandLine.get()) : null;
+		duplicate.commandLine = getCommandLine();
 		duplicate.outputFormat = outputFormat;
 		duplicate.ignoreExitValue = ignoreExitValue;
 		duplicate.volumesFrom = volumesFrom;

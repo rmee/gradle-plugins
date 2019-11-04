@@ -94,14 +94,14 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 		List<String> commandLine = spec.getCommandLine();
 		int pipeIndex = commandLine.indexOf("|");
 		if (pipeIndex == -1) {
+			if (spec.getOutputFormat() == OutputFormat.JSON) {
+				commandLine.add("--output=json");
+			}
+
 			if (!commandLine.contains("token") && !commandLine.contains("pass")) {
 				project.getLogger().warn("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
 			} else {
 				project.getLogger().debug("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
-			}
-
-			if (spec.getOutputFormat() == OutputFormat.JSON) {
-				commandLine.add("--output=json");
 			}
 
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

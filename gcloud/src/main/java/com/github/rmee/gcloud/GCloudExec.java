@@ -1,10 +1,10 @@
 package com.github.rmee.gcloud;
 
 import com.github.rmee.cli.base.CliExecSpec;
-import com.github.rmee.cli.base.internal.ClientExecBase;
+import com.github.rmee.cli.base.internal.CliExecBase;
 import org.gradle.api.tasks.TaskAction;
 
-public class GCloudExec extends ClientExecBase {
+public class GCloudExec extends CliExecBase {
 
 	private GCloudExecSpec spec = new GCloudExecSpec();
 

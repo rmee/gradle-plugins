@@ -70,14 +70,16 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 
 	public String getToken(String serviceAccount) {
 		KubectlExecSpec spec = new KubectlExecSpec();
-		spec.setCommandLine(cli.getBinName() + " describe serviceaccount " + serviceAccount);
+		spec.setCommandLine(getBinName() + " describe serviceaccount " + serviceAccount);
 		ExecResult result = exec(spec);
 		String tokenName = result.getProperty("tokens");
 
-		spec.setCommandLine(cli.getBinName() + " describe secret " + tokenName);
+		spec.setCommandLine(getBinName() + " describe secret " + tokenName);
 		result = exec(spec);
 		return result.getProperty("token");
 	}
+
+	protected abstract String getBinName();
 
 	public ExecResult exec(String command) {
 		KubectlExecSpec spec = new KubectlExecSpec();

@@ -1,11 +1,11 @@
 package com.github.rmee.helm;
 
 import com.github.rmee.cli.base.CliExecSpec;
-import com.github.rmee.cli.base.internal.ClientExecBase;
+import com.github.rmee.cli.base.internal.CliExecBase;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
-public class HelmExec extends ClientExecBase {
+public class HelmExec extends CliExecBase {
 
 	private HelmExecSpec spec = new HelmExecSpec();
 

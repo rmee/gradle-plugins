@@ -11,89 +11,94 @@ import org.gradle.internal.os.OperatingSystem;
 
 public class OcExtension extends KubectlExtensionBase {
 
-    @Override
-    protected Cli createClient() {
-        CliDownloadStrategy downloadStrategy = new CliDownloadStrategy() {
+	@Override
+	protected Cli createClient() {
+		CliDownloadStrategy downloadStrategy = new CliDownloadStrategy() {
 
-            @Override
-            public String computeDownloadFileName(Cli cli) {
-                OperatingSystem operatingSystem = cli.getOperatingSystem();
+			@Override
+			public String computeDownloadFileName(Cli cli) {
+				OperatingSystem operatingSystem = cli.getOperatingSystem();
 
-                String downloadFileName = "openshift-origin-client-tools-v" + cli.getVersion();
-                if (operatingSystem.isLinux()) {
-                    return downloadFileName + "-linux-64bit.tar.gz";
-                } else if (operatingSystem.isWindows()) {
-                    return downloadFileName + "-windows.zip";
-                } else if (operatingSystem.isMacOsX()) {
-                    return downloadFileName + "-mac.zip";
-                } else {
-                    throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
-                }
-            }
+				String downloadFileName = "openshift-origin-client-tools-v" + cli.getVersion();
+				if (operatingSystem.isLinux()) {
+					return downloadFileName + "-linux-64bit.tar.gz";
+				} else if (operatingSystem.isWindows()) {
+					return downloadFileName + "-windows.zip";
+				} else if (operatingSystem.isMacOsX()) {
+					return downloadFileName + "-mac.zip";
+				} else {
+					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
+				}
+			}
 
-            @Override
-            public String computeDownloadUrl(Cli cli, String repository, String downloadFileName) {
-                String downloadUrl = repository;
-                if (!downloadUrl.endsWith("/")) {
-                    downloadUrl += "/";
-                }
+			@Override
+			public String computeDownloadUrl(Cli cli, String repository, String downloadFileName) {
+				String downloadUrl = repository;
+				if (!downloadUrl.endsWith("/")) {
+					downloadUrl += "/";
+				}
 
-                String version = cli.getVersion();
-                int sep = version.indexOf("-");
-                if (sep == -1) {
-                    throw new IllegalArgumentException("expected version " + version + " to be of format x.y.z-abcdefg");
-                }
-                String baseVersion = version.substring(0, sep);
-                downloadUrl += "v" + baseVersion + "/";
-                downloadUrl += downloadFileName;
-                return downloadUrl;
-            }
-        };
-        Cli cli = new Cli(this, "oc", downloadStrategy);
-        cli.setDockerized(true);
-        cli.setImageName("widerin/openshift-cli");
-        cli.setVersion("v3.11.0");
-        cli.setRepository("https://github.com/openshift/origin/releases/download/");
-        return cli;
-    }
+				String version = cli.getVersion();
+				int sep = version.indexOf("-");
+				if (sep == -1) {
+					throw new IllegalArgumentException("expected version " + version + " to be of format x.y.z-abcdefg");
+				}
+				String baseVersion = version.substring(0, sep);
+				downloadUrl += "v" + baseVersion + "/";
+				downloadUrl += downloadFileName;
+				return downloadUrl;
+			}
+		};
+		Cli cli = new Cli(this, "oc", downloadStrategy);
+		cli.setDockerized(true);
+		cli.setImageName("widerin/openshift-cli");
+		cli.setVersion("v3.11.0");
+		cli.setRepository("https://github.com/openshift/origin/releases/download/");
+		return cli;
+	}
 
-    @Override
-    protected ExecResult createResult(String output) {
-        return new OcExecResult(output);
-    }
+	@Override
+	protected String getBinName() {
+		return "oc";
+	}
 
-    protected Credentials getCredentialsWithoutInit() {
-        return credentials;
-    }
+	@Override
+	protected ExecResult createResult(String output) {
+		return new OcExecResult(output);
+	}
 
-    public String getProjectName() {
-        init();
-        return getNamespace();
-    }
+	protected Credentials getCredentialsWithoutInit() {
+		return credentials;
+	}
 
-    public void setProjectName(String projectName) {
-        setNamespace(projectName);
-    }
+	public String getProjectName() {
+		init();
+		return getNamespace();
+	}
 
-    @Override
-    public OcExecResult exec(String command) {
-        OcExecSpec spec = new OcExecSpec();
-        spec.setCommandLine(command);
-        return exec(spec);
-    }
+	public void setProjectName(String projectName) {
+		setNamespace(projectName);
+	}
 
-    public OcExecResult exec(OcExecSpec spec) {
-        return (OcExecResult) super.exec(spec);
-    }
+	@Override
+	public OcExecResult exec(String command) {
+		OcExecSpec spec = new OcExecSpec();
+		spec.setCommandLine(command);
+		return exec(spec);
+	}
 
-    @Override
-    protected void setProject(Project project) {
-        super.setProject(project);
-    }
+	public OcExecResult exec(OcExecSpec spec) {
+		return (OcExecResult) super.exec(spec);
+	}
 
-    public OcExecResult exec(Closure<OcExecSpec> closure) {
-        OcExecSpec spec = new OcExecSpec();
-        project.configure(spec, closure);
-        return exec(spec);
-    }
+	@Override
+	protected void setProject(Project project) {
+		super.setProject(project);
+	}
+
+	public OcExecResult exec(Closure<OcExecSpec> closure) {
+		OcExecSpec spec = new OcExecSpec();
+		project.configure(spec, closure);
+		return exec(spec);
+	}
 }

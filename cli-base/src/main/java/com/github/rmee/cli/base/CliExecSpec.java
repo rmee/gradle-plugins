@@ -6,10 +6,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
-public abstract class CliExecSpec<T extends CliExecSpec> {
+public class CliExecSpec<T extends CliExecSpec> {
 
-	private List<String> commandLine;
+	private Supplier<List<String>> commandLine;
 
 	private boolean ignoreExitValue = false;
 
@@ -55,20 +56,24 @@ public abstract class CliExecSpec<T extends CliExecSpec> {
 	}
 
 	public List<String> getCommandLine() {
-		return commandLine;
+		return commandLine.get();
 	}
 
 	public void setCommandLine(String commandLine) {
-		this.commandLine = Arrays.asList(commandLine.split("\\s+"));
+		this.commandLine = () -> Arrays.asList(commandLine.split("\\s+"));
+	}
+
+	public void setCommandLine(Supplier<String> commandLine) {
+		this.commandLine = () -> Arrays.asList(commandLine.get().split("\\s+"));
 	}
 
 	public void setCommandLine(List<String> commandLine) {
-		this.commandLine = commandLine;
+		this.commandLine = () -> commandLine;
 	}
 
 	public final T duplicate() {
 		CliExecSpec duplicate = newSpec();
-		duplicate.commandLine = new ArrayList(commandLine);
+		duplicate.commandLine = commandLine != null ? () -> new ArrayList(commandLine.get()) : null;
 		duplicate.outputFormat = outputFormat;
 		duplicate.ignoreExitValue = ignoreExitValue;
 		duplicate.volumesFrom = volumesFrom;

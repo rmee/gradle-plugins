@@ -1,10 +1,16 @@
 plugins {
-    id 'helm'
+	id 'helm'
 }
 version = '0.1.0'
 repositories {
-    jcenter()
+	jcenter()
 }
 
 
 apply plugin: 'helm'
+
+
+import com.github.rmee.cli.base.CliExec
+task testHelmGeneric(type: CliExec) {
+	commandLine 'helm --help'
+}

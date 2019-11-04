@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class Cli {
@@ -50,7 +52,7 @@ public final class Cli {
 
 	private String downloadFileName;
 
-	private String binName;
+	private Set<String> binNames;
 
 	private File downloadDir;
 
@@ -73,7 +75,8 @@ public final class Cli {
 	private boolean appendBinaryName = true;
 
 	public Cli(ClientExtensionBase extension, String binName, CliDownloadStrategy downloadStrategy) {
-		this.binName = binName;
+		this.binNames = new HashSet<>();
+		binNames.add(binName);
 		this.downloadStrategy = downloadStrategy;
 		this.extension = extension;
 
@@ -235,28 +238,30 @@ public final class Cli {
 				environment.putAll(System.getenv());
 			}
 
-			if (downloadDir == null && download) {
-				downloadDir = new File(project.getBuildDir(), "tmp/" + binName + "/v" + version);
-				downloadDir.mkdirs();
-			}
-			if (installDir == null) {
-				installDir = new File(project.getBuildDir(), "/kubernetes/");
-			}
-			if (operatingSystem == null) {
-				operatingSystem = org.gradle.internal.os.OperatingSystem.current();
-			}
-
-			if (binPath == null && download) {
-				// use downloaded binary
-				String binSuffix = getBinSuffix();
-				binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
-				if (downloadUrl == null && download) {
-					downloadFileName = downloadStrategy.computeDownloadFileName(this);
-					downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
+			for (String binName : binNames) {
+				if (downloadDir == null && download) {
+					downloadDir = new File(project.getBuildDir(), "tmp/" + binName + "/v" + version);
+					downloadDir.mkdirs();
 				}
-			} else if (binPath == null) {
-				// assume binary available from PATH
-				binPath = binName;
+				if (installDir == null) {
+					installDir = new File(project.getBuildDir(), "/kubernetes/");
+				}
+				if (operatingSystem == null) {
+					operatingSystem = org.gradle.internal.os.OperatingSystem.current();
+				}
+
+				if (binPath == null && download) {
+					// use downloaded binary
+					String binSuffix = getBinSuffix();
+					binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
+					if (downloadUrl == null && download) {
+						downloadFileName = downloadStrategy.computeDownloadFileName(this);
+						downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
+					}
+				} else if (binPath == null) {
+					// assume binary available from PATH
+					binPath = binName;
+				}
 			}
 		}
 	}
@@ -334,10 +339,9 @@ public final class Cli {
 		return new File(downloadDir, getDownloadFileName());
 	}
 
-	public String getBinName() {
-		return binName;
+	public Set<String> getBinNames() {
+		return binNames;
 	}
-
 
 	private void checkNotDockerized() {
 		if (dockerized) {
@@ -391,14 +395,15 @@ public final class Cli {
 
 			commandLine.add(imageName + ":" + version);
 
-			if (appendBinaryName && !args.get(0).equals(binName)) {
-				args.add(0, binName);
-			} else if (!appendBinaryName && commandLine.get(0).equals(binName)) {
-				args.remove(0);
+			List<String> dockerArgs = new ArrayList(args);
+			if (appendBinaryName && !binNames.contains(dockerArgs.get(0))) {
+				dockerArgs.add(0, binNames.iterator().next());
+			} else if (!appendBinaryName & binNames.contains(dockerArgs.get(0))) {
+				dockerArgs.remove(0);
 			}
 
 
-			for (String arg : args) {
+			for (String arg : dockerArgs) {
 				commandLine.add(mapArg(arg));
 			}
 			System.out.println("Executing: " + commandLine.stream().collect(Collectors.joining(" ")));
@@ -518,27 +523,30 @@ public final class Cli {
 			Project rootProject = project.getRootProject();
 			Task wrapper = rootProject.getTasks().getByName("wrapper");
 			wrapper.doLast(task -> {
-				StringBuilder builder = new StringBuilder();
 
-				// consider additional volume mappings in the future by calling
-				// buildBaseCommandLine(true, ...);
-				try {
-					String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
+				for(String binName : binNames) {
+					StringBuilder builder = new StringBuilder();
 
-					bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + version);
-					bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", mustIncludeBinary ? binName : "");
-					bootstrapSnipped = bootstrapSnipped.replace("\r", "");
+					// consider additional volume mappings in the future by calling
+					// buildBaseCommandLine(true, ...);
+					try {
+						String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
 
-					builder.append(bootstrapSnipped);
-				} catch (IOException e) {
-					throw new IllegalStateException("failed to find wrapper template", e);
-				}
+						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + version);
+						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", mustIncludeBinary ? binName : "");
+						bootstrapSnipped = bootstrapSnipped.replace("\r", "");
 
-				File file = new File(project.getProjectDir(), binName);
-				try (FileWriter writer = new FileWriter(file)) {
-					writer.write(builder.toString());
-				} catch (IOException e) {
-					throw new IllegalStateException(e);
+						builder.append(bootstrapSnipped);
+					} catch (IOException e) {
+						throw new IllegalStateException("failed to find wrapper template", e);
+					}
+
+					File file = new File(project.getProjectDir(), binName);
+					try (FileWriter writer = new FileWriter(file)) {
+						writer.write(builder.toString());
+					} catch (IOException e) {
+						throw new IllegalStateException(e);
+					}
 				}
 			});
 		}

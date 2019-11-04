@@ -1,6 +1,7 @@
 package com.github.rmee.helm;
 
 import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.CliExecExtension;
 import com.github.rmee.cli.base.CliExecPlugin;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
@@ -35,6 +36,9 @@ public class HelmPlugin implements Plugin<Project> {
 
         helmPackages.setGroup("kubernetes");
         helmInit.dependsOn(helmBootstrap);
+
+		CliExecExtension cliExec = project.getExtensions().getByType(CliExecExtension.class);
+		cliExec.register("helm", extension.getCli());
 
         Set<String> packageNames = extension.getPackageNames();
         for (String packageName : packageNames) {

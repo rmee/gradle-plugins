@@ -1,16 +1,12 @@
 package com.github.rmee.az;
 
 import com.github.rmee.cli.base.CliExecSpec;
-import com.github.rmee.cli.base.internal.ClientExecBase;
+import com.github.rmee.cli.base.internal.CliExecBase;
 import org.gradle.api.tasks.TaskAction;
 
-public class AzExec extends ClientExecBase {
+public class AzExec extends CliExecBase {
 
 	private AzExecSpec spec = new AzExecSpec();
-
-	public AzExec() {
-		setGroup("provision");
-	}
 
 	@TaskAction
 	public void run() {

@@ -1,14 +1,13 @@
 package com.github.rmee.cli.base.internal;
 
 import com.github.rmee.cli.base.CliExecSpec;
-import groovy.lang.Closure;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 
 import java.io.File;
 import java.util.List;
 
-public abstract class ClientExecBase extends DefaultTask {
+public abstract class CliExecBase extends DefaultTask {
 
 	@Input
 	public boolean isIgnoreExitValue() {
@@ -28,9 +27,6 @@ public abstract class ClientExecBase extends DefaultTask {
 
 	public void commandLine(String commandLine) {
 		retrieveSpec().setCommandLine(commandLine);
-	}
-
-	public void commandLine(Closure closure) {
 	}
 
 	public void commandLine(List<String> commandLine) {

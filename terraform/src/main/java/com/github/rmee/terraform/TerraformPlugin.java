@@ -1,6 +1,7 @@
 package com.github.rmee.terraform;
 
 import com.github.rmee.cli.base.Cli;
+import com.github.rmee.cli.base.CliExecExtension;
 import com.github.rmee.cli.base.CliExecPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -34,6 +35,9 @@ public class TerraformPlugin implements Plugin<Project> {
 		planTask.dependsOn(validateTask);
 		applyTask.dependsOn(planTask);
 		destroyTask.dependsOn(planTask);
+
+		CliExecExtension cliExec = project.getExtensions().getByType(CliExecExtension.class);
+		cliExec.register("terraform", extension.getCli());
 
 		project.afterEvaluate(project1 -> {
 			Cli cli = extension.getCli();

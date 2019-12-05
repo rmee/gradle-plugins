@@ -29,7 +29,7 @@ public class HelmInit extends DefaultTask {
     @TaskAction
     public void exec() {
         if (commandLine == null) {
-            commandLine = "helm init --client-only";
+            commandLine = "helm init";
             if (skipRefresh) {
                 commandLine += " --skip-refresh";
             }

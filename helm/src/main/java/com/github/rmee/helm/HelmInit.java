@@ -14,6 +14,8 @@ public class HelmInit extends DefaultTask {
     private boolean skipRefresh;
 
     private String commandLine;
+	
+	private boolean helm3;
 
     public HelmInit() {
         setGroup("kubernetes");
@@ -28,11 +30,14 @@ public class HelmInit extends DefaultTask {
 
     @TaskAction
     public void exec() {
-        if (commandLine == null) {
+		if (commandLine == null) {
             commandLine = "helm init";
-            if (skipRefresh) {
-                commandLine += " --skip-refresh";
-            }
+            if(!helm3) {
+            	commandLine += " --client-only";
+				if (skipRefresh) {
+					commandLine += " --skip-refresh";
+				}
+			}
         }
         HelmExtension extension = getProject().getExtensions().getByType(HelmExtension.class);
         HelmExecSpec spec = new HelmExecSpec();
@@ -55,4 +60,12 @@ public class HelmInit extends DefaultTask {
     public void setSkipRefresh(boolean skipRefresh) {
         this.skipRefresh = skipRefresh;
     }
+	
+	public boolean isHelm3() {
+		return helm3;
+	}
+
+	public void setHelm3(boolean helm3) {
+		this.helm3 = helm3;
+	}
 }

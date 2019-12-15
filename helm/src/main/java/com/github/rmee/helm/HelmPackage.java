@@ -3,23 +3,28 @@ package com.github.rmee.helm;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskDependency;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class HelmPackage extends DefaultTask {
+public class HelmPackage extends DefaultTask implements PublishArtifact {
 
 	private String packageName;
 
@@ -146,5 +151,37 @@ public class HelmPackage extends DefaultTask {
 
 	public void setValues(Map<String, Object> values) {
 		this.values = values;
+	}
+
+	@Override
+	public String getExtension() {
+		return "tgz";
+	}
+
+	@Override
+	public String getType() {
+		return "tgz";
+	}
+
+	@Nullable
+	@Override
+	public String getClassifier() {
+		return "helmPackage";
+	}
+
+	@Override
+	public File getFile() {
+		return getOutputFile();
+	}
+
+	@Nullable
+	@Override
+	public Date getDate() {
+		return new Date(getOutputFile().lastModified());
+	}
+
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return task -> new HashSet<>(Arrays.asList(this));
 	}
 }

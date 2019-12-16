@@ -427,6 +427,7 @@ public final class Cli {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
+		execSpec.setErrorOutput(System.out);
 
 	}
 

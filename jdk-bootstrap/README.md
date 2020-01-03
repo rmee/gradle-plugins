@@ -32,13 +32,13 @@ No new tasks are available. The plugin rather integrates with the default Gradle
 
 Get the download URL of the desired JDK. For this purpose go to http://jdk.java.net/10/
 and get one of the download links that may look like:
- 
+
 ```
 https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_windows-x64_bin.tar.gz
 https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_osx-x64_bin.tar.gz
-https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_linux-x64_bin.tar.gz 
+https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_linux-x64_bin.tar.gz
 ```
- 
+
 The setup the plugin accordingly:
 
 ```
@@ -59,6 +59,24 @@ Or just make use a built-in default to download a JDK from https://github.com/Ad
 apply plugin: 'jdk-bootstrap'
 jdk {
 	useAdoptOpenJdk8('jdk8u202-b08')
+}
+```
+
+or
+
+```
+apply plugin: 'jdk-bootstrap'
+jdk {
+    useAdoptOpenJdk11('11.0.5+10')
+}
+```
+
+or
+
+```
+apply plugin: 'jdk-bootstrap'
+jdk {
+    useAdoptOpenJdk13('13.0.1+9')
 }
 ```
 

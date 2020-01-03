@@ -24,6 +24,21 @@ public class JdkBootstrapExtension {
 		this.version = version;
 	}
 
+	public void useAdoptOpenJdk11(String version) {
+		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-" + version +
+				"/OpenJDK11U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") +".${suffix}";
+		this.version = version;
+	}
+
+	public void useAdoptOpenJdk13(String version) {
+		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-" + version +
+				"/OpenJDK13U-jdk_x64_${os}_hotspot_" + version.replace("+", "_")  +".${suffix}";
+		this.version = version;
+	}
+
+
+
+
 	public String getVersion() {
 		return version;
 	}

@@ -56,9 +56,11 @@ class GenerateBootstrapScript implements Action<Task> {
 		template = template.replace("${suffix}", "JDK_DIST_SUFFIX");
 		template = template.replace("${version}", extension.getVersion());
 
-
 		bootstrapSnipped = bootstrapSnipped.replace("${JDK_DOWNLOAD_URL_TEMPLATE}", template);
 		bootstrapSnipped = bootstrapSnipped.replace("${JDK_VERSION_TEMPLATE}", extension.getVersion());
+		bootstrapSnipped = bootstrapSnipped.replace("${OSX_NAME_TEMPLATE}", extension.getOsxName());
+		bootstrapSnipped = bootstrapSnipped.replace("${LINUX_NAME_TEMPLATE}", extension.getLinuxName());
+		bootstrapSnipped = bootstrapSnipped.replace("${WINDOWS_NAME_TEMPLATE}", extension.getWindowsName());
 		return bootstrapSnipped;
 	}
 }

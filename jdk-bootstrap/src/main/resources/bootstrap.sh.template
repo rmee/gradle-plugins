@@ -14,18 +14,20 @@ if ! [ -d "${JAVA_HOME}" ]; then
 
   if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
     JDK_ENV="windows-x64"
-    JDK_OS="windows"
+    JDK_OS="${WINDOWS_NAME_TEMPLATE}"
     JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_DIST_SUFFIX/zip}"
     JDK_DOWNLOAD_FILE="${JDK_CACHE_DIR}/jdk-${JDK_VERSION}.zip"
   else
     [ "$darwin" = true ] && JDK_ENV="osx-x64" || JDK_ENV="linux-x64"
-    [ "$darwin" = true ] && JDK_OS="mac" || JDK_OS="linux"
+    [ "$darwin" = true ] && JDK_OS="${OSX_NAME_TEMPLATE}" || JDK_OS="${LINUX_NAME_TEMPLATE}"
     JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_DIST_SUFFIX/tar.gz}"
     JDK_DOWNLOAD_FILE="${JDK_CACHE_DIR}/jdk-${JDK_VERSION}.tar.gz"
   fi
 
   JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_ENV/${JDK_ENV}}"
   JDK_DOWNLOAD_URL="${JDK_DOWNLOAD_URL/JDK_OS/${JDK_OS}}"
+
+  echo "Downloading JDK from $JDK_DOWNLOAD_URL"
 
   curl -L "${JDK_DOWNLOAD_URL}" --output "${JDK_DOWNLOAD_FILE}" || \
     die "java: Fatal error. Could not download JDK from URL: ${JDK_DOWNLOAD_URL}"
@@ -42,8 +44,14 @@ if ! [ -d "${JAVA_HOME}" ]; then
   if [ -d "${JDK_CACHE_DIR}/jdk${JDK_VERSION}/Contents" ] ; then
      mv "${JDK_CACHE_DIR}/jdk${JDK_VERSION}/Contents/Home" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
      rm -R "${JDK_CACHE_DIR}/jdk${JDK_VERSION}"
-  else
+  fi
+
+  if [ -d "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" ] ; then
     mv "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
+  fi
+
+  if [ -d "${JDK_CACHE_DIR}/${JDK_VERSION}-${JDK_OS}_x64" ] ; then
+  	mv "${JDK_CACHE_DIR}/${JDK_VERSION}-${JDK_OS}_x64" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
   fi
 
   chmod u+w,g+w -R "${JAVA_HOME}"

@@ -80,6 +80,14 @@ jdk {
 }
 ```
 
+or
+
+```
+apply plugin: 'jdk-bootstrap'
+jdk {
+    useAzul('zulu11.35.15-ca-jdk11.0.5')
+}
+```
 
 ## IDE setup
 

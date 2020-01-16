@@ -61,6 +61,9 @@ public class GenerateSchemaTask extends DefaultTask {
 	public File getOutputDirectory() {
 		Project project = getProject();
 		SchemaGenExtension config = getConfig();
+		if (config.getOutputDirectory() != null) {
+			return config.getOutputDirectory();
+		}
 		if (config.isContinuousMode()) {
 			return new File(project.getBuildDir(), "resources/main/");
 		}

@@ -1,6 +1,8 @@
 package com.github.rmee.jpa.schemagen;
 
 
+import java.io.File;
+
 public class SchemaGenConfig {
 
 	private String dialect = null;
@@ -8,6 +10,8 @@ public class SchemaGenConfig {
 	private String packageName;
 
 	private boolean continuousMode = true;
+
+	private File outputDirectory;
 
 	/**
 	 * if true will forked a new process to perform Hibernate generation.
@@ -51,6 +55,14 @@ public class SchemaGenConfig {
 		if (target != SchemaTargetType.LIQUIBASE) {
 			throw new IllegalStateException("constraintNamePrefix only implemented for Liquibase yet");
 		}
+	}
+
+	public File getOutputDirectory() {
+		return outputDirectory;
+	}
+
+	public void setOutputDirectory(File outputDirectory) {
+		this.outputDirectory = outputDirectory;
 	}
 
 	public void setVersion(String version) {

@@ -54,7 +54,7 @@ if ! [ -d "${JAVA_HOME}" ]; then
   	mv "${JDK_CACHE_DIR}/${JDK_VERSION}-${JDK_OS}_x64" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
   fi
 
-  chmod u+w,g+w -R "${JAVA_HOME}"
+  chmod -R u+w,g+w "${JAVA_HOME}"
 
   echo "Installed JDK from ${JDK_DOWNLOAD_URL} into ${JAVA_HOME}"
 fi

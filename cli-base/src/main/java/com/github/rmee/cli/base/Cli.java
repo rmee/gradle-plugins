@@ -525,7 +525,7 @@ public final class Cli {
 			Task wrapper = rootProject.getTasks().getByName("wrapper");
 			wrapper.doLast(task -> {
 
-				for(String binName : binNames) {
+				for (String binName : binNames) {
 					StringBuilder builder = new StringBuilder();
 
 					// consider additional volume mappings in the future by calling
@@ -536,6 +536,11 @@ public final class Cli {
 						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + version);
 						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", mustIncludeBinary ? binName : "");
 						bootstrapSnipped = bootstrapSnipped.replace("\r", "");
+
+						if (workingDir != null) {
+							bootstrapSnipped = bootstrapSnipped.replace("--workdir /workdir/", "--workdir " + workingDir);
+						}
+
 
 						builder.append(bootstrapSnipped);
 					} catch (IOException e) {

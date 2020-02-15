@@ -33,6 +33,6 @@ exec docker run -i $TTY_PARAM $USER_PARAM --rm \
     "${HTTPS_PROXY_PARAM[@]}" \
     "${NO_PROXY_PARAM[@]}" \
     -e HOME=/workdir/build/home \
-    --workdir /workdir/build/home \
+    --workdir /workdir/ \
     -v $WORK_DIR:/workdir \
     ${DOCKER_IMAGE} ${DOCKER_COMMAND} "$@"

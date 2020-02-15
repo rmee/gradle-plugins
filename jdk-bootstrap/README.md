@@ -89,6 +89,25 @@ jdk {
 }
 ```
 
+
+By default the plugin will only take action and download a JDK if `JAVA_HOME` is not set.
+The default has two reasons:
+
+- It is recommended to not install any global JDK on developer machines.
+- Allow developers to override the JDK  when deemed necessary.
+
+Not always this is desired. In such cases the download can be enforced regardless of
+any local JDK installation:
+
+```
+apply plugin: 'jdk-bootstrap'
+jdk {
+    allowOverride = false
+    ...
+}
+```
+
+
 ## IDE setup
 
 PRs welcomed to directly setup the IDE with the specified JDK.

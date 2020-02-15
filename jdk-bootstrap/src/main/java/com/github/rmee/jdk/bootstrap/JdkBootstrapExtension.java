@@ -12,6 +12,8 @@ public class JdkBootstrapExtension {
 
 	private String linuxName = "linux";
 
+	private boolean allowOverride = true;
+
 	public JdkBootstrapExtension() {
 		useAdoptOpenJdk8("jdk8u202-b08");
 	}
@@ -58,25 +60,31 @@ public class JdkBootstrapExtension {
 		this.version = version;
 	}
 
+	public boolean getAllowOverride() {
+		return allowOverride;
+	}
+
+	public void setAllowOverride(boolean allowOverride) {
+		this.allowOverride = allowOverride;
+	}
+
 	public void useAdoptOpenJdk8(String version) {
 		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk" + version + "/OpenJDK8U"
-				+ "-jdk_x64_${os}_hotspot_" + version.replace("-", "") +".${suffix}";
+				+ "-jdk_x64_${os}_hotspot_" + version.replace("-", "") + ".${suffix}";
 		this.version = version;
 	}
 
 	public void useAdoptOpenJdk11(String version) {
 		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-" + version +
-				"/OpenJDK11U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") +".${suffix}";
+				"/OpenJDK11U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") + ".${suffix}";
 		this.version = version;
 	}
 
 	public void useAdoptOpenJdk13(String version) {
 		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-" + version +
-				"/OpenJDK13U-jdk_x64_${os}_hotspot_" + version.replace("+", "_")  +".${suffix}";
+				"/OpenJDK13U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") + ".${suffix}";
 		this.version = version;
 	}
-
-
 
 
 	public String getVersion() {

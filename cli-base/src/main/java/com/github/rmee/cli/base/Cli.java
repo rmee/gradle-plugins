@@ -8,11 +8,7 @@ import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.ExecSpec;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -558,14 +554,24 @@ public final class Cli {
 		}
 	}
 
-
-	public void exec(CliExecSpec spec) {
+	public ExecResult exec(CliExecSpec spec) {
 		Project project = extension.project;
-		project.exec(execSpec -> {
-			configureExec(execSpec, spec);
-		});
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			org.gradle.process.ExecResult processResult = project.exec(execSpec -> {
+				configureExec(execSpec, spec);
+				if (spec.getInput() != null) {
+					execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));
+				}
+				if (spec.getOutputFormat() != OutputFormat.CONSOLE) {
+					execSpec.setStandardOutput(outputStream);
+				}
+			});
+			String output = outputStream.toString();
+			return new ExecResult(output);
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
-
 
 	public File getHome(String file) {
 		File homeDir = getHomeDir();

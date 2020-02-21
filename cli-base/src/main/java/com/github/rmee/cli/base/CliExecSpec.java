@@ -24,6 +24,16 @@ public class CliExecSpec<T extends CliExecSpec> {
 
 	protected OutputFormat outputFormat = OutputFormat.CONSOLE;
 
+	private String input;
+
+	public String getInput() {
+		return input;
+	}
+
+	public void setInput(String input) {
+		this.input = input;
+	}
+
 	@Input
 	public OutputFormat getOutputFormat() {
 		return outputFormat;

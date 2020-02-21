@@ -15,7 +15,7 @@ public class CliExecExtension {
 		return clients;
 	}
 
-	public void exec(CliExecSpec spec) {
+	public ExecResult exec(CliExecSpec spec) {
 		String cliName = (String) spec.getCommandLine().get(0);
 
 		Cli cli = clients.get(cliName);
@@ -23,6 +23,6 @@ public class CliExecExtension {
 			throw new IllegalStateException("no CLI with name '" + cliName + "' registered");
 		}
 
-		cli.exec(spec);
+		return cli.exec(spec);
 	}
 }

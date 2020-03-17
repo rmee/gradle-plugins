@@ -423,7 +423,7 @@ public final class Cli {
 				throw new IllegalStateException("failed to redirect helm stdout: " + e.getMessage(), e);
 			}
 		}
-		execSpec.setErrorOutput(System.out);
+		execSpec.setErrorOutput(System.err);
 
 	}
 
@@ -512,10 +512,6 @@ public final class Cli {
 	}
 
 	public void setupWrapper(Project project) {
-		setupWrapper(project, true);
-	}
-
-	public void setupWrapper(Project project, boolean mustIncludeBinary) {
 		if (useWrapper()) {
 			Project rootProject = project.getRootProject();
 			Task wrapper = rootProject.getTasks().getByName("wrapper");
@@ -530,13 +526,12 @@ public final class Cli {
 						String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
 
 						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + version);
-						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", mustIncludeBinary ? binName : "");
+						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", appendBinaryName ? binName : "");
 						bootstrapSnipped = bootstrapSnipped.replace("\r", "");
 
 						if (workingDir != null) {
 							bootstrapSnipped = bootstrapSnipped.replace("--workdir /workdir/", "--workdir " + workingDir);
 						}
-
 
 						builder.append(bootstrapSnipped);
 					} catch (IOException e) {

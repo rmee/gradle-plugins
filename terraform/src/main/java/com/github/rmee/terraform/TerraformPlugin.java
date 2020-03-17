@@ -41,7 +41,7 @@ public class TerraformPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Cli cli = extension.getCli();
-			cli.setupWrapper(project, false);
+			cli.setupWrapper(project);
 
 			cli.addDefaultMappings(project);
 

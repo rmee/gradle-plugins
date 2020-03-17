@@ -4,9 +4,9 @@ import com.github.rmee.cli.base.CliExecSpec;
 
 public class TerraformExecSpec extends CliExecSpec<TerraformExecSpec> {
 
-	private boolean addConfigDirectory = true;
+	private boolean addConfigDirectory = false;
 
-	private boolean addVariables = true;
+	private boolean addVariables = false;
 
 	public boolean getAddConfigDirectory() {
 		return addConfigDirectory;

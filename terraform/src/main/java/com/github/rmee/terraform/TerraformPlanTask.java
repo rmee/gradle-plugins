@@ -11,6 +11,7 @@ public class TerraformPlanTask extends TerraformExec {
 
 	@TaskAction
 	public void exec() {
+		setAddVariables(true);
 		Project project = getProject();
 		File planDir = project.file("build/terraform/plan");
 		planDir.getParentFile().mkdirs();

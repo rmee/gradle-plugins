@@ -52,9 +52,6 @@ public class SchemaGenConfig {
 
 	public void setConstraintNamePrefix(String constraintNamePrefix) {
 		this.constraintNamePrefix = constraintNamePrefix;
-		if (target != SchemaTargetType.LIQUIBASE) {
-			throw new IllegalStateException("constraintNamePrefix only implemented for Liquibase yet");
-		}
 	}
 
 	public File getOutputDirectory() {

@@ -1,14 +1,14 @@
 package com.github.rmee.jdk.bootstrap;
 
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+
+import java.io.File;
+import java.io.IOException;
 
 class GenerateBootstrapScript implements Action<Task> {
 
@@ -61,20 +61,6 @@ class GenerateBootstrapScript implements Action<Task> {
 		bootstrapSnipped = bootstrapSnipped.replace("${OSX_NAME_TEMPLATE}", extension.getOsxName());
 		bootstrapSnipped = bootstrapSnipped.replace("${LINUX_NAME_TEMPLATE}", extension.getLinuxName());
 		bootstrapSnipped = bootstrapSnipped.replace("${WINDOWS_NAME_TEMPLATE}", extension.getWindowsName());
-
-		if (!extension.getAllowOverride()) {
-			String setJava = "JAVA_HOME=\"${JDK_CACHE_DIR}/jdk-${JDK_VERSION}\";\n";
-			String overridePattern = "if [ -z \"${JAVA_HOME}\" ]; then\n" +
-					"\t" + setJava +
-					"fi";
-
-			int startIndex = bootstrapSnipped.indexOf(overridePattern);
-			if (startIndex == -1) {
-				throw new IllegalStateException("corrupted template");
-			}
-			bootstrapSnipped = bootstrapSnipped.substring(0, startIndex) + setJava + bootstrapSnipped.substring(startIndex + overridePattern.length());
-		}
-
 		return bootstrapSnipped;
 	}
 }

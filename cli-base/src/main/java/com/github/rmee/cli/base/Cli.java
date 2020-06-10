@@ -9,14 +9,7 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.ExecSpec;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class Cli {
@@ -406,7 +399,14 @@ public final class Cli {
 			execSpec.setCommandLine(commandLine);
 
 		} else {
-			args.set(0, getBinPath());
+			String binPath = getBinPath();
+			if (getBinNames().contains(args.get(0))) {
+				args.set(0, binPath);
+			} else {
+				args.add(0, binPath);
+			}
+
+			System.out.println("Executing: " + args);
 
 			execSpec.setEnvironment(environment);
 			execSpec.setCommandLine(args);

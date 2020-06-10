@@ -410,6 +410,11 @@ public final class Cli {
 
 			execSpec.setEnvironment(environment);
 			execSpec.setCommandLine(args);
+			if (workingDir != null) {
+				execSpec.setWorkingDir(new File(extension.getProjectDir(), workingDir.replace("/workdir/", "")));
+			} else {
+				execSpec.setWorkingDir(extension.getProjectDir());
+			}
 		}
 
 		File stdoutFile = cliExecSpec.getStdoutFile();

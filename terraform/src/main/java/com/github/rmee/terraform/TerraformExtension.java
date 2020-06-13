@@ -37,16 +37,8 @@ public class TerraformExtension extends ClientExtensionBase {
 				throw new UnsupportedOperationException("download not  yet supported, make use of docker");
 			}
 		};
-		cli = new Cli(this, "terraform", downloadStratey);
+		cli = new Cli("terraform", downloadStratey, () -> project);
 		cli.setAppendBinaryName(false); // official docker image does not allow it
-	}
-
-	public void init() {
-		if (initialized) {
-			return;
-		}
-		initialized = true;
-		this.cli.init(project);
 	}
 
 	public ExecResult exec(TerraformExecSpec spec) {

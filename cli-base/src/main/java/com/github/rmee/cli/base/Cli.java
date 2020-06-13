@@ -10,15 +10,14 @@ import org.gradle.process.ExecSpec;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class Cli {
 
-	private final CliDownloadStrategy downloadStrategy;
+	private final Supplier<Project> project;
 
-	private ClientExtensionBase extension;
-
-	private String version;
+	private CliDownloadStrategy downloadStrategy;
 
 	private Map<String, String> environment = new HashMap();
 
@@ -27,7 +26,7 @@ public final class Cli {
 	 */
 	private Map<String, String> dockerEnvironment = new HashMap();
 
-	private boolean download = true;
+	private boolean download = false;
 
 	private String binPath;
 
@@ -35,13 +34,15 @@ public final class Cli {
 
 	private String imageName;
 
+	private String imageTag;
+
 	private String repository;
 
 	private String downloadUrl;
 
 	private String downloadFileName;
 
-	private Set<String> binNames;
+	private Set<String> binNames = new HashSet<>();
 
 	private File downloadDir;
 
@@ -63,15 +64,18 @@ public final class Cli {
 
 	private boolean appendBinaryName = true;
 
-	public Cli(ClientExtensionBase extension, String binName, CliDownloadStrategy downloadStrategy) {
-		this.binNames = new HashSet<>();
-		binNames.add(binName);
-		this.downloadStrategy = downloadStrategy;
-		this.extension = extension;
+	private boolean initialized;
 
+	public Cli(String binName, Supplier<Project> project) {
 		environment.put("HOME", "/workdir/build/home");
-
 		dockerEnvironment.putAll(System.getenv());
+		setBinName(binName);
+		this.project = project;
+	}
+
+	public Cli(String binName, CliDownloadStrategy downloadStrategy, Supplier<Project> project) {
+		this(binName, project);
+		this.downloadStrategy = downloadStrategy;
 	}
 
 	public boolean isAppendBinaryName() {
@@ -96,8 +100,8 @@ public final class Cli {
 		this.workingDir = workingDir;
 	}
 
-	public void addDefaultMappings(Project project) {
-		volumeMappings.put("/workdir", project.getProjectDir());
+	public void addDefaultMappings() {
+		volumeMappings.put("/workdir", project.get().getProjectDir());
 	}
 
 	private String getEnvValue(String name) {
@@ -110,7 +114,7 @@ public final class Cli {
 
 	public File getHomeDir() {
 		if (dockerized) {
-			File buildDir = extension.project.getBuildDir();
+			File buildDir = project.get().getBuildDir();
 			return new File(buildDir, "home");
 		}
 
@@ -187,13 +191,13 @@ public final class Cli {
 		this.imageName = imageName;
 	}
 
-	public String getVersion() {
-		extension.init();
-		return version;
+	public String getImageTag() {
+		init();
+		return imageTag;
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
+	public void setImageTag(String imageTag) {
+		this.imageTag = imageTag;
 	}
 
 	public boolean isDockerized() {
@@ -220,7 +224,12 @@ public final class Cli {
 		this.operatingSystem = operatingSystem;
 	}
 
-	public void init(Project project) {
+	public void init() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+
 		if (!dockerized) {
 			// in non-Docker version use current environment by default
 			if (environment.isEmpty()) {
@@ -229,11 +238,11 @@ public final class Cli {
 
 			for (String binName : binNames) {
 				if (downloadDir == null && download) {
-					downloadDir = new File(project.getBuildDir(), "tmp/" + binName + "/v" + version);
+					downloadDir = new File(project.get().getBuildDir(), "tmp/" + binName + "/v" + imageTag);
 					downloadDir.mkdirs();
 				}
 				if (installDir == null) {
-					installDir = new File(project.getBuildDir(), "/kubernetes/");
+					installDir = new File(project.get().getBuildDir(), "/kubernetes/");
 				}
 				if (operatingSystem == null) {
 					operatingSystem = org.gradle.internal.os.OperatingSystem.current();
@@ -252,6 +261,9 @@ public final class Cli {
 					binPath = binName;
 				}
 			}
+		} else {
+			addDefaultMappings();
+			setupWrapper();
 		}
 	}
 
@@ -263,7 +275,7 @@ public final class Cli {
 
 	public File getInstallDir() {
 		checkNotDockerized();
-		extension.init();
+		init();
 		return installDir;
 	}
 
@@ -272,7 +284,7 @@ public final class Cli {
 	}
 
 	public File getDownloadDir() {
-		extension.init();
+		init();
 		return downloadDir;
 	}
 
@@ -283,7 +295,7 @@ public final class Cli {
 
 	public String getRepository() {
 		checkNotDockerized();
-		extension.init();
+		init();
 		return repository;
 	}
 
@@ -292,13 +304,13 @@ public final class Cli {
 	}
 
 	public String getDownloadUrl() {
-		extension.init();
+		init();
 		return downloadUrl;
 	}
 
 	protected String getDownloadFileName() {
 		checkNotDockerized();
-		extension.init();
+		init();
 		return downloadFileName;
 	}
 
@@ -314,7 +326,7 @@ public final class Cli {
 	}
 
 	public String getBinPath() {
-		extension.init();
+		init();
 		return binPath;
 	}
 
@@ -324,7 +336,7 @@ public final class Cli {
 	}
 
 	public File getDownloadedFile() {
-		extension.init();
+		init();
 		return new File(downloadDir, getDownloadFileName());
 	}
 
@@ -339,6 +351,7 @@ public final class Cli {
 	}
 
 	public void configureExec(ExecSpec execSpec, CliExecSpec cliExecSpec) {
+		init();
 
 		execSpec.setIgnoreExitValue(cliExecSpec.isIgnoreExitValue());
 
@@ -382,9 +395,10 @@ public final class Cli {
 				commandLine.add(volumesFrom);
 			}
 
-			commandLine.add(imageName + ":" + version);
+			commandLine.add(imageName + ":" + imageTag);
 
 			List<String> dockerArgs = new ArrayList(args);
+
 			if (appendBinaryName && !binNames.contains(dockerArgs.get(0))) {
 				dockerArgs.add(0, binNames.iterator().next());
 			} else if (!appendBinaryName & binNames.contains(dockerArgs.get(0))) {
@@ -411,9 +425,9 @@ public final class Cli {
 			execSpec.setEnvironment(environment);
 			execSpec.setCommandLine(args);
 			if (workingDir != null) {
-				execSpec.setWorkingDir(new File(extension.getProjectDir(), workingDir.replace("/workdir/", "")));
+				execSpec.setWorkingDir(new File(project.get().getProjectDir(), workingDir.replace("/workdir/", "")));
 			} else {
-				execSpec.setWorkingDir(extension.getProjectDir());
+				execSpec.setWorkingDir(project.get().getProjectDir());
 			}
 		}
 
@@ -485,8 +499,8 @@ public final class Cli {
 			commandLine.add(entry.getValue() + ":" + entry.getKey());
 		}
 
-		if (version == null) {
-			throw new IllegalStateException("no version specified");
+		if (imageTag == null) {
+			throw new IllegalStateException("no imageTag specified");
 		}
 
 		return commandLine;
@@ -512,13 +526,26 @@ public final class Cli {
 		return useWrapper;
 	}
 
+	public void setBinNames(Set<String> binNames) {
+		this.binNames = binNames;
+	}
+
+	public void setBinName(String binName) {
+		this.binNames = new HashSet<>();
+		this.binNames.add(binName);
+	}
+
+	public String getBinName() {
+		return binNames.iterator().next();
+	}
+
 	public void setWrapper(boolean useWrapper) {
 		this.useWrapper = useWrapper;
 	}
 
-	public void setupWrapper(Project project) {
+	public void setupWrapper() {
 		if (useWrapper()) {
-			Project rootProject = project.getRootProject();
+			Project rootProject = project.get().getRootProject();
 			Task wrapper = rootProject.getTasks().getByName("wrapper");
 			wrapper.doLast(task -> {
 
@@ -530,7 +557,7 @@ public final class Cli {
 					try {
 						String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
 
-						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + version);
+						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + imageTag);
 						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", appendBinaryName ? binName : "");
 						bootstrapSnipped = bootstrapSnipped.replace("\r", "");
 
@@ -543,7 +570,7 @@ public final class Cli {
 						throw new IllegalStateException("failed to find wrapper template", e);
 					}
 
-					File file = new File(project.getProjectDir(), binName);
+					File file = new File(project.get().getProjectDir(), binName);
 					try (FileWriter writer = new FileWriter(file)) {
 						writer.write(builder.toString());
 					} catch (IOException e) {
@@ -555,9 +582,8 @@ public final class Cli {
 	}
 
 	public ExecResult exec(CliExecSpec spec) {
-		Project project = extension.project;
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			org.gradle.process.ExecResult processResult = project.exec(execSpec -> {
+			org.gradle.process.ExecResult processResult = project.get().exec(execSpec -> {
 				configureExec(execSpec, spec);
 				if (spec.getInput() != null) {
 					execSpec.setStandardInput(new ByteArrayInputStream(spec.getInput().getBytes()));

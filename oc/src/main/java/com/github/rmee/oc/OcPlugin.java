@@ -40,8 +40,6 @@ public class OcPlugin implements Plugin<Project> {
 			Cli cli = extension.getCli();
 			if (cli.isDockerized()) {
 				ocBootstrap.setEnabled(false);
-				cli.setupWrapper(project);
-				cli.addDefaultMappings(project);
 			} else if (cli.getDownload()) {
 				ocBootstrap.dest(cli.getDownloadDir());
 				ocBootstrap.src(cli.getDownloadUrl());

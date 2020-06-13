@@ -18,7 +18,7 @@ public class TerraformPlugin implements Plugin<Project> {
 		extension.setProject(project);
 		extension.setSourceDir(configDir);
 		extension.getCli().setImageName("hashicorp/terraform");
-		extension.getCli().setVersion("0.11.7");
+		extension.getCli().setImageTag("0.11.7");
 
 		// terraform needs to have its files in the local working directory
 		extension.getCli().setWorkingDir("/workdir/src/main/terraform");
@@ -41,9 +41,6 @@ public class TerraformPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Cli cli = extension.getCli();
-			cli.setupWrapper(project);
-
-			cli.addDefaultMappings(project);
 
 			File terraformTempDir2 = new File(project.getBuildDir(), ".terraformCache");
 			cli.getVolumeMappings().put("/.terraform", terraformTempDir2);

@@ -10,7 +10,7 @@ public class KubectlExtension extends KubectlExtensionBase {
 
 	@Override
 	protected Cli createClient() {
-		Cli cli = new Cli(this, "kubectl", new CliDownloadStrategy() {
+		Cli cli = new Cli("kubectl", new CliDownloadStrategy() {
 			@Override
 			public String computeDownloadFileName(Cli cli) {
 				OperatingSystem operatingSystem = cli.getOperatingSystem();
@@ -26,7 +26,7 @@ public class KubectlExtension extends KubectlExtensionBase {
 				if (!downloadUrl.endsWith("/")) {
 					downloadUrl += "/";
 				}
-				downloadUrl += "v" + cli.getVersion() + "/bin/";
+				downloadUrl += "v" + cli.getImageTag() + "/bin/";
 
 				OperatingSystem operatingSystem = cli.getOperatingSystem();
 				if (operatingSystem.isLinux()) {
@@ -39,8 +39,8 @@ public class KubectlExtension extends KubectlExtensionBase {
 					throw new IllegalStateException("unknown operation system: " + operatingSystem.getName());
 				}
 			}
-		});
-		cli.setVersion("2.9.1");
+		}, () -> project);
+		cli.setImageTag("3.2.1");
 		cli.setImageName("dtzar/helm-kubectl");
 		cli.setRepository("https://storage.googleapis.com/kubernetes-release/release/");
 		cli.setDockerized(true);

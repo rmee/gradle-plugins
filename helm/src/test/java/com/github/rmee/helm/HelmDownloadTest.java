@@ -7,9 +7,11 @@ import java.net.URL;
 import com.github.rmee.cli.base.Cli;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+@Ignore
 public class HelmDownloadTest {
 
 	@Test

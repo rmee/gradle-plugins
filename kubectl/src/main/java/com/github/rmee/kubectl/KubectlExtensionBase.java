@@ -136,16 +136,6 @@ public abstract class KubectlExtensionBase extends ClientExtensionBase {
 		return new ExecResult(output);
 	}
 
-	@Override
-	public void init() {
-		if (initialized) {
-			return;
-		}
-		initialized = true;
-
-		cli.init(project);
-	}
-
 	protected void setProject(Project project) {
 		this.project = project;
 	}

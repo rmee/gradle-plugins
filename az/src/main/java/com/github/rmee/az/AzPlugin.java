@@ -18,7 +18,7 @@ public class AzPlugin implements Plugin<Project> {
 		// TODO azure-cli image insufficient by default: https://github.com/Azure/AKS/issues/469
 		//extension.getCli().setImageName("microsoft/azure-cli");
 		extension.getCli().setImageName("remmeier/azure-cli-kubectl");
-		extension.getCli().setVersion("2.0.38");
+		extension.getCli().setImageTag("2.0.38");
 
 		AzLoginTask login = project.getTasks().create("azLogin", AzLoginTask.class);
 		AzGetKubernetesCredentialsTask getCredentials =
@@ -34,13 +34,6 @@ public class AzPlugin implements Plugin<Project> {
 
 		CliExecExtension cliExec = project.getExtensions().getByType(CliExecExtension.class);
 		cliExec.register("az", extension.getCli());
-
-		project.afterEvaluate(project1 -> {
-			Cli cli = extension.getCli();
-
-			cli.addDefaultMappings(project);
-			cli.setupWrapper(project);
-		});
 	}
 }
 

@@ -6,7 +6,7 @@ The plugin may also be used together with `terraform`, `oc`, `helm` and `az`. In
 will share the same Kubernetes context configuration through volume mappings. This allows, for example, to
 setup the context configuration through `azLogin` and `ocLogin` tasks next to the built-in  `KubectlUseContext` task
 (see below).
- 
+
 
 ## Setup
 
@@ -20,7 +20,7 @@ buildscript {
 	}
 }
 ```
- 
+
 
 ## Example
 
@@ -36,7 +36,7 @@ kubectl{
    insecureSkipTlsVerify = false
    cli {
      version = '2.9.1'
-     imageName = 'dtzar/helm-kubectl' 
+     imageName = 'dtzar/helm-kubectl'
    }
 }
 
@@ -45,7 +45,8 @@ kubectl{
 For more detailed information, have a look at the `KubectlExtension`.
 
 For an example app have a look at https://github.com/crnk-project/crnk-example[crnk-example] how to deploy
-to Google Cloud with Kubernetes and Helm.
+to Google Cloud with Kubernetes and Helm. Or https://github.com/cord3c/cord3c-project/tree/master/cord3c-example-deployment[cord3c-example]
+for how to deploy to DigitalOcean.
 
 
 ## Tasks
@@ -54,7 +55,7 @@ to Google Cloud with Kubernetes and Helm.
 - `KubectlUseContext` to connect to a given cluster, namespace with username/password or a token. The task
   works in two flavors. A `contextId` can be passed to make use of an existing context configuration. But `contextId`
   can also be left empty, then `url`, `userName`, `password`, `token` and `namespace` will be used to
-  setup a new current context. The second behavior closely matches `ocLogin` and `azLogin` to perform simple logins. 
+  setup a new current context. The second behavior closely matches `ocLogin` and `azLogin` to perform simple logins.
 
 ## Wrapper
 
@@ -62,5 +63,5 @@ A wrapper `kubectl` will be generated into the project root to allow easy access
 
 ```
 #!/usr/bin/env sh
-exec docker run -v build\.kube:/build/home/.kube/ dtzar/helm-kubectl:2.9.1 kubectl "$@"
+exec docker run -v build\.kube:/build/home/.kube/ dtzar/helm-kubectl:3.2.1 kubectl "$@"
 ```

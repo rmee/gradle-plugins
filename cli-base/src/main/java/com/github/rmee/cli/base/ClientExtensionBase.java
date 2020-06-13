@@ -5,7 +5,7 @@ import org.gradle.api.Project;
 
 import java.io.File;
 
-public abstract class ClientExtensionBase {
+public class ClientExtensionBase {
 
 	protected Project project;
 
@@ -13,7 +13,13 @@ public abstract class ClientExtensionBase {
 
 	protected Cli cli;
 
-	protected abstract void init();
+	public final void init() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+		this.cli.init();
+	}
 
 	protected void checkNotInitialized() {
 		if (initialized) {
@@ -21,7 +27,7 @@ public abstract class ClientExtensionBase {
 		}
 	}
 
-	public File getProjectDir(){
+	public File getProjectDir() {
 		return project.getProjectDir();
 	}
 

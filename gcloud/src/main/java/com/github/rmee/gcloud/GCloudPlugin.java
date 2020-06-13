@@ -17,7 +17,7 @@ public class GCloudPlugin implements Plugin<Project> {
 		extension.initProject(project);
 		extension.getCli().getBinNames().add("gsutil");
 		extension.getCli().setImageName("google/cloud-sdk");
-		extension.getCli().setVersion("159.0.0");
+		extension.getCli().setImageTag("159.0.0");
 
 		GCloudActivateServiceAccountTask activateServiceAccount =
 				project.getTasks().create("gcloudActivateServiceAccount", GCloudActivateServiceAccountTask.class);
@@ -37,15 +37,13 @@ public class GCloudPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(project1 -> {
 			Cli cli = extension.getCli();
-			cli.addDefaultMappings(project);
-			cli.setupWrapper(project);
 
 			// integrate with Kubernetes if available
 			try {
 				ClientExtensionBase kubectl = (ClientExtensionBase) project.getExtensions().getByName("kubectl");
 				Cli kubectlCli = kubectl.getCli();
 				kubectlCli.setImageName(cli.getImageName());
-				kubectlCli.setVersion(cli.getVersion());
+				kubectlCli.setImageTag(cli.getImageTag());
 			} catch (UnknownDomainObjectException e) {
 			}
 		});

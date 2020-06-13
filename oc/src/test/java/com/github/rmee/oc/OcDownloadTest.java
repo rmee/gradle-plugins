@@ -32,7 +32,8 @@ public class OcDownloadTest {
 		extension.setUrl("test");
 		Cli cli = extension.getCli();
 		cli.setDockerized(false);
-		cli.setVersion("3.11.0-0cbc58b");
+		cli.setDownload(true);
+		cli.setImageTag("3.11.0-0cbc58b");
 		cli.setOperationSystem(operatingSystem);
 
 		extension.setProject(Mockito.mock(Project.class));

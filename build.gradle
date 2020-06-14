@@ -3,7 +3,7 @@ buildscript {
     dependencies {
         apply from: "versions.gradle"
 
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.9"
+        classpath "com.gradle.publish:plugin-publish-plugin:0.12.0"
         classpath 'org.ajoberstar:gradle-git-publish:1.0.1'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5-rc1'
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1"
@@ -21,7 +21,7 @@ wrapper {
 // note that a production build creates javadoc, sources jars and signatures undesired during development
 // for performance reasons
 final boolean hasPublishSecrets = System.env.GRADLE_PUBLISH_KEY != null && System.env.GRADLE_PUBLISH_SECRET != null;
-final boolean isProductionBuild = System.getenv("CI_VERSION") != null || hasPublishSecrets
+final boolean isProductionBuild =  System.getenv("CI_VERSION") != null || hasPublishSecrets
 if (hasPublishSecrets) {
     ext {
         System.setProperty("gradle.publish.key", System.env.GRADLE_PUBLISH_KEY)

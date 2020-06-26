@@ -34,8 +34,6 @@ public class HelmPlugin implements Plugin<Project> {
 		helmPublish.dependsOn(helmUpdateRepository);
 		helmPublish.dependsOn(helmPackages);
 
-		helmPackages.setGroup("kubernetes");
-
 		CliExecExtension cliExec = project.getExtensions().getByType(CliExecExtension.class);
 		cliExec.register("helm", extension.getCli());
 

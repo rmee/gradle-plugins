@@ -1,6 +1,5 @@
 package com.github.rmee.cli.base;
 
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

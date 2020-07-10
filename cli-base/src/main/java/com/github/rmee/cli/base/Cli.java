@@ -42,7 +42,7 @@ public final class Cli {
 
 	private String downloadFileName;
 
-	private Set<String> binNames = new HashSet<>();
+	private String binName;
 
 	private File downloadDir;
 
@@ -236,30 +236,28 @@ public final class Cli {
 				environment.putAll(System.getenv());
 			}
 
-			for (String binName : binNames) {
-				if (downloadDir == null && download) {
-					downloadDir = new File(project.get().getBuildDir(), "tmp/" + binName + "/v" + imageTag);
-					downloadDir.mkdirs();
-				}
-				if (installDir == null) {
-					installDir = new File(project.get().getBuildDir(), "/kubernetes/");
-				}
-				if (operatingSystem == null) {
-					operatingSystem = org.gradle.internal.os.OperatingSystem.current();
-				}
+			if (downloadDir == null && download) {
+				downloadDir = new File(project.get().getBuildDir(), "tmp/" + binName + "/v" + imageTag);
+				downloadDir.mkdirs();
+			}
+			if (installDir == null) {
+				installDir = new File(project.get().getBuildDir(), "/kubernetes/");
+			}
+			if (operatingSystem == null) {
+				operatingSystem = org.gradle.internal.os.OperatingSystem.current();
+			}
 
-				if (binPath == null && download) {
-					// use downloaded binary
-					String binSuffix = getBinSuffix();
-					binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
-					if (downloadUrl == null && download) {
-						downloadFileName = downloadStrategy.computeDownloadFileName(this);
-						downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
-					}
-				} else if (binPath == null) {
-					// assume binary available from PATH
-					binPath = binName;
+			if (binPath == null && download) {
+				// use downloaded binary
+				String binSuffix = getBinSuffix();
+				binPath = new File(installDir, binName + binSuffix).getAbsolutePath();
+				if (downloadUrl == null && download) {
+					downloadFileName = downloadStrategy.computeDownloadFileName(this);
+					downloadUrl = downloadStrategy.computeDownloadUrl(this, repository, downloadFileName);
 				}
+			} else if (binPath == null) {
+				// assume binary available from PATH
+				binPath = binName;
 			}
 		} else {
 			addDefaultMappings();
@@ -340,10 +338,6 @@ public final class Cli {
 		return new File(downloadDir, getDownloadFileName());
 	}
 
-	public Set<String> getBinNames() {
-		return binNames;
-	}
-
 	private void checkNotDockerized() {
 		if (dockerized) {
 			throw new IllegalStateException("not necssary when in dockerized mode");
@@ -399,9 +393,9 @@ public final class Cli {
 
 			List<String> dockerArgs = new ArrayList(args);
 
-			if (appendBinaryName && !binNames.contains(dockerArgs.get(0))) {
-				dockerArgs.add(0, binNames.iterator().next());
-			} else if (!appendBinaryName & binNames.contains(dockerArgs.get(0))) {
+			if (appendBinaryName && !binName.equals(dockerArgs.get(0))) {
+				dockerArgs.add(0, binName);
+			} else if (!appendBinaryName & binName.equals(dockerArgs.get(0))) {
 				dockerArgs.remove(0);
 			}
 
@@ -414,7 +408,10 @@ public final class Cli {
 
 		} else {
 			String binPath = getBinPath();
-			if (getBinNames().contains(args.get(0))) {
+			if (binPath == null) {
+				binPath = binName;
+			}
+			if (getBinName().contains(args.get(0))) {
 				args.set(0, binPath);
 			} else {
 				args.add(0, binPath);
@@ -526,17 +523,12 @@ public final class Cli {
 		return useWrapper;
 	}
 
-	public void setBinNames(Set<String> binNames) {
-		this.binNames = binNames;
-	}
-
 	public void setBinName(String binName) {
-		this.binNames = new HashSet<>();
-		this.binNames.add(binName);
+		this.binName = binName;
 	}
 
 	public String getBinName() {
-		return binNames.iterator().next();
+		return binName;
 	}
 
 	public void setWrapper(boolean useWrapper) {
@@ -549,33 +541,31 @@ public final class Cli {
 			Task wrapper = rootProject.getTasks().getByName("wrapper");
 			wrapper.doLast(task -> {
 
-				for (String binName : binNames) {
-					StringBuilder builder = new StringBuilder();
+				StringBuilder builder = new StringBuilder();
 
-					// consider additional volume mappings in the future by calling
-					// buildBaseCommandLine(true, ...);
-					try {
-						String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
+				// consider additional volume mappings in the future by calling
+				// buildBaseCommandLine(true, ...);
+				try {
+					String bootstrapSnipped = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("wrapper.sh.template"));
 
-						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + imageTag);
-						bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", appendBinaryName ? binName : "");
-						bootstrapSnipped = bootstrapSnipped.replace("\r", "");
+					bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_IMAGE}", imageName + ":" + imageTag);
+					bootstrapSnipped = bootstrapSnipped.replace("${DOCKER_COMMAND}", appendBinaryName ? binName : "");
+					bootstrapSnipped = bootstrapSnipped.replace("\r", "");
 
-						if (workingDir != null) {
-							bootstrapSnipped = bootstrapSnipped.replace("--workdir /workdir/", "--workdir " + workingDir);
-						}
-
-						builder.append(bootstrapSnipped);
-					} catch (IOException e) {
-						throw new IllegalStateException("failed to find wrapper template", e);
+					if (workingDir != null) {
+						bootstrapSnipped = bootstrapSnipped.replace("--workdir /workdir/", "--workdir " + workingDir);
 					}
 
-					File file = new File(project.get().getProjectDir(), binName);
-					try (FileWriter writer = new FileWriter(file)) {
-						writer.write(builder.toString());
-					} catch (IOException e) {
-						throw new IllegalStateException(e);
-					}
+					builder.append(bootstrapSnipped);
+				} catch (IOException e) {
+					throw new IllegalStateException("failed to find wrapper template", e);
+				}
+
+				File file = new File(project.get().getProjectDir(), binName);
+				try (FileWriter writer = new FileWriter(file)) {
+					writer.write(builder.toString());
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
 				}
 			});
 		}

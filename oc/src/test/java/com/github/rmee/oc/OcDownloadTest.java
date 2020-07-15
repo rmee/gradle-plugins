@@ -3,6 +3,7 @@ package com.github.rmee.oc;
 import com.github.rmee.cli.base.Cli;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+@Ignore
 public class OcDownloadTest {
 
 	@Test

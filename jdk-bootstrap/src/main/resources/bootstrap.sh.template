@@ -48,6 +48,11 @@ if ! [ -d "${JAVA_HOME}" ]; then
      rm -R "${JDK_CACHE_DIR}/jdk${JDK_VERSION}"
   fi
 
+  if [ -d "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}/Contents" ] ; then
+     mv "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}/Contents/Home/jdk-${JDK_VERSION}" "${JDK_CACHE_DIR}"
+     rm -R "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}/Contents"
+  fi
+
   if [ -d "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" ] ; then
     mv "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
   fi

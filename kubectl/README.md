@@ -44,10 +44,9 @@ kubectl{
 
 For more detailed information, have a look at the `KubectlExtension`.
 
-For an example app have a look at https://github.com/crnk-project/crnk-example[crnk-example] how to deploy
-to Google Cloud with Kubernetes and Helm. Or https://github.com/cord3c/cord3c-project/tree/master/cord3c-example-deployment[cord3c-example]
+For an example app have a look at  [crnk-example](https://github.com/crnk-project/crnk-example) how to deploy
+to Google Cloud with Kubernetes and Helm. Or [cord3c-example](https://github.com/cord3c/cord3c-project/tree/master/cord3c-example-deployment)
 for how to deploy to DigitalOcean.
-
 
 ## Tasks
 
@@ -63,5 +62,7 @@ A wrapper `kubectl` will be generated into the project root to allow easy access
 
 ```
 #!/usr/bin/env sh
+```
 exec docker run -v build\.kube:/build/home/.kube/ dtzar/helm-kubectl:3.2.1 kubectl "$@"
 ```
+

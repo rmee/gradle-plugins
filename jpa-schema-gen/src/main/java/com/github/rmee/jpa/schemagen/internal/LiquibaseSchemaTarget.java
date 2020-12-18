@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class LiquibaseSchemaTarget implements SchemaTarget {
 
@@ -60,7 +61,7 @@ public class LiquibaseSchemaTarget implements SchemaTarget {
 
 	private Connection setupDataSource(File file) throws SQLException, IOException {
 		JdbcDataSource dataSource = new JdbcDataSource();
-		dataSource.setUrl("jdbc:h2:mem:test");
+		dataSource.setUrl("jdbc:h2:mem:test" + UUID.randomUUID());
 		String script = FileUtils.readAsString(file);
 		Connection connection = dataSource.getConnection();
 		SqlUtils.executeSql(connection, script, ";");

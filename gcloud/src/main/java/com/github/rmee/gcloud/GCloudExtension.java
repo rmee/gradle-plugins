@@ -11,89 +11,82 @@ import java.io.File;
 
 public class GCloudExtension extends ClientExtensionBase {
 
-    private GkeConfiguration gke = new GkeConfiguration();
+	private GkeConfiguration gke = new GkeConfiguration();
 
-    private File keyFile;
+	private File keyFile;
 
-    private String region;
+	private String region;
 
-    private String zone;
+	private String zone;
 
-    private String projectName;
+	private String projectName;
 
 
-    public GCloudExtension() {
-        CliDownloadStrategy downloadStrategy = new CliDownloadStrategy() {
-            @Override
-            public String computeDownloadFileName(Cli cli) {
-                throw new UnsupportedOperationException("download not supported, make use of docker");
-            }
+	public GCloudExtension() {
+		CliDownloadStrategy downloadStrategy = new CliDownloadStrategy() {
+			@Override
+			public String computeDownloadFileName(Cli cli) {
+				throw new UnsupportedOperationException("download not supported, make use of docker");
+			}
 
-            @Override
-            public String computeDownloadUrl(Cli cli, String repository, String downloadFileName) {
-                throw new UnsupportedOperationException("download not supported, make use of docker");
-            }
-        };
-        cli = new Cli(this, "gcloud", downloadStrategy);
-    }
+			@Override
+			public String computeDownloadUrl(Cli cli, String repository, String downloadFileName) {
+				throw new UnsupportedOperationException("download not supported, make use of docker");
+			}
+		};
+		cli = new Cli("gcloud", downloadStrategy, () -> project);
+	}
 
-    public String getProject() {
-        return projectName;
-    }
+	public String getProject() {
+		return projectName;
+	}
 
-    public void setProject(String project) {
-        this.projectName = project;
-    }
+	public void setProject(String project) {
+		this.projectName = project;
+	}
 
-    public void init() {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
-        this.cli.init(project);
-    }
 
-    public void exec(GCloudExecSpec spec) {
-        cli.exec(spec);
-    }
+	public void exec(GCloudExecSpec spec) {
+		cli.exec(spec);
+	}
 
-    public void gke(Closure<GkeConfiguration> closure) {
-        project.configure(gke, closure);
-    }
+	public void gke(Closure<GkeConfiguration> closure) {
+		project.configure(gke, closure);
+	}
 
-    public String getRegion() {
-        return region;
-    }
+	public String getRegion() {
+		return region;
+	}
 
-    public void setRegion(String region) {
-        this.region = region;
-    }
+	public void setRegion(String region) {
+		this.region = region;
+	}
 
-    public String getZone() {
-        return zone;
-    }
+	public String getZone() {
+		return zone;
+	}
 
-    public void setZone(String zone) {
-        this.zone = zone;
-    }
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
 
-    public GkeConfiguration getGke() {
-        return gke;
-    }
+	public GkeConfiguration getGke() {
+		return gke;
+	}
 
-    public void setGke(GkeConfiguration gke) {
-        this.gke = gke;
-    }
+	public void setGke(GkeConfiguration gke) {
+		this.gke = gke;
+	}
 
-    public File getKeyFile() {
-        return keyFile;
-    }
+	public File getKeyFile() {
+		return keyFile;
+	}
 
-    public void setKeyFile(File keyFile) {
-        this.keyFile = keyFile;
-    }
+	public void setKeyFile(File keyFile) {
+		this.keyFile = keyFile;
+	}
 
-    protected void initProject(Project project) {
-        super.project = project;
-    }
+	protected void initProject(Project project) {
+		super.project = project;
+	}
 }

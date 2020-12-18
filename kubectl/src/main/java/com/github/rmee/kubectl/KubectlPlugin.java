@@ -30,8 +30,6 @@ public class KubectlPlugin implements Plugin<Project> {
 			Cli cli = extension.getCli();
 			if (cli.isDockerized()) {
 				bootstrap.setEnabled(false);
-				cli.setupWrapper(project);
-				cli.addDefaultMappings(project);
 			} else if (cli.getDownload()) {
 				File downloadDir = cli.getDownloadDir();
 				downloadDir.mkdirs();

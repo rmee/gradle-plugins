@@ -7,7 +7,10 @@ public class CliExecPlugin implements Plugin<Project> {
 
 	public void apply(Project project) {
 		project.getPlugins().apply("de.undercouch.download");
-		project.getExtensions().create("cliExec", CliExecExtension.class);
+		CliExecExtension extension = project.getExtensions().create("cliExec", CliExecExtension.class);
+		extension.project = project;
+
+		project.afterEvaluate(project1 -> extension.init());
 	}
 }
 

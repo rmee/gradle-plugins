@@ -19,7 +19,7 @@ public class OcExtension extends KubectlExtensionBase {
 			public String computeDownloadFileName(Cli cli) {
 				OperatingSystem operatingSystem = cli.getOperatingSystem();
 
-				String downloadFileName = "openshift-origin-client-tools-v" + cli.getVersion();
+				String downloadFileName = "openshift-origin-client-tools-v" + cli.getImageTag();
 				if (operatingSystem.isLinux()) {
 					return downloadFileName + "-linux-64bit.tar.gz";
 				} else if (operatingSystem.isWindows()) {
@@ -38,7 +38,7 @@ public class OcExtension extends KubectlExtensionBase {
 					downloadUrl += "/";
 				}
 
-				String version = cli.getVersion();
+				String version = cli.getImageTag();
 				int sep = version.indexOf("-");
 				if (sep == -1) {
 					throw new IllegalArgumentException("expected version " + version + " to be of format x.y.z-abcdefg");
@@ -49,10 +49,10 @@ public class OcExtension extends KubectlExtensionBase {
 				return downloadUrl;
 			}
 		};
-		Cli cli = new Cli(this, "oc", downloadStrategy);
+		Cli cli = new Cli("oc", downloadStrategy, () -> project);
 		cli.setDockerized(true);
 		cli.setImageName("widerin/openshift-cli");
-		cli.setVersion("v3.11.0");
+		cli.setImageTag("v3.11.0");
 		cli.setRepository("https://github.com/openshift/origin/releases/download/");
 		return cli;
 	}

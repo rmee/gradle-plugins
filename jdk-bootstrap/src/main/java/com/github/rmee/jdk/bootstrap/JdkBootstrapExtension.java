@@ -12,8 +12,6 @@ public class JdkBootstrapExtension {
 
 	private String linuxName = "linux";
 
-	private boolean allowOverride = true;
-
 	public JdkBootstrapExtension() {
 		useAdoptOpenJdk8("jdk8u202-b08");
 	}
@@ -58,14 +56,6 @@ public class JdkBootstrapExtension {
 		windowsName = "win";
 		osxName = "macosx";
 		this.version = version;
-	}
-
-	public boolean getAllowOverride() {
-		return allowOverride;
-	}
-
-	public void setAllowOverride(boolean allowOverride) {
-		this.allowOverride = allowOverride;
 	}
 
 	public void useAdoptOpenJdk8(String version) {

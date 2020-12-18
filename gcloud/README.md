@@ -14,7 +14,7 @@ buildscript {
 	}
 }
 ```
- 
+
 ## Example
 
 A setup of Kubernetes with Google Cloud can looks as follows:
@@ -48,10 +48,10 @@ gcloud {
   together to perform authentication with `glcoud`.
 
 
-To setup a service account use: 
+To setup a service account use:
 
  https://medium.com/google-cloud/using-googles-private-container-registry-with-docker-1b470cf3f50a
- 
+
 Make sure the service account also has the proper Kubernetes credentials, like:
 
 ```
@@ -59,7 +59,8 @@ Make sure the service account also has the proper Kubernetes credentials, like:
 ```
 
 For an example app have a look at https://github.com/crnk-project/crnk-example[crnk-example] how to deploy
-to Google Cloud with Kubernetes and Helm.
+to Google Cloud with Kubernetes and Helm. Or https://github.com/cord3c/cord3c-project/tree/master/cord3c-example-deployment[cord3c-example]
+for how to deploy to DigitalOcean.
 
 ## Tasks
 

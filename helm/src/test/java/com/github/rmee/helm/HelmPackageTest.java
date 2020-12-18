@@ -61,7 +61,7 @@ public class HelmPackageTest {
 		GradleRunner runner = GradleRunner.create();
 		runner = runner.forwardOutput();
 		runner = runner.withPluginClasspath();
-		runner = runner.withProjectDir(workingDir).withArguments("helmInit", "helmPackage", "--stacktrace").forwardOutput();
+		runner = runner.withProjectDir(workingDir).withArguments("helmPackage", "--stacktrace").forwardOutput();
 		runner.build();
 
 		File helmFile = new File(workingDir, "build/helm/helmapp-0.1.0.tgz");

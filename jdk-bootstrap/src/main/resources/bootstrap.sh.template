@@ -4,8 +4,10 @@ JDK_VERSION="${JDK_VERSION_TEMPLATE}"
 
 JDK_CACHE_DIR="${APP_HOME}/.gradle/jdk"
 
-if [ -z "${JAVA_HOME}" ]; then
-	JAVA_HOME="${JDK_CACHE_DIR}/jdk-${JDK_VERSION}";
+if [ -z "${JAVA_HOME_OVERRIDE}" ]; then
+  JAVA_HOME="${JDK_CACHE_DIR}/jdk-${JDK_VERSION}";
+else
+  JAVA_HOME="${JAVA_HOME_OVERRIDE}"
 fi
 
 if ! [ -d "${JAVA_HOME}" ]; then
@@ -44,6 +46,11 @@ if ! [ -d "${JAVA_HOME}" ]; then
   if [ -d "${JDK_CACHE_DIR}/jdk${JDK_VERSION}/Contents" ] ; then
      mv "${JDK_CACHE_DIR}/jdk${JDK_VERSION}/Contents/Home" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
      rm -R "${JDK_CACHE_DIR}/jdk${JDK_VERSION}"
+  fi
+
+  if [ -d "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}/Contents" ] ; then
+     mv "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}/Contents/Home/jdk-${JDK_VERSION}/*" "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}"
+     rm -R "${JDK_CACHE_DIR}/jdk-${JDK_VERSION}/Contents"
   fi
 
   if [ -d "${JDK_CACHE_DIR}/jdk${JDK_VERSION}" ] ; then

@@ -26,4 +26,17 @@ public class SchemaGenExtension extends SchemaGenConfig {
 	public void liquibase(Closure<Action<LiquibaseExtension>> closure) {
 		project.configure(getLiquibase(), closure);
 	}
+
+	/**
+	 * We validate the Gradle settings. But we don't carry along this verification with SchemaGenConfig due avoid
+	 * issues when transporting this object to the fork process.
+	 *
+	 * @param constraintNamePrefix
+	 */
+	public void setConstraintNamePrefix(String constraintNamePrefix) {
+		super.setConstraintNamePrefix(constraintNamePrefix);
+		if (getTarget() != SchemaTargetType.LIQUIBASE) {
+			throw new IllegalStateException("constraintNamePrefix only implemented for Liquibase yet");
+		}
+	}
 }

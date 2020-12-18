@@ -31,7 +31,7 @@ public class HelmPackage extends DefaultTask implements PublishArtifact {
 	private Map<String, Object> values = new HashMap<>();
 
 	public HelmPackage() {
-		setGroup("kubernetes");
+		getOutputs().cacheIf(task -> true);
 	}
 
 	private void cleanOutputDir(File outputDir) {

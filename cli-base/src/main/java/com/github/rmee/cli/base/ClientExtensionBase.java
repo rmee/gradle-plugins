@@ -3,7 +3,9 @@ package com.github.rmee.cli.base;
 import groovy.lang.Closure;
 import org.gradle.api.Project;
 
-public abstract class ClientExtensionBase {
+import java.io.File;
+
+public class ClientExtensionBase {
 
 	protected Project project;
 
@@ -11,12 +13,22 @@ public abstract class ClientExtensionBase {
 
 	protected Cli cli;
 
-	protected abstract void init();
+	public final void init() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+		this.cli.init();
+	}
 
 	protected void checkNotInitialized() {
 		if (initialized) {
 			throw new IllegalStateException("already initialized, cannot modify anymore");
 		}
+	}
+
+	public File getProjectDir() {
+		return project.getProjectDir();
 	}
 
 	public Cli getCli() {

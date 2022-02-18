@@ -76,6 +76,12 @@ public class JdkBootstrapExtension {
 		this.version = version;
 	}
 
+	public void useTemurinOpenJdk(String version) {
+		String major = version.split("\\.", 2)[0];
+		urlTemplate = "https://github.com/adoptium/temurin" + major + "-binaries/releases/download/jdk-" + version +
+				"/OpenJDK" + major + "U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") + ".${suffix}";
+		this.version = version;
+	}
 
 	public String getVersion() {
 		return version;

@@ -1,0 +1,35 @@
+
+set JDK_DOWNLOAD_URL=${JDK_DOWNLOAD_URL_TEMPLATE}
+set JDK_DOWNLOAD_URL=%JDK_DOWNLOAD_URL:JDK_OS=windows%
+set JDK_DOWNLOAD_URL=%JDK_DOWNLOAD_URL:JDK_DIST_SUFFIX=zip%
+set JDK_VERSION=${JDK_VERSION_TEMPLATE}
+
+set JDK_CACHE_DIR=%USERPROFILE%\.gradle\jdk
+
+set JAVA_HOME=%JDK_CACHE_DIR%\jdk-%JDK_VERSION%
+set JAVA_EXE=%JAVA_HOME%\bin\java.exe
+set JDK_DOWNLOAD_FILE=%JDK_CACHE_DIR%\jdk-%JDK_VERSION%.zip
+
+if not exist %JAVA_HOME% (
+  if not exist %JDK_CACHE_DIR% (
+    mkdir %JDK_CACHE_DIR%
+    if %ERRORLEVEL% NEQ 0 (
+      echo gradlew: Fatal error creating local cache directory: %JDK_CACHE_DIR%
+      exit /B %ERRORLEVEL%
+    )
+  )
+
+  PowerShell -NonInteractive -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri \"%JDK_DOWNLOAD_URL%\" -OutFile \"%JDK_DOWNLOAD_FILE%\""
+  if %ERRORLEVEL% NEQ 0 (
+    echo gradlew: Fatal error downloading JDK from URL: %JDK_DOWNLOAD_URL%
+    exit /B %ERRORLEVEL%
+  )
+
+  PowerShell -NonInteractive -Command "$ProgressPreference='SilentlyContinue'; Expand-Archive -Path \"%JDK_DOWNLOAD_FILE%\" -DestinationPath \"%JDK_CACHE_DIR%\\\""
+  if %ERRORLEVEL% NEQ 0 (
+    echo gradlew: Fatal error expanding downloaded archive: %JDK_DOWNLOAD_FILE%
+    exit /B %ERRORLEVEL%
+  )
+
+  echo Installed JDK from %JDK_DOWNLOAD_URL% into %JAVA_HOME%
+)

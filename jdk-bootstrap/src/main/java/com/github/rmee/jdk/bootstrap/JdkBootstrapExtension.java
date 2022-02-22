@@ -2,6 +2,8 @@ package com.github.rmee.jdk.bootstrap;
 
 public class JdkBootstrapExtension {
 
+	private String vendor;
+
 	private String version;
 
 	private String urlTemplate;
@@ -55,27 +57,38 @@ public class JdkBootstrapExtension {
 		urlTemplate = "https://cdn.azul.com/zulu/bin/" + version + "-${os}_x64.${suffix}";
 		windowsName = "win";
 		osxName = "macosx";
+		vendor = "azul";
 		this.version = version;
 	}
 
 	public void useAdoptOpenJdk8(String version) {
 		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk" + version + "/OpenJDK8U"
 				+ "-jdk_x64_${os}_hotspot_" + version.replace("-", "") + ".${suffix}";
+		vendor = "adoptopenjdk";
 		this.version = version;
 	}
 
 	public void useAdoptOpenJdk11(String version) {
 		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-" + version +
 				"/OpenJDK11U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") + ".${suffix}";
+		vendor = "adoptopenjdk";
 		this.version = version;
 	}
 
 	public void useAdoptOpenJdk13(String version) {
 		urlTemplate = "https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-" + version +
 				"/OpenJDK13U-jdk_x64_${os}_hotspot_" + version.replace("+", "_") + ".${suffix}";
+		vendor = "adoptopenjdk";
 		this.version = version;
 	}
 
+	public String getVendor() {
+		return vendor;
+	}
+
+	public void setVendor(String vendor) {
+		this.vendor = vendor;
+	}
 
 	public String getVersion() {
 		return version;

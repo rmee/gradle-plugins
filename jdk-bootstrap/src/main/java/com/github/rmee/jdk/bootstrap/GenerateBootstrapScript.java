@@ -7,7 +7,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
@@ -90,6 +94,7 @@ class GenerateBootstrapScript implements Action<Task> {
 
 		return loadResource(templateName)
 				.replace("${JDK_DOWNLOAD_URL_TEMPLATE}", template)
+				.replace("${JDK_VENDOR_TEMPLATE}", extension.getVendor())
 				.replace("${JDK_VERSION_TEMPLATE}", extension.getVersion())
 				.replace("${OSX_NAME_TEMPLATE}", extension.getOsxName())
 				.replace("${LINUX_NAME_TEMPLATE}", extension.getLinuxName())
